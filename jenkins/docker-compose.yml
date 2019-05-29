@@ -1,0 +1,31 @@
+version: '3'
+services:
+  jenkins:
+    container_name: jenkins
+    image: jenkins/jenkins
+    ports:
+      -  "8082:8080"
+    volumes:
+      -  "myvolume:/var/jenkins_home"
+    networks:
+      -  net
+  remote_host:
+    container_name: remote_host
+    image: remote-host
+    build:
+      context: centos
+    networks:
+      -  net
+  remote_host1:
+    container_name: remote_host1
+    image: remote-host
+    networks:
+      -  net
+    deploy:
+      mode: repicated
+      replicas: 2
+networks:
+  net: 
+volumes:
+  myvolume:   
+ 
