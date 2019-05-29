@@ -72,4 +72,5 @@ Jenkins folder has docker-compose.yml and Dockerfile, this will do following
 | `git log --grep=”<pattern>” `|Search for commits with a commit message that matches <pattern>.
 | `git log <since>..<until> `|Show commits that occur between <since> and <until>. Args can be a commit ID, branch name, HEAD, or any other kind of revision reference.|
 | `git log -- <file> `|Only display commits that have the specified file.
-| `git log --graph --decorate- `|-graph flag draws a text based graph of commits on left side of commit msgs. --decorate adds names of branches or tags of commits shown.
+| `git log --graph --decorate- `|-graph flag draws a text based graph of commits on left side of commit msgs. --decorate adds names of branches or tags of commits shown.|
+| `git reflog <subcommand> <options> `|
