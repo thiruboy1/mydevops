@@ -5,7 +5,7 @@ Jenkins folder has docker-compose.yml and Dockerfile, this will do following
   2) pull centos image and install ssh and allow jenkins container to communicate to centos contianer
 
 
-#Git Commands
+# Git Commands
 
 
 ### Getting & Creating Projects
