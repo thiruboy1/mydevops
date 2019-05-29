@@ -1,4 +1,4 @@
-# mydevops
+# devops Lab 
 
 Jenkins folder has docker-compose.yml and Dockerfile, this will do following  
   1) pull jenkins image and create jenkins container 
