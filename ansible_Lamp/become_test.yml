@@ -1,0 +1,8 @@
+--- 
+- 
+  hosts: node
+  tasks: 
+    - name: test
+      notify: 
+        - restart httpd
+

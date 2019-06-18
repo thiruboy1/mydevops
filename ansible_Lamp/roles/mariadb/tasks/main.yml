@@ -1,0 +1,28 @@
+---
+- name: Install MariaDB
+  yum: name={{item}} state=installed
+  with_items:
+   - mariadb-server
+   - mariadb
+- name: Starting Msql Service
+  service: name=mariadb state=started
+- name: Enabling MariaDB
+  service: name=mariadb enabled=yes
+- name: Install Python Msql package
+  yum: name=MySQL-python state=present
+- name: Create New DB
+  mysql_db: name=demo state=present collation=utf8_general_ci
+- name: Create Db User
+  mysql_user: name=demo password=12345 priv='*.*:ALL' state=present
+- name: Copy Sample Data
+  copy: src=dump.sql dest=/tmp/dump.sql
+- name: copy db php to /var/www/html
+  copy: src=db.php dest=/var/www/html/db.php mode=0664
+- name: insert Sample Data
+  shell: cat /tmp/dump.sql |  mysql -u demo -p 12345
+- name: Restart HTTPD
+  service: name=httpd state=restarted
+- name: copy db php to /var/www/html
+  copy: src=db.php dest=/var/www/html/db.php mode=0664
+
+

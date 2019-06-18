@@ -1,0 +1,5 @@
+---
+- hosts: node1
+  roles:
+    - apache2
+    - mariadb

@@ -1,0 +1,16 @@
+---
+- name: install apache
+  yum:
+    name: httpd
+    state: present
+- name: install php module for apache
+  yum :
+    name: ['php', 'php-mysql', 'php-pdo', 'php-gd', 'php-mbstring']
+    state: installed
+- name: install php script in html
+  shell: echo "<?php phpinfo (); ?>" > /var/www/html/info.php
+#  copy: src=index.html dest=/var/www/html/index.php mode=0664
+- name: start apache
+  service: name=httpd state=started
+ 
+  
