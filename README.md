@@ -5,13 +5,13 @@ Jenkins folder has docker-compose.yml and Dockerfile, this will do following
   2) pull centos image and install ssh and allow jenkins container to communicate to centos contianer
 
 # Git Steps:
-  git init
-  git config --global user.email thiruboy1@gmail.com
-  git config --global user.name thiruboy1
-  git add -A
-  git status
-  git commit -m "message"
-  git push -u origin master
+  1) git init
+  2) git config --global user.email thiruboy1@gmail.com
+  3) git config --global user.name thiruboy1
+  4) git add -A
+  5) git status
+  6) git commit -m "message"
+  7) git push -u origin master
 
 # Git Commands
 
