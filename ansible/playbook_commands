@@ -1,0 +1,13 @@
+---
+- hosts: webservers # node 
+  remote_user: root # name of user account
+  ------------------------------------------------------------------------------------------------------------------------------
+  ---
+- hosts: webservers
+  remote_user: yourname
+  become: yes
+  become_method: su
+  
+  ansible-playbook -k <filename>
+  
+  # If you need to specify a password for sudo, run ansible-playbook with --ask-become-pass or -K.
