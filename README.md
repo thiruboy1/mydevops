@@ -10,8 +10,12 @@ Jenkins folder has docker-compose.yml and Dockerfile, this will do following
   3) git config --global user.name thiruboy1
   4) git add -A
   5) git status
-  6) git commit -m "message"
-  7) git push -u origin master
+  6) git commit -m "message" 
+  7) git remote add origin https://github.com/thiruboy1/msandsuppliers.git
+  8) git push -u origin master
+  9) git pull origin 
+  10) git remote -v
+  11) git remote set-remot <url>
 
 # Git Commands
 
