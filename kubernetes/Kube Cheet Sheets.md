@@ -28,14 +28,23 @@
                                                                           # controller <name>
 # ReplcationSet Commands
       kubectl create -f replication.yml
-      kubectl get replicset
+      kubectl get replicaset
+      kubectl get rs
+      kubectl get rs <rs name> -o yml                                   # you will get replicaset in yml file
       kubectl delete replicaset myapp-replcation.yml
       kubectl replace -f replication.yml
-      kubectl scale -replicas=6 -f replicaset defenation.yml
+      kubectl scale --replicas=6 -f replicaset defenation.yml
+      kubectl edit replicaset <replicaset name>
                                                                     
 # ReplcationController Commands
       kubectl create -f replicationController.yml
       kubectl get replicationcontroller
+      kubectl get rc
       kubectl delete replicationcontrollet myapp-replcation.yml
       kubectl replace -f replication.yml
+# Kube Deployments Commands
+      kubectl create -f deployment.yml
+      kubectl get deployments
+      kubectl get all
+      
                                                 
