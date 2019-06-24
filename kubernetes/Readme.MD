@@ -7,6 +7,7 @@ Kubernetes Installation - https://github.com/thiruboy1/toolinstallation/blob/mas
 1. POD
 2. Replication Controller & ReplicationSet:
     2.1 ReplicationController: will not have selctor
+    
                 apiVersion: v1
                 kind: ReplicationController
                 metadata:
