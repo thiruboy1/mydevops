@@ -27,7 +27,8 @@ Kubernetes Installation - https://github.com/thiruboy1/toolinstallation/blob/mas
                         image: nginx
                         ports:
                         - containerPort: 80
-    2.2. ReplicationSet Will have selector
+    2.2. ReplicationSet Will have selector:Role of replication set is to monitor the pods and if any one fails it will run new pods, but how does this replication set will know which pod to monitor? 
+    this is were we use lables and selectors,
      
                 apiVersion: apps/v1
                 kind: ReplicaSet
