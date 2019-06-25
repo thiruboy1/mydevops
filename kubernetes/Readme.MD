@@ -54,3 +54,9 @@ Kubernetes Installation - https://github.com/thiruboy1/toolinstallation/blob/mas
 3. Deployments
 4. Service
         NodePort, Target Port, Port,Cluster IP 
+        
+        simple-webapp-deployment
+
+
+
+
