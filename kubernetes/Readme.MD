@@ -52,3 +52,5 @@ Kubernetes Installation - https://github.com/thiruboy1/toolinstallation/blob/mas
                       - name: php-redis
                         image: gcr.io/google_samples/gb-frontend:v3
 3. Deployments
+4. Service
+        NodePort, Target Port, Port,Cluster IP 
