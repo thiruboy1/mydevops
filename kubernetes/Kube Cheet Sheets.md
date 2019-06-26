@@ -54,3 +54,16 @@
             kubectl scale deployments/webapp --replicas=3
             kubectl expose deployment webapp --type=NodePort --port=8080 --name=webapp-service --dry-run -o yaml > webapp-service.yaml
                                                 
+# Kube Scheduling
+          add nodeName in yaml file 
+          apiVersion: v1
+          kind: pod
+          metadata: 
+              name: nginx
+              labels:nginx-app
+          spec:
+             containers:
+             -  image: nginx
+                name: nginx
+             nodeName: <node name>   # to get node name run <kubectl get node>
+          
