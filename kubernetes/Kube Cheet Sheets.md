@@ -125,3 +125,8 @@
 # Static Pods
            kublete is service installed in nodes , this kubelet can operate even without kube master, in order to run kubelet without master u need to place yaml file in /etc/kubernetes/manifestes/. now kublete will check for update in this location if any update kubelet will update the same in pod.
            in static pods you cannot create replica sets,deployments without kube master
+           1) specfiy in kubelet.service file
+           --pod-manifest-path=/etc/kubernetes/manifestes\\
+           2)insted of defining in kubelet.service file provide path in serive file and in that file enter the following
+                  --config-kubeconfig.yaml
+                  staticPodPath: /etc/kubernetes/manifestes
