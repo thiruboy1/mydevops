@@ -70,6 +70,26 @@
       kubectl get pods --selector app=app1
       kubectl get all --selector env=prod
       kubectl get pods --selector bu=finance
+      kubectl get all --selector env=prod,bu=finance,tier=frontend
+
+                    apiVersion: apps/v1
+                  kind: ReplicaSet
+                  metadata:
+                    name: replicaset-1
+                  spec:
+                    replicas: 2
+                    selector:
+                      matchLabels:
+                        tier: frontend
+                    template:
+                      metadata:
+                        labels:
+                          tier: frontend
+                      spec:
+                        containers:
+                        - name: nginx
+                          image: nginx    
+  
 
       
           
