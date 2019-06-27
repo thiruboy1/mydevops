@@ -90,6 +90,8 @@
                         - name: nginx
                           image: nginx    
   
-
+ # editing PODs and Deployments
+            kubectl edit pod <pod name>
+            kubectl edit deployment my-deployment
       
           
