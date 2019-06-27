@@ -93,5 +93,10 @@
  # editing PODs and Deployments
             kubectl edit pod <pod name>
             kubectl edit deployment my-deployment
-      
-          
+                        kubectl get pods
+                        kubectl get pod -o yaml > lion.yaml
+                        edit lion.yaml file & delete lion poda and create lion pod usin lion.yaml file
+                        kubectl create -f lion.yaml 
+                        
+  # Demone Sets
+             
