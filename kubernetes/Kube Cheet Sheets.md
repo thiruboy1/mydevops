@@ -122,4 +122,6 @@
             metadata:
                 name: elasticsearch
                 namespace: kube-system
-             
+# Static Pods
+           kublete is service installed in nodes , this kubelet can operate even without kube master, in order to run kubelet without master u need to place yaml file in /etc/kubernetes/manifestes/. now kublete will check for update in this location if any update kubelet will update the same in pod.
+           in static pods you cannot create replica sets,deployments without kube master
