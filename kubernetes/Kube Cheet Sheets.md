@@ -98,5 +98,28 @@
                         edit lion.yaml file & delete lion poda and create lion pod usin lion.yaml file
                         kubectl create -f lion.yaml 
                         
-  # Demone Sets
+  # Daemone Sets
+    Daemone set will make sure that service is running on all nodes
+  
+            apiVersion: apps/v1
+            kind: DaemonSetmetadata:  name: elasticsearch
+              namespace: kube-system
+            spec:
+              selector:
+                matchLabels:
+                  name: elasticsearch
+              template:
+                metadata:
+                  labels:
+                    name: elasticsearch
+                spec:
+                  containers:
+                  - name: elasticsearch
+                    image: k8s.gcr.io/fluentd-elasticsearch:1.20
+            master $ cat desets.yml
+            apiVersion: apps/v1
+            kind: DaemonSet
+            metadata:
+                name: elasticsearch
+                namespace: kube-system
              
