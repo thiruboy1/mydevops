@@ -39,7 +39,6 @@
 # ReplcationController Commands
       kubectl create -f replicationController.yml
       kubectl get replicationcontroller
-      kubectl get rc
       kubectl delete replicationcontrollet myapp-replcation.yml
       kubectl replace -f replication.yml
 # Kube Deployments Commands
@@ -66,4 +65,7 @@
              -  image: nginx
                 name: nginx
              nodeName: <node name>   # to get node name run <kubectl get node>
+# Selecors and labels
+      kubectl get pods --selector app=app1
+      
           
