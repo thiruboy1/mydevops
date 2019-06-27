@@ -31,6 +31,7 @@
       kubectl get replicaset
       kubectl get rs
       kubectl get rs <rs name> -o yml                                   # you will get replicaset in yml file
+      kubectl get pod db-1-7f6x2 -o yaml > db1.yaml
       kubectl delete replicaset myapp-replcation.yml
       kubectl replace -f replication.yml
       kubectl scale --replicas=6 -f replicaset defenation.yml
@@ -67,5 +68,8 @@
              nodeName: <node name>   # to get node name run <kubectl get node>
 # Selecors and labels
       kubectl get pods --selector app=app1
+      kubectl get all --selector env=prod
+      kubectl get pods --selector bu=finance
+
       
           
