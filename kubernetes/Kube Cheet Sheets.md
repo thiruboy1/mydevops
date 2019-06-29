@@ -134,6 +134,24 @@
             kubectl get pods --all-namespaces
             kubectl run --restart=Never --image=busybox static-busybox --dry-run -o yaml --command -- sleep 1000 > /etc/kubernetes/manifests/static-busybox.yaml
             
+# Kube Multiple Scheduler
+
+Kubernetes allows us to create multiple scheduler, in order to create custom scheduler u can use the schedule.yaml file in manifest folder, 
+you can have any number of custom scheduler, 
+you can run pod with custome schedulet by inserting propert in pod yaml file : schedulerName: my-custom-scheduler
+            
+                  apiVersion: v1
+                  kind: Pod
+                  metadata:
+                    name: nginx
+                  spec:
+                    containers:
+                    -  image: nginx
+                       name: nginx
+                    schedulerName: my-scheduler
+            
+            
+            
             
             
             
