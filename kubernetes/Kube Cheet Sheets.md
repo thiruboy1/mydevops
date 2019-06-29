@@ -25,7 +25,8 @@
                                                                           # <name> to <count> instances
       kubectl expose rc <name> --port=<external> --target-port=<internal> # Map port <external> to 
                                                                           # port <internal> on replication 
-                                                                          # controller <name>
+     kubectl get nodes -o wide    # gets node ip address                                                                 
+                                                                          
 # ReplcationSet Commands
       kubectl create -f replication.yml
       kubectl get replicaset
@@ -130,3 +131,16 @@
            2)insted of defining in kubelet.service file provide path in serive file and in that file enter the following
                   --config-kubeconfig.yaml
                   staticPodPath: /etc/kubernetes/manifestes
+            kubectl get pods --all-namespaces
+            kubectl run --restart=Never --image=busybox static-busybox --dry-run -o yaml --command -- sleep 1000 > /etc/kubernetes/manifests/static-busybox.yaml
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
