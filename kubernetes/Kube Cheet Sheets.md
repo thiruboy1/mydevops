@@ -149,6 +149,7 @@ you can run pod with custome schedulet by inserting propert in pod yaml file : s
                     -  image: nginx
                        name: nginx
                     schedulerName: my-scheduler
+# Kube Monitoring & loging
             
             
             
