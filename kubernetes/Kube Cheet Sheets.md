@@ -150,7 +150,17 @@ you can run pod with custome schedulet by inserting propert in pod yaml file : s
                        name: nginx
                     schedulerName: my-scheduler
 # Kube Monitoring & loging
-            
+            Kubernetes dosent have complete monitoring feature, so we use other tools like metrics
+            metrics installatino:
+            https://github.com/kodekloudhub/kubernetes-metrics-server.git
+            cd <downloded folder>
+            kubectl creat -f .
+            kubectl top nodes
+            kubectl top pods
+      ## Log
+            simalar like docker kubernetes have feature to moniter logs, by using simple command,
+            kubernets allows us to moniter multiple contianers in single pod by using following command
+            kubectl log -f <pod name> <container name>
             
             
             
