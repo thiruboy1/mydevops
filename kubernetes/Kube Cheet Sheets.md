@@ -161,7 +161,20 @@ you can run pod with custome schedulet by inserting propert in pod yaml file : s
             simalar like docker kubernetes have feature to moniter logs, by using simple command,
             kubernets allows us to moniter multiple contianers in single pod by using following command
             kubectl log -f <pod name> <container name>
-            
+# Kube Application lifecycle Managment
+            in kubernetes there two types of update are there
+            1)Rolling Update(Default): 
+                in this kuberenetes will bring up new pod and bring down old pod, by this way it will roll all the pods, if there is any issue in new updated pod then u can roll back to old pods
+            2)Recreate Update:
+              old pods are Destroyed and new pods are created, in this method there will application down time
+              
+              kubectl create -f deployment-defination.yaml                    #create
+              kubectl get deployments                                         #get
+              kubectl apply -f deployment-defination.yaml                     #update
+              kubectl set image deployment/myapp-deployment nginx=nginx:1.9.1
+              kubectl rollout status deployment/myapp-deployment              #status
+              kubectl rollout history                                         #rollback
+              
             
             
             
