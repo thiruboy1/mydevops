@@ -171,15 +171,66 @@ you can run pod with custome schedulet by inserting propert in pod yaml file : s
               
               kubectl create -f deployment-defination.yaml                    #create
               kubectl get deployments                                         #get
+              kubectl describe deployment
               kubectl apply -f deployment-defination.yaml                     #update
               kubectl set image deployment/myapp-deployment nginx=nginx:1.9.1
               kubectl rollout status deployment/myapp-deployment              #status
               kubectl rollout history                                         #rollback
               
+# Kube Env Variables
+              in pod defination file u can specfiy the env variables, Enfiroment variable can be set in two ways
+         ## 1) direct way
+             
+              to set an Enviorment variable use "env" array
+              appVersion: v1
+              kind: Pod
+              metadata:
+                  name: testpod
+              spec:
+                  container:
+                    - name:
+                      image:
+                 env:
+                  - name: APP_Color
+                    value: pink
             
+      when you have lot pods it will become difficult to manage Envirorment Variables so we use config map                
+              
+      ## 2)Config Maps:
+             is used to pass configuration data in the form of key value pairs in kubernetes
+             there are two phases in config map 1) create config map file 2) inject into kubernetes
+             imperative  way: kubectl create configmap
+                                    <config-name> --from-literal=<key>=<value>
+                                                  --from-literal=<key>=<value>
+                                                  --from-literal=<key>=<value>
+                              kubectl create configmap
+                                    <config-name> --from-file=<path to file>
+                                    
+             declarative way: kubectl create -f configmap.yaml 
+             
+                              apiVersion: v1
+                              kind: ConfigMap
+                              metadata:
+                                  name: app-config
+                              data:
+                                 APP_COLOR: pink
+                                 APP_MODE: prod
+              
+            kubectl get configmaps
+            kubectl describe configmaps
             
-            
-            
+      ## now inject configmap file into pod defination file
+      appVersion: v1
+              kind: Pod
+              metadata:
+                  name: testpod
+              spec:
+                  container:
+                    - name:
+                      image:
+               envFrom:
+                  - configMapRef:
+                         name: app-config(name of config map which was created)
             
             
             
