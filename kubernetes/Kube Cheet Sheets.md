@@ -259,8 +259,23 @@ you can run pod with custome schedulet by inserting propert in pod yaml file : s
             echo -n 'pass' | base64
             kubectl get configmaps
             kubectl describe configmaps
+## now inject secret file into pod defination file
+      appVersion: v1
+              kind: Pod
+              metadata:
+                  name: testpod
+              spec:
+                  container:
+                    - name:
+                      image:
+                      envFrom:
+                        - secretRef:
+                               name: app-secret(name of config map which was created)           
+ ## secret in POD as volume
+            volume:
+             - name: app-secret-volume
+               secret:
+                 secretName: app-secret       
             
-            
-            
-            
+# Kube Mulit Container Pod            
             
