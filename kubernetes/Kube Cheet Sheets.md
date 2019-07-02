@@ -306,4 +306,5 @@ you can run pod with custome schedulet by inserting propert in pod yaml file : s
              once maintanence activity is done u need to run following command so that master will assign pods to node
             # kubectl uncordon node-1
             # kubectl cordon   # this command will not terminate insted it will make sure that new pods should not be scheduled
+              kubectl get pods -o wide
             
