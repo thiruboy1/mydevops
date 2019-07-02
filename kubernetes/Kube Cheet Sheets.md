@@ -307,4 +307,10 @@ you can run pod with custome schedulet by inserting propert in pod yaml file : s
             # kubectl uncordon node-1
             # kubectl cordon   # this command will not terminate insted it will make sure that new pods should not be scheduled
               kubectl get pods -o wide
-            
+              
+              Upgrade of cluster: all components of kubernetes must be one version lower than kubeapiserver, kubectl can be one version lower or upper, ant any time kubernetes will to use 3 stable version,
+              1st u need to upgrage kube master and then u need to updgarde nodes , during master upgrade nodes will work independtly, users will not have any intruption but master cannot control nodes
+              apt install kubeadm=1.12.0-00
+              kubeadm upgrade apply v1.12.0
+              apt install kubelet=1.12.0-00            
+# Backup and restore methods
