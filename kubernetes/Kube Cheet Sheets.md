@@ -277,5 +277,24 @@ you can run pod with custome schedulet by inserting propert in pod yaml file : s
                secret:
                  secretName: app-secret       
             
-# Kube Mulit Container Pod            
+# Kube Mulit Container Pod     
+# kube initContainer
+            init container will run before app container will start run,
+            If an Init Container fails for a Pod, Kubernetes restarts the Pod repeatedly until the Init Container succeeds,However, if the Pod has a restartPolicy of Never, it is not restarted .
+            apiVersion: v1
+            kind: Pod
+            metadata:
+              name: myapp-pod
+              labels:
+                app: myapp
+            spec:
+              containers:
+              - name: myapp-container
+                image: busybox:1.28
+                command: ['sh', '-c', 'echo The app is running! && sleep 3600']
+              initContainers:
+              - name: init-myservice
+                image: busybox:1.28
+                command: ['sh', '-c', 'until nslookup myservice; do echo waiting for myservice; sleep 2; done;']
+
             
