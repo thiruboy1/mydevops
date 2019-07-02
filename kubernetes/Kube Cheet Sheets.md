@@ -232,7 +232,33 @@ you can run pod with custome schedulet by inserting propert in pod yaml file : s
                   - configMapRef:
                          name: app-config(name of config map which was created)
             
+# Kube Secrets
+       kubernetes allows us to store user name password in more secure way by using secrets, you can define secretes in 2 ways
+       2)imperative way 2)declarative way
+       imperative  way: kubectl create secret
+                                    <secret-name> --from-literal=<key>=<value>
+                                                  --from-literal=<key>=<value>
+                                                  --from-literal=<key>=<value>
+                              kubectl create secret
+                                    <secret-name> --from-file=<path to file>
+                                    
+             declarative way: kubectl create -f secret.yaml 
+             
+                              apiVersion: v1
+                              kind: Secret
+                              metadata:
+                                  name: app-secret
+                              data:
+                                 db_host: 
+                                 db_username
+                                 db_password: 
             
+            to generate hash version of db host and db_password use following command in linux 
+            echo -n 'mysql' | base64
+            echo -n 'root' | base64
+            echo -n 'pass' | base64
+            kubectl get configmaps
+            kubectl describe configmaps
             
             
             
