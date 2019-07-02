@@ -296,5 +296,14 @@ you can run pod with custome schedulet by inserting propert in pod yaml file : s
               - name: init-myservice
                 image: busybox:1.28
                 command: ['sh', '-c', 'until nslookup myservice; do echo waiting for myservice; sleep 2; done;']
-
+# Kube OS upgrade to node
+             in kube cluster if any node need to updated then node needs downtime, during this down time pods will also go down,
+             eviction timeout 5 m, the time it waits for pod to come back is called eviction timeout, which is set on controller manager
+             with default value of 5 miniutes.so when ever node goes down,master node waits for 5m to consedring node dead.
+             if node comes back after eviction time then node comes blank.
+             so if u have any maintince task to be performed then u drain the node by running following command
+            # kubectl drain node-1
+             once maintanence activity is done u need to run following command so that master will assign pods to node
+            # kubectl uncordon node-1
+            # kubectl cordon   # this command will not terminate insted it will make sure that new pods should not be scheduled
             
