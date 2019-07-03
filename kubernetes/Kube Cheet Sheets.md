@@ -319,4 +319,42 @@ you can run pod with custome schedulet by inserting propert in pod yaml file : s
           volumes
           persistant Volumes
           Persistant Volume claims
+# namespace Network
+      ip link    # display host interface
+      ip netns add <pod>
+      ip netns
+      ip netns exec <pod> ip link
+      ip -n <pod> ip link
+      ip netsn exec <pod> apr
+      --------------------link two pod red and blue run following command
+      ip link add veth-red type veth peer name veth-blue # to add two nampspace network use pipe like connecting two pc using cable
+      ip link set veth-red netns red # attaching virtual interface to pod
+      ip link set veth-blue netns blue # attaching virtual interface to pod
+      ip -n red addr add <ip> dev veth-red
+      ip -n blue addr add <ip> dev veth-blue # now both pods can communicate each other
+      --------when number of pod increases then in order to establish communication b/w all pods u need n/w bridge-------
+      linux bridge:
+      ip link add v-net-0 type bridge
+      ip link set dev v-net-0 up # to bring it up
+      ip link add veth-red type veth peer name veth-red-br # creates cable to connect red pod to bridge n/w
+      ip link add veth-blue type veth peer name veth-blue-br # creates cable to connect red pod to bridge n/w
+      ip link set veth-red netns red  
+      ip link set veth-red-br master v-net-o
+      ip link set veth-blue netns blue
+      ip link set veth-blue-br master v-net-o
+      ip -n red addr add <ip> dev veth-red
+      ip -n red addr add <ip> dev veth-red
+      
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
           
