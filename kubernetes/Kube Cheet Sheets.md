@@ -314,3 +314,9 @@ you can run pod with custome schedulet by inserting propert in pod yaml file : s
               kubeadm upgrade apply v1.12.0
               apt install kubelet=1.12.0-00            
 # Backup and restore methods
+# Kube Security
+# Kube Storage
+          volumes
+          persistant Volumes
+          Persistant Volume claims
+          
