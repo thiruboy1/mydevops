@@ -391,23 +391,23 @@ you can run pod with custome schedulet by inserting propert in pod yaml file : s
       
    1) ingress controller: its deployed as normal pod deployment 
    ---------------------code.yaml-------------------------------------
-                  apiVersion: extensions/v1beta1
-                  kind: Ingress
-                  metadata:
-                    name: ngnix-ingress-controller
-                  spec:
-                   replicas: 1
-                   selector: 
-                      matchLabels:
-                          name: ngnix-ingress
-                   tempelate:
-                      metadata:
-                         labels: 
-                           name: ngnix-ingress
-                      spec:
-                        containers:
-                        - name:
-                          image:
+                                          apiVersion: extensions/v1beta1
+                                          kind: Ingress
+                                          metadata:
+                                            name: ngnix-ingress-controller
+                                          spec:
+                                           replicas: 1
+                                           selector: 
+                                              matchLabels:
+                                                  name: ngnix-ingress
+                                           tempelate:
+                                              metadata:
+                                                 labels: 
+                                                   name: ngnix-ingress
+                                              spec:
+                                                containers:
+                                                - name:
+                                                  image:
 -------------------------------------------------------------------
                   
                     tls:
