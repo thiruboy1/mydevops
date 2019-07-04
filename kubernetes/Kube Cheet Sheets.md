@@ -390,6 +390,7 @@ you can run pod with custome schedulet by inserting propert in pod yaml file : s
                   2) ingress resources (.yaml file)
       
    1) ingress controller: its deployed as normal pod deployment 
+   '''
    ---------------------code.yaml-------------------------------------
                                           apiVersion: extensions/v1beta1
                                           kind: Ingress
@@ -409,7 +410,7 @@ you can run pod with custome schedulet by inserting propert in pod yaml file : s
                                                 - name:
                                                   image:
 -------------------------------------------------------------------
-                  
+                  '''
                     tls:
                     - hosts:
                       - cafe.example.com
