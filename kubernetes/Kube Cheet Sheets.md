@@ -381,8 +381,51 @@ you can run pod with custome schedulet by inserting propert in pod yaml file : s
        core dns file is configured to dns pod using configmap
        kubectl get configmap -n kube-system
        kubectl describe configmap coredns -n kube-system
+# Ingress
+      Ingress exposes HTTP and HTTPS routes from outside the cluster to services within the cluster. Traffic routing is controlled by rules defined on the Ingress resource
+      An Ingress can be configured to give Services externally-reachable URLs, load balance traffic, terminate SSL / TLS, and offer name based virtual hosting
+      You must have an ingress controller to satisfy an Ingress. Only creating an Ingress resource has no effect
+      Ingress needs 
+                  1) ingress controller(suppotrs gcp,ngnix)
+                  2) ingress resources (.yaml file)
       
-   
+   1) ingress controller: its deployed as normal pod deployment 
+   ---------------------code.yaml-------------------------------------
+                  apiVersion: extensions/v1beta1
+                  kind: Ingress
+                  metadata:
+                    name: ngnix-ingress-controller
+                  spec:
+                   replicas: 1
+                   selector: 
+                      matchLabels:
+                          name: ngnix-ingress
+                   tempelate:
+                      metadata:
+                         labels: 
+                           name: ngnix-ingress
+                      spec:
+                        containers:
+                        - name:
+                          image:
+-------------------------------------------------------------------
+                  
+                    tls:
+                    - hosts:
+                      - cafe.example.com
+                      secretName: cafe-secret
+                    rules:
+                    - host: cafe.example.com
+                      http:
+                        paths:
+                        - path: /tea
+                          backend:
+                            serviceName: tea-svc
+                            servicePort: 80
+                        - path: /coffee
+                          backend:
+                            serviceName: coffee-svc
+                            servicePort: 80
           
           
           
