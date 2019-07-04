@@ -387,6 +387,9 @@ you can run pod with custome schedulet by inserting propert in pod yaml file : s
       You must have an ingress controller to satisfy an Ingress. Only creating an Ingress resource has no effect
       Ingress needs 
                   1) ingress controller(suppotrs gcp,ngnix)
+                        a) service to expose node port to external wo
+                        b) service account to write correct permission- cluster roles role bingings
+                        c) config map to feed nginx data 
                   2) ingress resources (.yaml file)
       
    1) ingress controller: its deployed as normal pod deployment 
@@ -410,25 +413,33 @@ you can run pod with custome schedulet by inserting propert in pod yaml file : s
                                                 - name:
                                                   image:
 -------------------------------------------------------------------
-                  '''
-                    tls:
-                    - hosts:
-                      - cafe.example.com
-                      secretName: cafe-secret
-                    rules:
-                    - host: cafe.example.com
-                      http:
-                        paths:
-                        - path: /tea
-                          backend:
-                            serviceName: tea-svc
-                            servicePort: 80
-                        - path: /coffee
-                          backend:
-                            serviceName: coffee-svc
-                            servicePort: 80
+                  
+            2)ingress resources:
+                        apiVersion: networking.k8s.io/v1beta1
+                        kind: Ingress
+                        metadata:
+                          name: test-ingress
+                          annotations:
+                            nginx.ingress.kubernetes.io/rewrite-target: /
+                        spec:
+                          rules:
+                          - http:
+                              paths:
+                              - path: /testpath
+                                backend:
+                                  serviceName: test
+                                  servicePort: 80
           
-          
+     4  kubectl get deployments --all-namespaces
+    5  kubectl create namespace ingress-space
+    6  kubectl get namespace
+    7  kubectl create configmap nginx-configuration -n ingress-space
+    8  kubectl get configmap -n ingress-space
+    9  kubectl create searviceaccount ingress-serviceaccount -n ingress-space
+   10  kubectl create serviceaccount ingress-serviceaccount -n ingress-space
+   11  kubectl get serviceaccount -n ingress-space
+   12  kubectl get roles -n ingress-space
+   13  kubectl get rolebinding -n ingress-space         
           
           
           
