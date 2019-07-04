@@ -344,15 +344,42 @@ you can run pod with custome schedulet by inserting propert in pod yaml file : s
       ip link set veth-blue-br master v-net-o
       ip -n red addr add <ip> dev veth-red
       ip -n red addr add <ip> dev veth-red
+      -----------------lab workouts history
+                        kubectl get nodes
+                      8  ip netns
+                      9  ip link
+                     10  kubectl get nodes -o wide
+                     11  kubectl describe node master
+                     12  ip link show ens3
+                     13  kubectl get nodes -o wide
+                     14  arp node02
+                     15  arp node01
+                     16  arp master
+                     17  ip link
+                     18  ip route show default
+                     19  netstat -nplt
+     --------------------------------------------------------------------------------------------------------
+     # to check ip range configured for service within in cluster
+        ps -aux | grep kube-api
+     #  To check ip range of pod 
+        kubectl logs weave-net-dhrx8   weave -n kube-system
+     # To check how kube proxy is controlled to run on service
+        kubectl describe pod <kube-proxy> -n kube-system # see controlled by
+          
+          
+   # DNS in Kubernetes
+      # Core DNS :
+           kubernetes deployes coredns pods(in replicat set for redundancy) on cluster to resolve the pods,
+           all pod ip and name details are moved to central dns server (core dns) then when pods want to communicate to other pod it checks coredns records and identifys pod and establish connection.
+           when pod is created, pod dns server detials is entered in /etc/resolv.conf file . so by this way pod will check the coredns entry 
+           core dns requries a config file which is placed in /etc/coredns/Corefile in this file plugins are configured
+        kubectl get service -n kube-system        # To check kube dns details
+       kubectl exec <core-dns-pod-name> -n kube-system ps   # Where is the configuration file located for configuring the CoreDNS service?
+       core dns file is configured to dns pod using configmap
+       kubectl get configmap -n kube-system
+       kubectl describe configmap coredns -n kube-system
       
-          
-          
-          
-          
-          
-          
-          
-          
+   
           
           
           
