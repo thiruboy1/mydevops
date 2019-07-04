@@ -47,6 +47,27 @@
       kubectl create -f deployment.yml
       kubectl get deployments
       kubectl get all
+                        apiVersion: apps/v1
+                        kind: Deployment
+                        metadata:
+                          name: nginx-deployment
+                          labels:
+                            app: nginx
+                        spec:
+                          replicas: 3
+                          selector:
+                            matchLabels:
+                              app: nginx
+                          template:
+                            metadata:
+                              labels:
+                                app: nginx
+                            spec:
+                              containers:
+                              - name: nginx
+                                image: nginx:1.7.9
+                                ports:
+                                - containerPort: 80
 # Kube 
 
             kubectl run --generator=run-pod/v1 nginx-pod --image=nginx:alpine
