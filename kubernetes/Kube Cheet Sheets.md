@@ -371,9 +371,12 @@ you can run pod with custome schedulet by inserting propert in pod yaml file : s
       # Core DNS :
            kubernetes deployes coredns pods(in replicat set for redundancy) on cluster to resolve the pods,
            all pod ip and name details are moved to central dns server (core dns) then when pods want to communicate to other pod it checks coredns records and identifys pod and establish connection.
+           when coredns is created , master will create a services "kube-dns" 'kubectl get service kube-dns -n kube-system' 
+           kubelet service is responsiable for this  'cat /var/lib/kubelet/config.yaml'
            when pod is created, pod dns server detials is entered in /etc/resolv.conf file . so by this way pod will check the coredns entry 
-           core dns requries a config file which is placed in /etc/coredns/Corefile in this file plugins are configured
-        kubectl get service -n kube-system        # To check kube dns details
+           in order to edit Corefile u can edit configmap 'kubectl edit configmap -n kube-system'
+       core dns requries a config file which is placed in /etc/coredns/Corefile in this file plugins are configured
+       kubectl get service -n kube-system        # To check kube dns details
        kubectl exec <core-dns-pod-name> -n kube-system ps   # Where is the configuration file located for configuring the CoreDNS service?
        core dns file is configured to dns pod using configmap
        kubectl get configmap -n kube-system
