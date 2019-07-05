@@ -28,6 +28,28 @@
      kubectl get nodes -o wide    # gets node ip address                                                                 
                                                                           
 # ReplcationSet Commands
+A ReplicaSet’s purpose is to maintain a stable set of replica Pods running at any given time. As such, it is often used to guarantee the availability of a specified number of identical Pods.However, a Deployment is a higher-level concept that manages ReplicaSets and provides declarative updates to Pods along with a lot of other useful features. Therefore, we recommend using Deployments instead of directly using ReplicaSets
+            apiVersion: apps/v1
+            kind: ReplicaSet
+            metadata:
+              name: frontend
+              labels:
+                app: guestbook
+                tier: frontend
+            spec:
+              # modify replicas according to your case
+              replicas: 3
+              selector:
+                matchLabels:
+                  tier: frontend
+              template:
+                metadata:
+                  labels:
+                    tier: frontend
+                spec:
+                  containers:
+                  - name: php-redis
+                    image: gcr.io/google_samples/gb-frontend:v3
       kubectl create -f replication.yml
       kubectl get replicaset
       kubectl get rs
@@ -43,10 +65,14 @@
       kubectl get replicationcontroller
       kubectl delete replicationcontrollet myapp-replcation.yml
       kubectl replace -f replication.yml
-# Kube Deployments Commands
+# Kube Deployments Commands: 
+A Deployment controller provides declarative updates for Pods and ReplicaSets.
+You describe a desired state in a Deployment, and the Deployment controller changes the actual state to the desired state at a controlled rate. You can define Deployments to create new ReplicaSets, or to remove existing Deployments and adopt all their resources with new Deployments.
       kubectl create -f deployment.yml
       kubectl get deployments
       kubectl get all
+      kubectl rollout status deployment.v1.apps/nginx-deployment # to c deployment roll out status
+      kubectl get pods --show-labels # to see labels 
                         apiVersion: apps/v1
                         kind: Deployment
                         metadata:
@@ -77,6 +103,8 @@
             kubectl expose deployment webapp --type=NodePort --port=8080 --name=webapp-service --dry-run -o yaml > webapp-service.yaml
                                                 
 # Kube Scheduling
+It is responsible for placement of Pods on Nodes in a cluster.The scheduler finds feasible Nodes for a Pod and then runs a set of functions to score the feasible Nodes and picks a Node with the highest score among the feasible ones to run the Pod. The scheduler then notifies the API server about this decision in a process called “Binding
+
           add nodeName in yaml file 
           apiVersion: v1
           kind: pod
@@ -115,16 +143,19 @@
  # editing PODs and Deployments
             kubectl edit pod <pod name>
             kubectl edit deployment my-deployment
-                        kubectl get pods
-                        kubectl get pod -o yaml > lion.yaml
-                        edit lion.yaml file & delete lion poda and create lion pod usin lion.yaml file
-                        kubectl create -f lion.yaml 
+            kubectl get pods
+            kubectl get pod -o yaml > lion.yaml
+            edit lion.yaml file & delete lion poda and create lion pod usin lion.yaml file
+            kubectl create -f lion.yaml 
                         
   # Daemone Sets
     Daemone set will make sure that service is running on all nodes
+    A DaemonSet ensures that all (or some) Nodes run a copy of a Pod. As nodes are added to the cluster, Pods are added to them. As nodes are removed from the cluster, those Pods are garbage collected. Deleting a DaemonSet will clean up the Pods it created
   
             apiVersion: apps/v1
-            kind: DaemonSetmetadata:  name: elasticsearch
+            kind: DaemonSet
+            metadata:  
+              name: elasticsearch
               namespace: kube-system
             spec:
               selector:
@@ -138,7 +169,9 @@
                   containers:
                   - name: elasticsearch
                     image: k8s.gcr.io/fluentd-elasticsearch:1.20
+                    
             master $ cat desets.yml
+            
             apiVersion: apps/v1
             kind: DaemonSet
             metadata:
