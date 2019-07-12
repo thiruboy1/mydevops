@@ -177,14 +177,52 @@ With Kubernetes you don’t need to modify your application to use an unfamiliar
 * services enables to communicate b/w front and backend pods and helps in establsihing connectivity with external data sources
 
 ### node port serivce: 
-      * listen on one of port and fordward request to pod on port running applicaiton, this type of service is know as node port serivce
+
+* listen on one of port and fordward request to pod on port running applicaiton, this type of service is know as node port serivce
+
 ```
 ![Image description](/images/service_nodeport.png)
 ```
+```
+apiVersion: v1
+kind: Service
+metadata:
+      name: service-type
+spec:
+      type: NodePort
+      ports:
+       - targetPort: 80
+         port: 80
+         nodePort: 30000
+      selector:
+            app:
+            type: 
+          (pull lables form pod definiation file)
+```
+* if u have many pods matching same label name then service will send traffie to all pod randomaly , serivces uses Random Algorathim, sessionaffinity=yes, does service acts as a built in loadbalancer accros load
+* if pods are created multiple nodes then , kubernetes will create service accros all nodes and maps target port to same node port 
+kubectl create -f service-defniation.yaml
+kubectl get services
 ### Cluster IP:
       * Service creates a virtual ip inside cluster to enable communcation b/w diffrent service such as set of forn end/backed servers
+* if u have multiple front end pods and backend pods then in order to establish communication b/w frontend pods and backend pods u cannot use ip address as ip address of pods keeps changing (in case of pod deleted) so we can use cluster ip which enables communication of frontend and backend
+
+```
+apiVersion: v1
+kind: service
+metadata:
+      name: backend
+spec:
+      type: ClusterIP
+      ports:
+      - targetPort: 80 
+        port: 80
+      
+```
 ### Load Balancers:
       * to distribute load accros front end tier
+
+
       
 
 
