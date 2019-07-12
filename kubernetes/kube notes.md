@@ -182,8 +182,8 @@ With Kubernetes you don’t need to modify your application to use an unfamiliar
 
 ```
 ![Image description](/images/service_nodeport.png)
-```
-```
+
+
 apiVersion: v1
 kind: Service
 metadata:
@@ -199,6 +199,7 @@ spec:
             type: 
           (pull lables form pod definiation file)
 ```
+
 * if u have many pods matching same label name then service will send traffie to all pod randomaly , serivces uses Random Algorathim, sessionaffinity=yes, does service acts as a built in loadbalancer accros load
 * if pods are created multiple nodes then , kubernetes will create service accros all nodes and maps target port to same node port 
 kubectl create -f service-defniation.yaml
