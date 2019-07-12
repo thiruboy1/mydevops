@@ -12,6 +12,6 @@ Kubernetes (K8s) is an open-source system for automating deployment, scaling, an
                         #1 kublet
                         #2 kube proxy
 #1 ETCD:
-      etcd is a consistent and highly-available key value store used as Kubernetes’ backing store for all cluster data
+      * etcd is a consistent and highly-available key value store used as Kubernetes’ backing store for all cluster data
       ETCD Stores information for nodes,pods,config,secret,accoutns,roles,bindings & others,
       every command u run through kubctl & every node added will be updated in etcd server
