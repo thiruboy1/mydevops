@@ -204,57 +204,21 @@ spec:
 kubectl create -f service-defniation.yaml
 kubectl get services
 ### Cluster IP:
-      * Service creates a virtual ip inside cluster to enable communcation b/w diffrent service such as set of forn end/backed servers
+* Service creates a virtual ip inside cluster to enable communcation b/w diffrent service such as set of forn end/backed servers
 * if u have multiple front end pods and backend pods then in order to establish communication b/w frontend pods and backend pods u cannot use ip address as ip address of pods keeps changing (in case of pod deleted) so we can use cluster ip which enables communication of frontend and backend
 
 ```
-apiVersion: v1
-kind: service
-metadata:
-      name: backend
-spec:
-      type: ClusterIP
-      ports:
-      - targetPort: 80 
-        port: 80
+            apiVersion: v1
+            kind: service
+            metadata:
+                  name: backend
+            spec:
+                  type: ClusterIP
+                  ports:
+                  - targetPort: 80 
+                    port: 80
       
 ```
+
 ### Load Balancers:
-      * to distribute load accros front end tier
-
-
-      
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+* to distribute load accros front end tier
