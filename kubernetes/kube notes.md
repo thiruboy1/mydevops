@@ -181,7 +181,7 @@ With Kubernetes you don’t need to modify your application to use an unfamiliar
 
 * listen on one of port and fordward request to pod on port running applicaiton, this type of service is know as node port serivce
 
-                  ![Image description](/images/service_nodeport.png)
+![Image description](/images/service_nodeport.png)
 
 ```
                   apiVersion: v1
