@@ -66,8 +66,13 @@ Other than from a PodSpec from the apiserver, there are three ways that a contai
 ## Replication Controller:
 * A ReplicationController ensures that a specified number of pod replicas are running at any one time. In other words, a ReplicationController makes sure that a pod or a homogeneous set of pods is always up and available
 * another use of RC is during loadbalancing, if load increacese RC will replicate the pod is another node  in cluster when demand increces
+
+
+## Replica Set
+* main diffrence b/w replication controller and replication set is "selector", based on the label replicas is applied,
+but if u have d
 * A ReplicaSet’s purpose is to maintain a stable set of replica Pods running at any given time. As such, it is often used to guarantee the availability of a specified number of identical Pods.However, a Deployment is a higher-level concept that manages ReplicaSets and provides declarative updates to Pods along with a lot of other useful features. Therefore, we recommend using Deployments instead of directly using ReplicaSets
-### rc-defenation.yaml
+### rc-set-defenation.yaml
 ```
 apiVersion: apps/v1
                         kind: ReplicaSet
@@ -91,4 +96,17 @@ apiVersion: apps/v1
                               - name: php-redis
                                 image: gcr.io/google_samples/gb-frontend:v3
 ```
-
+* Replica Set can be updated by updating in rc-defination.yaml file and it can also be done using following command but note that updating throught command dosent update on yaml file
+kubectl scale --replicas=6 -f replicaset defenation.yml
+### Replica Set Commands
+```
+  kubectl create -f replication.yml
+  kubectl get replicaset
+  kubectl get rs
+  kubectl get rs <rs name> -o yml                                   # you will get replicaset in yml file
+  kubectl get pod db-1-7f6x2 -o yaml > db1.yaml
+  kubectl delete replicaset myapp-replcation.yml
+  kubectl replace -f replication.yml
+  kubectl scale --replicas=6 -f replicaset defenation.yml         # Replica Set Scalling 
+  kubectl edit replicaset <replicaset name>
+```
