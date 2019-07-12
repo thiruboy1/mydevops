@@ -68,14 +68,18 @@
       kubectl delete replicationcontrollet myapp-replcation.yml
       kubectl replace -f replication.yml
 # Kube Deployments Commands: 
-A Deployment controller provides declarative updates for Pods and ReplicaSets.
+* A Deployment controller provides declarative updates for Pods and ReplicaSets.
 You describe a desired state in a Deployment, and the Deployment controller changes the actual state to the desired state at a controlled rate. You can define Deployments to create new ReplicaSets, or to remove existing Deployments and adopt all their resources with new Deployments.
+
+```
       kubectl create -f deployment.yml
       kubectl get deployments
       kubectl get all
       kubectl rollout status deployment.v1.apps/nginx-deployment # to c deployment roll out status
       kubectl get pods --show-labels # to see labels 
-                        apiVersion: apps/v1
+```
+```                       
+                       apiVersion: apps/v1
                         kind: Deployment
                         metadata:
                           name: nginx-deployment
@@ -96,6 +100,7 @@ You describe a desired state in a Deployment, and the Deployment controller chan
                                 image: nginx:1.7.9
                                 ports:
                                 - containerPort: 80
+```
 # Kube 
 
             kubectl run --generator=run-pod/v1 nginx-pod --image=nginx:alpine
