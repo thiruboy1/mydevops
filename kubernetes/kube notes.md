@@ -18,12 +18,12 @@ Kubernetes (K8s) is an open-source system for automating deployment, scaling, an
 ## KubeApi Server: 
 * The Kubernetes API server validates and configures data for the api objects which include pods, services, replicationcontrollers, and others. The API Server services REST operations and provides the frontend to the cluster’s shared state through which all other components interact.
 * kube api server performs following functions,
-            * Authenticate user
-            * validate request
-            * retrive data
-            * update etcd
-            * scheduler
-            * kubelet
+      * Authenticate user
+      * validate request
+      * retrive data
+      * update etcd
+      * scheduler
+      * kubelet
 * first it authentecate & validate user and retrives data from etcd and response back requested info, now schedluer contiounsly moniter the api server and identifys that no nodes is assigend for pod and then assigns node and communicate back to api server ,then api server updates back to etcd server, then api server sends to kubelet , then kubelet create appropriate pod in node and sends status to api server, then api server updates in etcd 
 * kube api server file is located in /etc/kubernetes/manifests/kube-apiserver.yaml
 * kube api services for nod kubeadmin setup  /etc/systemd/system/kube-apiserver.service
