@@ -178,7 +178,9 @@ With Kubernetes you don’t need to modify your application to use an unfamiliar
 
 ### node port serivce: 
       * listen on one of port and fordward request to pod on port running applicaiton, this type of service is know as node port serivce
+```
 ![Image description](/images/service_nodeport.png)
+```
 ### Cluster IP:
       * Service creates a virtual ip inside cluster to enable communcation b/w diffrent service such as set of forn end/backed servers
 ### Load Balancers:
