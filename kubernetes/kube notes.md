@@ -110,3 +110,65 @@ apiVersion: apps/v1
   kubectl scale --replicas=6 -f replicaset defenation.yml         # Replica Set Scalling 
   kubectl edit replicaset <replicaset name>
 ```
+# Deployments:
+ * A Deployment controller provides declarative updates for Pods and ReplicaSets.
+
+* A Deployment controller provides declarative updates for Pods and ReplicaSets.
+You describe a desired state in a Deployment, and the Deployment controller changes the actual state to the desired state at a controlled rate. You can define Deployments to create new ReplicaSets, or to remove existing Deployments and adopt all their resources with new Deployments.
+
+```
+      kubectl create -f deployment.yml
+      kubectl get deployments
+      kubectl get all
+      kubectl rollout status deployment.v1.apps/nginx-deployment # to c deployment roll out status
+      kubectl get pods --show-labels # to see labels 
+```
+```                       
+                       apiVersion: apps/v1
+                        kind: Deployment
+                        metadata:
+                          name: nginx-deployment
+                          labels:
+                            app: nginx
+                        spec:
+                          replicas: 3
+                          selector:
+                            matchLabels:
+                              app: nginx
+                          template:
+                            metadata:
+                              labels:
+                                app: nginx
+                            spec:
+                              containers:
+                              - name: nginx
+                                image: nginx:1.7.9
+                                ports:
+                                - containerPort: 80
+```
+## Namespaces:
+* Namespaces provide a scope for names. Names of resources need to be unique within a namespace, but not across namespaces. Namespaces can not be nested inside one another and each Kubernetes resource can only be in one namespace.
+* Namespaces are a way to divide cluster resources between multiple users
+* default namespace is created by kubernetes automaticlly when cluster is setup to  avoid deleting of resource kubernetes create another namespace called kube-system  and 3rd namespace created by kubernets is called kube-public
+* u can also creat you own namespaces
+* When you create a Service, it creates a corresponding DNS entry. This entry is of the form <service-name>.<namespace-name>.svc.cluster.local, which means that if a container just uses <service-name>, it will resolve to the service which is local to a namespace. This is useful for using the same configuration across multiple namespaces such as Development, Staging and Production. If you want to reach across namespaces, you need to use the fully qualified domain name
+* if u want to create pod in ur namespace then u can use following command are u can specfiy in pod-definationfile.yaml under metadata 
+      * kubectl create -f pod-definationi.yaml -n dev   # creates pod in custom(dev) namespaces
+* creating namespace
+```
+      apiVersion: v1
+      kind: Namespace
+      metadata:
+            name: dev
+kubectl create -f file.yaml     
+```
+* to switch namespace form default namespace to custom (dev) namespace is by using following command
+      * kubectl config set-context $(kubectl current-context) --namespace=dev
+```
+
+kubectl get namespaces
+kubectl get pod --all-nampespaces
+kubectl get pod -n kube-system
+
+
+```
