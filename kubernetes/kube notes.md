@@ -159,17 +159,18 @@ You describe a desired state in a Deployment, and the Deployment controller chan
       apiVersion: v1
       kind: Namespace
       metadata:
-            name: dev
-kubectl create -f file.yaml     
+            name: dev  
 ```
+kubectl create -f file.yaml 
+      
 * to switch namespace form default namespace to custom (dev) namespace is by using following command
       * kubectl config set-context $(kubectl current-context) --namespace=dev
-```
-```
+
+
 kubectl get namespaces
 kubectl get pod --all-nampespaces
 kubectl get pod -n kube-system
-```
+
       
 ## Services:
 * An abstract way to expose an application running on a set of Pods as a network service.
@@ -180,26 +181,25 @@ With Kubernetes you don’t need to modify your application to use an unfamiliar
 
 * listen on one of port and fordward request to pod on port running applicaiton, this type of service is know as node port serivce
 
+                  ![Image description](/images/service_nodeport.png)
+
 ```
-![Image description](/images/service_nodeport.png)
+                  apiVersion: v1
+                  kind: Service
+                  metadata:
+                        name: service-type
+                  spec:
+                        type: NodePort
+                        ports:
+                         - targetPort: 80
+                           port: 80
+                           nodePort: 30000
+                        selector:
+                              app:
+                              type: 
+                            (pull lables form pod definiation file)
 
-
-apiVersion: v1
-kind: Service
-metadata:
-      name: service-type
-spec:
-      type: NodePort
-      ports:
-       - targetPort: 80
-         port: 80
-         nodePort: 30000
-      selector:
-            app:
-            type: 
-          (pull lables form pod definiation file)
 ```
-
 * if u have many pods matching same label name then service will send traffie to all pod randomaly , serivces uses Random Algorathim, sessionaffinity=yes, does service acts as a built in loadbalancer accros load
 * if pods are created multiple nodes then , kubernetes will create service accros all nodes and maps target port to same node port 
 kubectl create -f service-defniation.yaml
