@@ -29,6 +29,7 @@
                                                                           
 # ReplcationSet Commands
 * A ReplicaSet’s purpose is to maintain a stable set of replica Pods running at any given time. As such, it is often used to guarantee the availability of a specified number of identical Pods.However, a Deployment is a higher-level concept that manages ReplicaSets and provides declarative updates to Pods along with a lot of other useful features. Therefore, we recommend using Deployments instead of directly using ReplicaSets
+```
                         apiVersion: apps/v1
                         kind: ReplicaSet
                         metadata:
@@ -50,6 +51,7 @@
                               containers:
                               - name: php-redis
                                 image: gcr.io/google_samples/gb-frontend:v3
+  ```
       kubectl create -f replication.yml
       kubectl get replicaset
       kubectl get rs
