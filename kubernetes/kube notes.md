@@ -165,10 +165,56 @@ kubectl create -f file.yaml
 * to switch namespace form default namespace to custom (dev) namespace is by using following command
       * kubectl config set-context $(kubectl current-context) --namespace=dev
 ```
-
+```
 kubectl get namespaces
 kubectl get pod --all-nampespaces
 kubectl get pod -n kube-system
-
-
 ```
+      
+## Services:
+* An abstract way to expose an application running on a set of Pods as a network service.
+With Kubernetes you don’t need to modify your application to use an unfamiliar service discovery mechanism. Kubernetes gives Pods their own IP addresses and a single DNS name for a set of Pods, and can load-balance across them
+* services enables to communicate b/w front and backend pods and helps in establsihing connectivity with external data sources
+
+### node port serivce: 
+      * listen on one of port and fordward request to pod on port running applicaiton, this type of service is know as node port serivce
+![picture alt](images/service_nodeport.png)
+### Cluster IP:
+      * Service creates a virtual ip inside cluster to enable communcation b/w diffrent service such as set of forn end/backed servers
+### Load Balancers:
+      * to distribute load accros front end tier
+      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
