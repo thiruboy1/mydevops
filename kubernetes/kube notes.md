@@ -97,7 +97,7 @@ apiVersion: apps/v1
                                 image: gcr.io/google_samples/gb-frontend:v3
 ```
 * Replica Set can be updated by updating in rc-defination.yaml file and it can also be done using following command but note that updating throught command dosent update on yaml file
-kubectl scale --replicas=6 -f replicaset defenation.yml
+      * kubectl scale --replicas=6 -f replicaset defenation.yml
 ### Replica Set Commands
 ```
   kubectl create -f replication.yml
