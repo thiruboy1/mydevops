@@ -63,5 +63,32 @@ Other than from a PodSpec from the apiserver, there are three ways that a contai
  * Pods in a Kubernetes cluster can be used in two main ways:
       * Pods that run a single container
       * Pods that run multiple containers that need to work together
-
+## Replication Controller:
+* A ReplicationController ensures that a specified number of pod replicas are running at any one time. In other words, a ReplicationController makes sure that a pod or a homogeneous set of pods is always up and available
+* another use of RC is during loadbalancing, if load increacese RC will replicate the pod is another node  in cluster when demand increces
+* A ReplicaSet’s purpose is to maintain a stable set of replica Pods running at any given time. As such, it is often used to guarantee the availability of a specified number of identical Pods.However, a Deployment is a higher-level concept that manages ReplicaSets and provides declarative updates to Pods along with a lot of other useful features. Therefore, we recommend using Deployments instead of directly using ReplicaSets
+### rc-defenation.yaml
+```
+apiVersion: apps/v1
+                        kind: ReplicaSet
+                        metadata:
+                          name: frontend
+                          labels:
+                            app: guestbook
+                            tier: frontend
+                        spec:
+                          # modify replicas according to your case
+                          replicas: 3
+                          selector:
+                            matchLabels:
+                              tier: frontend
+                          template:
+                            metadata:
+                              labels:
+                                tier: frontend
+                            spec:
+                              containers:
+                              - name: php-redis
+                                image: gcr.io/google_samples/gb-frontend:v3
+```
 
