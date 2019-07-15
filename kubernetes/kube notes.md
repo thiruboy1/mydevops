@@ -250,7 +250,7 @@ kubectl get services
 
 * Labels are key/value pairs that are attached to objects, such as pods. Labels are intended to be used to specify identifying attributes of objects that are meaningful and relevant to users, but do not directly imply semantics to the core system
 ```
-kubectl get pods --selector app=app1
+  kubectl get pods --selector app=app1
   kubectl get all --selector env=prod
   kubectl get pods --selector bu=finance
   kubectl get all --selector env=prod,bu=finance,tier=frontend
@@ -273,3 +273,39 @@ kubectl get pods --selector app=app1
                     - name: nginx
                       image: nginx 
 ```
+## Resources & Requirments
+* by default kube assumes pod requries 0.5 cpu, 256Mi memory, if we know application requires more than this then u can specfiy in pod defination file
+
+* limits and requests are set for each container on pod
+* container can use memorey than defined, if container uses more memory contionusly then container will be terminated 
+```
+spec:
+  containers:
+  - name:
+    image: 
+    ports:
+     - containerPort:
+     resources:
+      requests:
+         memory:
+         cpu: 
+        
+```
+1 cpu = 100m (m stands for milli)
+minimum cpu = 1m
+Genrally 1cup = 1aws Vcpu, 1GCP Core, 1Azure Core,    
+* by default kube assumes 1vcpu for containers and 512Mi memory for containers
+
+
+
+
+
+
+
+
+
+
+
+
+
+
