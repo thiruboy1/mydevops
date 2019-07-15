@@ -189,7 +189,7 @@ It is responsible for placement of Pods on Nodes in a cluster.The scheduler find
            in static pods you cannot create replica sets,deployments without kube master
            1) specfiy in kubelet.service file
            --pod-manifest-path=/etc/kubernetes/manifestes\\
-           2)insted of defining in kubelet.service file provide path in serive file and in that file enter the following
+           2)insted of defining in kubelet.service file create a kubeconfig.yaml and provide path in serive file and in that file enter the following
                   --config-kubeconfig.yaml
                   staticPodPath: /etc/kubernetes/manifestes
             kubectl get pods --all-namespaces
@@ -197,9 +197,12 @@ It is responsible for placement of Pods on Nodes in a cluster.The scheduler find
             
 # Kube Multiple Scheduler
 
-Kubernetes allows us to create multiple scheduler, in order to create custom scheduler u can use the schedule.yaml file in manifest folder, 
-you can have any number of custom scheduler, 
-you can run pod with custome schedulet by inserting propert in pod yaml file : schedulerName: my-custom-scheduler
+* Kubernetes allows us to create multiple scheduler, in order to create custom scheduler u can use the schedule.yaml file in manifest folder, 
+* you can have any number of custom scheduler, 
+* in case of multiple scheduler , u must set leder elect to false in custom pod def file
+* to create custom scheduler yaml file, juct copy the orginal scheduler file and update the custom name and create the scheduler 
+* update "lock-object-name=my-custom-schuduler
+* you can run pod with custome scheduler by inserting property in pod yaml file : schedulerName: my-custom-scheduler
             
                   apiVersion: v1
                   kind: Pod
@@ -210,6 +213,9 @@ you can run pod with custome schedulet by inserting propert in pod yaml file : s
                     -  image: nginx
                        name: nginx
                     schedulerName: my-scheduler
+* to check which scheduler created pod use following command.
+kubctl get events
+
 # Kube Monitoring & loging
             Kubernetes dosent have complete monitoring feature, so we use other tools like metrics
             metrics installatino:
