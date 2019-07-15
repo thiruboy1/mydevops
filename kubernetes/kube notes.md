@@ -223,3 +223,53 @@ kubectl get services
 
 ### Load Balancers:
 * to distribute load accros front end tier
+
+## Scheduling Pod
+* It is responsible for placement of Pods on Nodes in a cluster.The scheduler finds feasible Nodes for a Pod and then runs a set of functions to score the feasible Nodes and picks a Node with the highest score among the feasible ones to run the Pod. The scheduler then notifies the API server about this decision in a process called “Binding
+```
+      add nodeName in yaml file 
+      apiVersion: v1
+      kind: pod
+      metadata: 
+          name: nginx
+          labels:nginx-app
+      spec:
+         containers:
+         -  image: nginx
+            name: nginx
+         nodeName: <node name>   # to get node name run <kubectl get node>
+```
+ ### Manualy Scheduing POD:
+     scheduler will check of the pods which dosent have node names assigned if it identifys the pod then it allocates the node, if pod u want to schedule u pod manualy then u need to assign node name. but u can assign node name only during creation of pod wat if pod is already created then u can create "binding object"    bind-defination.yaml file
+     
+     
+## Labels & Selectors
+* Labels enable users to map their own organizational structures onto system objects in a loosely coupled fashion, without requiring clients to store these mappings.
+
+* Service deployments and batch processing pipelines are often multi-dimensional entities (e.g., multiple partitions or deployments, multiple release tracks, multiple tiers, multiple micro-services per tier). Management often requires cross-cutting operations, which breaks encapsulation of strictly hierarchical representations, especially rigid hierarchies determined by the infrastructure rather than by users.
+
+* Labels are key/value pairs that are attached to objects, such as pods. Labels are intended to be used to specify identifying attributes of objects that are meaningful and relevant to users, but do not directly imply semantics to the core system
+```
+kubectl get pods --selector app=app1
+  kubectl get all --selector env=prod
+  kubectl get pods --selector bu=finance
+  kubectl get all --selector env=prod,bu=finance,tier=frontend
+
+                apiVersion: apps/v1
+              kind: ReplicaSet
+              metadata:
+                name: replicaset-1
+              spec:
+                replicas: 2
+                selector:
+                  matchLabels:
+                    tier: frontend
+                template:
+                  metadata:
+                    labels:
+                      tier: frontend
+                  spec:
+                    containers:
+                    - name: nginx
+                      image: nginx 
+```
