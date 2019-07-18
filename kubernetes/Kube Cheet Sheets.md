@@ -379,8 +379,22 @@ kubctl get events
               1st u need to upgrage kube master and then u need to updgarde nodes , during master upgrade nodes will work independtly, users will not have any intruption but master cannot control nodes
               apt install kubeadm=1.12.0-00
               kubeadm upgrade apply v1.12.0
-              apt install kubelet=1.12.0-00            
+              apt install kubelet=1.12.0-00 
+# kube Cluster Upgarde
+* since kubeapi server talks to all components, all other components version should be less than kubeapi server 
+      * controller manager & scheduler can be one version lower x-1
+      * kubelet & kube poroxy can be two version lower x-2
+      * kubectl can be one version higher or one version lower x+1 > x-1
+* at any time kubernetes will allow 3 version upgrade 
+* upgradin kubernetes involves in two steps
+ * upgrade master node
+ * upgrade worker node
 # Backup and restore methods
+backup - resources and configuration
+      kubectl get all --all-namespaces -o yaml > file.yaml
+backup of etcd 
+      ectd can be backedup by using data directory (check in etcd service file)
+      etch can be backed using command ETCDCTL_API=3 etcdctl snapshot save snapshot.db
 # Kube Security
 # Kube Storage
           volumes
