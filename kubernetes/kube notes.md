@@ -299,6 +299,45 @@ Genrally 1cup = 1aws Vcpu, 1GCP Core, 1Azure Core,
 
 
 
+## Kube Security
+* need to provide security for kubeapi server like who can access server and what they can do
+* Authentication: in who can access we have diffrent methods like
+      * files- user name and pass
+      * files user name and tokens
+      * certificate
+      * ldap
+      * service accoutns
+* Authorization:
+      * RBAC 
+      * ABAC
+* all communication bw kubeapi servers and components use TLS certification
+
+### Authentication
+* we have users- (admins, developer, end users) & service Account-(bots) to access kubernetes cluster all the communiction needs to secured
+* kube donsnt manage user account natively it depends on ,file,3rd party like u cannot create users directly in kubernetes
+however we can create service accounts in kubernetes
+* passing username and pass as file: update content in kube-apiserver.yaml service "--basic-auth-file=user-details.csv"
+* passing username & pass as token: update content in kube-apiserver.yaml service "--basic-auth-file=user.csv"
+once created u can acces by using "curl -v -k https://localhost:6443/api/v1/pods -u "user1:password123""
+## TLS Basic
+tls certificate is used to authenticate both client and server 
+* when client send uname and pass to server as plain text - attacker may access the unam & pass and hack account
+* asymentric kye: to avoid this clinet encryptes uname, pass & key and send to server - but if attacker hack key then attacker will hack account
+* symentric kye : to avoid this we have concept of public key and private key, initaly both will exchange ther public key, then clinet will encrypt 
+uname & pass using server public key and send to server not server will have server.private key then server decrypt the data using it private key similarly communication happens successfuly 
+* now only way to hack is by hacking ur private key so hacker will create similar website and he ll make u to enter pass, after account 
+will be hacked
+* so to avoid this we use certificates: it tell wither the website is correct website,  if user type mybank.com then same must be in certificate , if certificate is selfsigned then u ll get alert from browser ,
+so for proper communication certificate that is signed by CA(Certificate Autrority) the way it works is :
+first u genrate csr(certificate signing request) with ur domain name and send it to CA then CA
+"openssl req -new -key my-bank.key -out my-bank csr -subj "/C=US/ST=CA/O=MyOrg, Inc./CN=my-bank.com" "
+then CA will verfiy and send certificate ,
+CA uses its own private and publick key , and public key are built in browsers
+private CA: 
+
+
+
+
 
 
 
