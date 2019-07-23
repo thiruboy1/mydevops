@@ -446,6 +446,21 @@ kubectl auth can-i create deployments --as dev-user
 kubectl auth can-i delete nodes --as dev-user
 * to restrcte user to access only certian pos mention resourcesNames: ["blue","green"]
 
+## kube cluster roles and role bindings
+* there are two scope 1) namespace scope & 2)cluster scope
+* to get all resources of kube run following:
+      kubectl api-resources --namespaced=true
+      kubectl api-resources --namespaced=false
+* cluster role is used to authorize a user to create and delete cluster level compnents
+* can be created using cluster-role.yaml file
+* next setp is link the user with role so we create cluster role binding using cluster-role-binding.yaml
+* kubectl create -f cluster-role-binding.yaml
+* if u create user to access pods using cluster role binding the user will get access to all pods in all namespaces
+
+## Images Security:
+
+
+
 
 
 
