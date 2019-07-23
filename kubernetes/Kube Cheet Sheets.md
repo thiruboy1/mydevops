@@ -147,7 +147,7 @@ It is responsible for placement of Pods on Nodes in a cluster.The scheduler find
                         - name: nginx
                           image: nginx    
   
- # editing PODs and Deployments
+ ## editing PODs and Deployments
             kubectl edit pod <pod name>
             kubectl edit deployment my-deployment
             kubectl get pods
@@ -155,7 +155,7 @@ It is responsible for placement of Pods on Nodes in a cluster.The scheduler find
             edit lion.yaml file & delete lion poda and create lion pod usin lion.yaml file
             kubectl create -f lion.yaml 
                         
-  # Daemone Sets
+  ## Daemone Sets
     Daemone set will make sure that service is running on all nodes
     A DaemonSet ensures that all (or some) Nodes run a copy of a Pod. As nodes are added to the cluster, Pods are added to them. As nodes are removed from the cluster, those Pods are garbage collected. Deleting a DaemonSet will clean up the Pods it created
   
@@ -184,7 +184,7 @@ It is responsible for placement of Pods on Nodes in a cluster.The scheduler find
             metadata:
                 name: elasticsearch
                 namespace: kube-system
-# Static Pods
+## Static Pods
            kublete is service installed in nodes , this kubelet can operate even without kube master, in order to run kubelet without master u need to place yaml file in /etc/kubernetes/manifestes/. now kublete will check for update in this location if any update kubelet will update the same in pod.
            in static pods you cannot create replica sets,deployments without kube master
            1) specfiy in kubelet.service file
@@ -195,7 +195,7 @@ It is responsible for placement of Pods on Nodes in a cluster.The scheduler find
             kubectl get pods --all-namespaces
             kubectl run --restart=Never --image=busybox static-busybox --dry-run -o yaml --command -- sleep 1000 > /etc/kubernetes/manifests/static-busybox.yaml
             
-# Kube Multiple Scheduler
+## Kube Multiple Scheduler
 
 * Kubernetes allows us to create multiple scheduler, in order to create custom scheduler u can use the schedule.yaml file in manifest folder, 
 * you can have any number of custom scheduler, 
@@ -228,7 +228,7 @@ kubctl get events
             simalar like docker kubernetes have feature to moniter logs, by using simple command,
             kubernets allows us to moniter multiple contianers in single pod by using following command
             kubectl log -f <pod name> <container name>
-# Kube Application lifecycle Managment
+## Kube Application lifecycle Managment
             in kubernetes there two types of update are there
             1)Rolling Update(Default): 
                 in this kuberenetes will bring up new pod and bring down old pod, by this way it will roll all the pods, 
@@ -244,7 +244,7 @@ kubctl get events
               kubectl rollout status deployment/myapp-deployment              #status
               kubectl rollout history                                         #rollback
               
-# Kube Env Variables
+## Kube Env Variables
               in pod defination file u can specfiy the env variables, Enfiroment variable can be set in two ways
          ## 1) direct way
              
@@ -263,7 +263,7 @@ kubctl get events
             
       when you have lot pods it will become difficult to manage Envirorment Variables so we use config map                
               
-      ## 2)Config Maps:
+## 2)Config Maps:
              is used to pass configuration data in the form of key value pairs in kubernetes
              there are two phases in config map 1) create config map file 2) inject into kubernetes
              imperative  way: kubectl create configmap
@@ -299,7 +299,7 @@ kubctl get events
                   - configMapRef:
                          name: app-config(name of config map which was created)
             
-# Kube Secrets
+## Kube Secrets
        kubernetes allows us to store user name password in more secure way by using secrets, you can define secretes in 2 ways
        2)imperative way 2)declarative way
        imperative  way: kubectl create secret
@@ -326,7 +326,7 @@ kubctl get events
             echo -n 'pass' | base64
             kubectl get configmaps
             kubectl describe configmaps
-## now inject secret file into pod defination file
+### now inject secret file into pod defination file
       appVersion: v1
               kind: Pod
               metadata:
@@ -338,14 +338,14 @@ kubctl get events
                       envFrom:
                         - secretRef:
                                name: app-secret(name of config map which was created)           
- ## secret in POD as volume
+ ### secret in POD as volume
             volume:
              - name: app-secret-volume
                secret:
                  secretName: app-secret       
             
-# Kube Mulit Container Pod     
-# kube initContainer
+## Kube Mulit Container Pod     
+## kube initContainer
             init container will run before app container will start run,
             If an Init Container fails for a Pod, Kubernetes restarts the Pod repeatedly until the Init Container succeeds,However, if the Pod has a restartPolicy of Never, it is not restarted .
             apiVersion: v1
@@ -363,7 +363,7 @@ kubctl get events
               - name: init-myservice
                 image: busybox:1.28
                 command: ['sh', '-c', 'until nslookup myservice; do echo waiting for myservice; sleep 2; done;']
-# Kube OS upgrade to node
+## Kube OS upgrade to node
              in kube cluster if any node need to updated then node needs downtime, during this down time pods will also go down,
              eviction timeout 5 m, the time it waits for pod to come back is called eviction timeout, which is set on controller manager
              with default value of 5 miniutes.so when ever node goes down,master node waits for 5m to consedring node dead.
@@ -380,7 +380,7 @@ kubctl get events
               apt install kubeadm=1.12.0-00
               kubeadm upgrade apply v1.12.0
               apt install kubelet=1.12.0-00 
-# kube Cluster Upgarde
+## kube Cluster Upgarde
 * since kubeapi server talks to all components, all other components version should be less than kubeapi server 
       * controller manager & scheduler can be one version lower x-1
       * kubelet & kube poroxy can be two version lower x-2
@@ -389,18 +389,18 @@ kubctl get events
 * upgradin kubernetes involves in two steps
  * upgrade master node
  * upgrade worker node
-# Backup and restore methods
+## Backup and restore methods
 backup - resources and configuration
       kubectl get all --all-namespaces -o yaml > file.yaml
 backup of etcd 
       ectd can be backedup by using data directory (check in etcd service file)
       etch can be backed using command ETCDCTL_API=3 etcdctl snapshot save snapshot.db
-# Kube Security
-# Kube Storage
+## Kube Security
+## Kube Storage
           volumes
           persistant Volumes
           Persistant Volume claims
-# namespace Network
+## namespace Network
       ip link    # display host interface
       ip netns add <pod>
       ip netns
@@ -420,7 +420,7 @@ backup of etcd
       ip link add veth-red type veth peer name veth-red-br # creates cable to connect red pod to bridge n/w
       ip link add veth-blue type veth peer name veth-blue-br # creates cable to connect red pod to bridge n/w
       ip link set veth-red netns red  
-      ip link set veth-red-br master v-net-o
+      ip link set veth-red-br master v-net-o 
       ip link set veth-blue netns blue
       ip link set veth-blue-br master v-net-o
       ip -n red addr add <ip> dev veth-red
