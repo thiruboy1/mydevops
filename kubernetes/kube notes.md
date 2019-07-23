@@ -334,9 +334,74 @@ first u genrate csr(certificate signing request) with ur domain name and send it
 then CA will verfiy and send certificate ,
 CA uses its own private and publick key , and public key are built in browsers
 private CA: 
+## Certificate createion for kube
+* ther are many tools avilable to generate certificate we use openssl
+* CA certificates:
+      generate keys:                ca.key      openssl genrsa -out ca.key 2048
+      certificate signing request   ca.csr      openssl req -new -key ca.key "/CN=KUBERNETES-CA" -out ca.csr
+      signing certificate           ca.crt      openssl x509 -req -in ca.csr -signkey ca.key -out ca.crt
+      now ca has its own private key and public key so now we can use this to create certificate for other services in kubernetes
+* admin certificate:
+      generate keys:                admin.key      openssl genrsa -out admin.key 2048
+      certificate signing request   admin.csr      openssl req -new -key admin.key -subj "/CN=KUBE-ADMIN/O=system.masters" -out admin.csr
+      ------------------------------------ adding gorup details by adding "O=" paramater, so that we will get admin users and rights     
+      signing certificate           admin.crt      openssl x509 -req -in admin.csr -signkey admin.key -out admin.crt
+      now admin client has signed certificate to access kubeapiserver 
+* kube scheduler certificates:
+      generate keys:                scheduler.key      openssl genrsa -out scheduler.key 2048
+      certificate signing request   scheduler.csr      openssl req -new -key  scheduler.key "/CN=SYSTEM-KUBE-SCHEDULER" -out ca.csr
+      signing certificate           scheduler.crt      openssl x509 -req -in scheduler.csr -signkey scheduler.key -out ca.crt
+ * kube Controller-manager certificates:
+      generate keys:                Controller-manager.key      openssl genrsa -out Controller-manager.key 2048
+      certificate signing request  Controller-manager.csr      openssl req -new -key  Controller-manager.key "/CN=SYSTEM-KUBE-Controller-manager" -out ca.csr
+      signing certificate           Controller-manager.crt      openssl x509 -req -in Controller-manager.csr -signkey Controller-manager.key -out ca.crt
+ * kube Proxy certificates:
+      generate keys:                Proxy.key      openssl genrsa -out Proxy.key 2048
+      certificate signing request   Proxy.csr      openssl req -new -key  Proxy.key "/CN=SYSTEM-KUBE-Proxy -out ca.csr
+      signing certificate           Proxy.crt      openssl x509 -req -in Proxy.csr -signkey Proxy.key -out ca.crt
+* now all services has its own key and certificates, now to verfiy the certificate each kubernetes serices will requere access to ca.crt certificate.
+ * kube etcd certificates :
+      generate keys:                etcdserver.key      openssl genrsa -out etcdserver.key 2048
+      certificate signing request   etcdserver.csr      openssl req -new -key  etcdserver.key "/CN=SYSTEM-KUBE-etcdserver -out etcdservercsr
+      signing certificate           etcdserver.crt      openssl x509 -req -in etcdserver.csr -signkey etcdserver.key -out etcdserver.crt
 
+  * kube etcd peer certificates :
+      generate keys:                etcdpeer.key      openssl genrsa -out etcdpeer.key 2048
+      certificate signing request   etcdpeer.csr      openssl req -new -key  etcdpeer.key "/CN=KUBE-etcdserver -out etcdpeercsr
+      signing certificate           etcdpeer.crt      openssl x509 -req -in etcdpeer.csr -signkey etcdpeer.key -out etcdpeer.crt
+           
+ * kubeapi-server certificates :
+      generate keys:                apiserver.key      openssl genrsa -out apiserver.key 2048
+      certificate signing request   apiserver.csr      openssl req -new -key  apiserver.key -SUBJ "/CN=KUBE-apiserverr -out apiserver.csr
+      signing certificate           apiserver.crt      openssl x509 -req -in apiserver.csr -signkey apiserver.key -out apiserver.crt
+           
+* everyone will access kubeapi server so list of all dns & IP ADDRESS  must be specfide in openssl.cnf file 
+* then pass all certificate location in kube-apisesrver file first ca.pem,api server.crt, apiserver.key
+* then etct ca.pem, api-server-etcd-client.crt, api-server-etcd-client.key,
+* then kubelet, each kubelet in node will have seperate certificate, certificate name will be node name, once certificate is created it mentioned in kube-config.yaml, name must me like system:node:node01
 
+* to decode the certificate use following command:
+openssl x509 -in /etc/kubernetes/pki/apiserver.crt -text  -noout
+* to check logs:
+kubectl logs etcd-master
 
+## Certificates and API
+* now we have one admin access api server , if another admin needs access then new admin will create key and csr file and sends it to admin then admin will have access to CA server then admin creates certificate for new admin and sends it new admin now new admin will have access to kubeapiserver.
+* CA server is just pair of certificate of key and files which is stored in server, anyone how can access this file can get access to kubeapi server so this need to be stored in secure location,
+* this process creating certificate is manually but when users increases this will be difficult so need to automated, kube has its bultin certificate API certificate API
+* now using certificate API, when admin recives new admin csr then insted of loging in into ca server admin will use certificate api,
+then creates an object called 1) CSR 2)REVIEW 3)APPROVED
+then request can be review and approved by admin then this certificate can be extracted and shared to user
+steps:
+* user creates key and csr openssl  genrsa -out vas.key 2048, openssl req -new -key vas.key -subj "CN=vas" -out vas.csr
+* then admin takes csr not as plain text insted encode it using base 64 and then create vas-csr.yaml file and copy the crs in vas-csr.yaml file, apiversion: certificates.k8s.io/v1beta1, kind: CertificateSigningRequest
+* once object is created then admin can view all request using following command " kubectl get csr" and then u can approve using :
+kubectl certificate approve vas   , kubectl get csr vas -o yaml
+* all certificate approving siging will taken care by kube controller manager , 
+## Kube Config
+* to access the server u need to specfiy port,key, admin.crt,ca.crt file but each time mentioning will be tedios job so we add this in kube config file, "$HOME/.kube/config" by defalut kubelet will look for cofig will in this location.
+* config file has 3 formatas, cluster,user & Context, context definds which user can access which clusters eg: admin@production
+* eg: https://github.com/zecke/Kubernetes/blob/master/docs/user-guide/kubeconfig-file.md
 
 
 
