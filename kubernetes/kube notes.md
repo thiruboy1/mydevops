@@ -717,14 +717,139 @@ to access priveate repo u must specfiy in username & passwd in yaml file but def
 
 # Storage:
 
+          volumes
+          persistant Volumes
+          Persistant Volume claims
 ## Volumes:
 * when pod is created it has its own data & this data will be lost when pod is deleted so to avoid this we use volumes where volumes are mounted on drive and this drive is mounted to pod so if pod is deleted only pod is deleted but not volumes, each volumes is defined in pod defination file 
 * persistant volumes:
   defining and editing the volumes induvill is very difficule so we use persistant volume, persistant volume can be defined in persitant volume.yaml file
   * persistant volume claims:
     previsouly we create presistant volumes to use storage we need to create persistant volume claims, persitant volumes claims are created kubernetes will bind pv with pvc, during the claim kubernetes will look for pvc, however if there are multiple matches for the claim then u can use labels to match the claim, there is one to one relationship bw claims and volumes , if pvc conxumes only 50% of pv then remaning pv cannot be used by others, if no pv is avilable for pvc then pvc will be in pending state
-    # Networking
+# Networking
   
+  ## namespace Network
+      ip link    # display host interface
+      ip netns add <pod>
+      ip netns
+      ip netns exec <pod> ip link
+      ip -n <pod> ip link
+      ip netsn exec <pod> apr
+      --------------------link two pod red and blue run following command
+      ip link add veth-red type veth peer name veth-blue # to add two nampspace network use pipe like connecting two pc using cable
+      ip link set veth-red netns red # attaching virtual interface to pod
+      ip link set veth-blue netns blue # attaching virtual interface to pod
+      ip -n red addr add <ip> dev veth-red
+      ip -n blue addr add <ip> dev veth-blue # now both pods can communicate each other
+      --------when number of pod increases then in order to establish communication b/w all pods u need n/w bridge-------
+      linux bridge:
+      ip link add v-net-0 type bridge
+      ip link set dev v-net-0 up # to bring it up
+      ip link add veth-red type veth peer name veth-red-br # creates cable to connect red pod to bridge n/w
+      ip link add veth-blue type veth peer name veth-blue-br # creates cable to connect red pod to bridge n/w
+      ip link set veth-red netns red  
+      ip link set veth-red-br master v-net-o 
+      ip link set veth-blue netns blue
+      ip link set veth-blue-br master v-net-o
+      ip -n red addr add <ip> dev veth-red
+      ip -n red addr add <ip> dev veth-red
+      -----------------lab workouts history
+                        kubectl get nodes
+                      8  ip netns
+                      9  ip link
+                     10  kubectl get nodes -o wide
+                     11  kubectl describe node master
+                     12  ip link show ens3
+                     13  kubectl get nodes -o wide
+                     14  arp node02
+                     15  arp node01
+                     16  arp master
+                     17  ip link
+                     18  ip route show default
+                     19  netstat -nplt
+     --------------------------------------------------------------------------------------------------------
+     # to check ip range configured for service within in cluster
+        ps -aux | grep kube-api
+     #  To check ip range of pod 
+        kubectl logs weave-net-dhrx8   weave -n kube-system
+     # To check how kube proxy is controlled to run on service
+        kubectl describe pod <kube-proxy> -n kube-system # see controlled by
+          
+          
+   # DNS in Kubernetes
+      # Core DNS :
+           kubernetes deployes coredns pods(in replicat set for redundancy) on cluster to resolve the pods,
+           all pod ip and name details are moved to central dns server (core dns) then when pods want to communicate to other pod it checks coredns records and identifys pod and establish connection.
+           when coredns is created , master will create a services "kube-dns" 'kubectl get service kube-dns -n kube-system' 
+           kubelet service is responsiable for this  'cat /var/lib/kubelet/config.yaml'
+           when pod is created, pod dns server detials is entered in /etc/resolv.conf file . so by this way pod will check the coredns entry 
+           in order to edit Corefile u can edit configmap 'kubectl edit configmap -n kube-system'
+       core dns requries a config file which is placed in /etc/coredns/Corefile in this file plugins are configured
+       kubectl get service -n kube-system        # To check kube dns details
+       kubectl exec <core-dns-pod-name> -n kube-system ps   # Where is the configuration file located for configuring the CoreDNS service?
+       core dns file is configured to dns pod using configmap
+       kubectl get configmap -n kube-system
+       kubectl describe configmap coredns -n kube-system
+# Ingress
+      Ingress exposes HTTP and HTTPS routes from outside the cluster to services within the cluster. Traffic routing is controlled by rules defined on the Ingress resource
+      An Ingress can be configured to give Services externally-reachable URLs, load balance traffic, terminate SSL / TLS, and offer name based virtual hosting
+      You must have an ingress controller to satisfy an Ingress. Only creating an Ingress resource has no effect
+      Ingress needs 
+                  1) ingress controller(suppotrs gcp,ngnix)
+                        a) service to expose node port to external wo
+                        b) service account to write correct permission- cluster roles role bingings
+                        c) config map to feed nginx data 
+                  2) ingress resources (.yaml file)
+      
+   1) ingress controller: its deployed as normal pod deployment 
+   '''
+   ---------------------code.yaml-------------------------------------
+                                          apiVersion: extensions/v1beta1
+                                          kind: Ingress
+                                          metadata:
+                                            name: ngnix-ingress-controller
+                                          spec:
+                                           replicas: 1
+                                           selector: 
+                                              matchLabels:
+                                                  name: ngnix-ingress
+                                           tempelate:
+                                              metadata:
+                                                 labels: 
+                                                   name: ngnix-ingress
+                                              spec:
+                                                containers:
+                                                - name:
+                                                  image:
+-------------------------------------------------------------------
+                  
+            2)ingress resources:
+                        apiVersion: networking.k8s.io/v1beta1
+                        kind: Ingress
+                        metadata:
+                          name: test-ingress
+                          annotations:
+                            nginx.ingress.kubernetes.io/rewrite-target: /
+                        spec:
+                          rules:
+                          - http:
+                              paths:
+                              - path: /testpath
+                                backend:
+                                  serviceName: test
+                                  servicePort: 80
+          
+     4  kubectl get deployments --all-namespaces
+    5  kubectl create namespace ingress-space
+    6  kubectl get namespace
+    7  kubectl create configmap nginx-configuration -n ingress-space
+    8  kubectl get configmap -n ingress-space
+    9  kubectl create searviceaccount ingress-serviceaccount -n ingress-space
+   10  kubectl create serviceaccount ingress-serviceaccount -n ingress-space
+   11  kubectl get serviceaccount -n ingress-space
+   12  kubectl get roles -n ingress-space
+   13  kubectl get rolebinding -n ingress-space         
+          
 
 
 
