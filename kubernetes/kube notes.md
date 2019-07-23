@@ -402,6 +402,50 @@ kubectl certificate approve vas   , kubectl get csr vas -o yaml
 * to access the server u need to specfiy port,key, admin.crt,ca.crt file but each time mentioning will be tedios job so we add this in kube config file, "$HOME/.kube/config" by defalut kubelet will look for cofig will in this location.
 * config file has 3 formatas, cluster,user & Context, context definds which user can access which clusters eg: admin@production
 * eg: https://github.com/zecke/Kubernetes/blob/master/docs/user-guide/kubeconfig-file.md
+## API GROUPS:
+API groups make it easier to extend the Kubernetes API. The API group is specified in a REST path and in the apiVersion field of a serialized object
+* ertain resources and API groups are enabled by default. You can enable or disable them by setting --runtime-config on the apiserver. --runtime-config accepts comma separated values. For example: - to disable batch/v1, set --runtime-config=batch/v1=false - to enable batch/v2alpha1, set --runtime-config=batch/v2alpha1
+
+## Role Based Access Control:
+* Role-based access control (RBAC) is a method of regulating access to computer or network resources based on the roles of individual users within an enterprise
+* create a role defination file in role.yaml 
+                  apiversion: rbac.authorization.k8s.io/v1 
+                  kind: V1
+                  metadata:
+                        name: developer
+                  rules: 
+                  - apiGroups: [""]
+                    resources: ["pods"]
+                    verbs: ["list","get","create","update","delete"]
+                  - apiGroups: [""]
+                    resources: ["ConfigMap"]
+                    verbs: ["create"]
+kubectl create -f role-def.yaml
+* next user to role so we need to create another object called role binging
+                  apiversion: rbac.authorization.k8s.io/v1 
+                  kind: RoleBinging
+                  metadata:
+                        name: devuser-devekioer-binging
+                  subjects:
+                  - kind: User
+                    name: dev-user
+                    apiGroup: rbac.authorization.k8s.io
+                  roleRef:
+                    kind: Role
+                    name: developer
+                    apiGroup: rbac.authorization.k8s.io
+kubectl create -f role-binding.yaml
+kubectl get roles
+kubectl get rolebindings
+kubectl describe role developer
+kubectl describe rolebinding devuser-binding
+* to check weither i have access to particular command
+kubectl auth can-i create deployments
+kubectl auth can-i delete nodes
+kubectl auth can-i create deployments --as dev-user
+kubectl auth can-i delete nodes --as dev-user
+* to restrcte user to access only certian pos mention resourcesNames: ["blue","green"]
+
 
 
 
