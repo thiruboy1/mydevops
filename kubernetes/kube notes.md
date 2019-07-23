@@ -1,4 +1,4 @@
-# Kubernetes
+# Kubernetes Core Concepts
 Kubernetes (K8s) is an open-source system for automating deployment, scaling, and management of containerized applications.
 ## Kubernetes Cluster Archticture
       it mainly consist of 
@@ -223,7 +223,7 @@ kubectl get services
 
 ### Load Balancers:
 * to distribute load accros front end tier
-
+# Scheduling
 ## Scheduling Pod
 * It is responsible for placement of Pods on Nodes in a cluster.The scheduler finds feasible Nodes for a Pod and then runs a set of functions to score the feasible Nodes and picks a Node with the highest score among the feasible ones to run the Pod. The scheduler then notifies the API server about this decision in a process called “Binding
 ```
@@ -273,6 +273,257 @@ kubectl get services
                     - name: nginx
                       image: nginx 
 ```
+
+ ## editing PODs and Deployments
+            kubectl edit pod <pod name>
+            kubectl edit deployment my-deployment
+            kubectl get pods
+            kubectl get pod -o yaml > lion.yaml
+            edit lion.yaml file & delete lion poda and create lion pod usin lion.yaml file
+            kubectl create -f lion.yaml 
+                        
+  ## Daemone Sets
+    Daemone set will make sure that service is running on all nodes
+    A DaemonSet ensures that all (or some) Nodes run a copy of a Pod. As nodes are added to the cluster, Pods are added to them. As nodes are removed from the cluster, those Pods are garbage collected. Deleting a DaemonSet will clean up the Pods it created
+  
+            apiVersion: apps/v1
+            kind: DaemonSet
+            metadata:  
+              name: elasticsearch
+              namespace: kube-system
+            spec:
+              selector:
+                matchLabels:
+                  name: elasticsearch
+              template:
+                metadata:
+                  labels:
+                    name: elasticsearch
+                spec:
+                  containers:
+                  - name: elasticsearch
+                    image: k8s.gcr.io/fluentd-elasticsearch:1.20
+                    
+            master $ cat desets.yml
+            
+            apiVersion: apps/v1
+            kind: DaemonSet
+            metadata:
+                name: elasticsearch
+                namespace: kube-system
+## Static Pods
+           kublete is service installed in nodes , this kubelet can operate even without kube master, in order to run kubelet without master u need to place yaml file in /etc/kubernetes/manifestes/. now kublete will check for update in this location if any update kubelet will update the same in pod.
+           in static pods you cannot create replica sets,deployments without kube master
+           1) specfiy in kubelet.service file
+           --pod-manifest-path=/etc/kubernetes/manifestes\\
+           2)insted of defining in kubelet.service file create a kubeconfig.yaml and provide path in serive file and in that file enter the following
+                  --config-kubeconfig.yaml
+                  staticPodPath: /etc/kubernetes/manifestes
+            kubectl get pods --all-namespaces
+            kubectl run --restart=Never --image=busybox static-busybox --dry-run -o yaml --command -- sleep 1000 > /etc/kubernetes/manifests/static-busybox.yaml
+            
+## Kube Multiple Scheduler
+
+* Kubernetes allows us to create multiple scheduler, in order to create custom scheduler u can use the schedule.yaml file in manifest folder, 
+* you can have any number of custom scheduler, 
+* in case of multiple scheduler , u must set leder elect to false in custom pod def file
+* to create custom scheduler yaml file, juct copy the orginal scheduler file and update the custom name and create the scheduler 
+* update "lock-object-name=my-custom-schuduler
+* you can run pod with custome scheduler by inserting property in pod yaml file : schedulerName: my-custom-scheduler
+            
+                  apiVersion: v1
+                  kind: Pod
+                  metadata:
+                    name: nginx
+                  spec:
+                    containers:
+                    -  image: nginx
+                       name: nginx
+                    schedulerName: my-scheduler
+* to check which scheduler created pod use following command.
+kubctl get events
+
+# Kube Monitoring & loging
+            Kubernetes dosent have complete monitoring feature, so we use other tools like metrics
+            metrics installatino:
+            https://github.com/kodekloudhub/kubernetes-metrics-server.git
+            cd <downloded folder>
+            kubectl creat -f .
+            kubectl top nodes
+            kubectl top pods
+      ## Log
+            simalar like docker kubernetes have feature to moniter logs, by using simple command,
+            kubernets allows us to moniter multiple contianers in single pod by using following command
+            kubectl log -f <pod name> <container name>
+## Kube Application lifecycle Managment
+            in kubernetes there two types of update are there
+            1)Rolling Update(Default): 
+                in this kuberenetes will bring up new pod and bring down old pod, by this way it will roll all the pods, 
+                if there is any issue in new updated pod then u can roll back to old pods
+            2)Recreate Update:
+              old pods are Destroyed and new pods are created, in this method there will application down time
+              
+              kubectl create -f deployment-defination.yaml                    #create
+              kubectl get deployments                                         #get
+              kubectl describe deployment
+              kubectl apply -f deployment-defination.yaml                     #update
+              kubectl set image deployment/myapp-deployment nginx=nginx:1.9.1
+              kubectl rollout status deployment/myapp-deployment              #status
+              kubectl rollout history                                         #rollback
+              
+## Kube Env Variables
+              in pod defination file u can specfiy the env variables, Enfiroment variable can be set in two ways
+         ## 1) direct way
+             
+              to set an Enviorment variable use "env" array
+              appVersion: v1
+              kind: Pod
+              metadata:
+                  name: testpod
+              spec:
+                  container:
+                    - name:
+                      image:
+                 env:
+                  - name: APP_Color
+                    value: pink
+            
+      when you have lot pods it will become difficult to manage Envirorment Variables so we use config map                
+              
+## 2)Config Maps:
+             is used to pass configuration data in the form of key value pairs in kubernetes
+             there are two phases in config map 1) create config map file 2) inject into kubernetes
+             imperative  way: kubectl create configmap
+                                    <config-name> --from-literal=<key>=<value>
+                                                  --from-literal=<key>=<value>
+                                                  --from-literal=<key>=<value>
+                              kubectl create configmap
+                                    <config-name> --from-file=<path to file>
+                                    
+             declarative way: kubectl create -f configmap.yaml 
+             
+                              apiVersion: v1
+                              kind: ConfigMap
+                              metadata:
+                                  name: app-config
+                              data:
+                                 APP_COLOR: pink
+                                 APP_MODE: prod
+              
+            kubectl get configmaps
+            kubectl describe configmaps
+            
+      ## now inject configmap file into pod defination file
+      appVersion: v1
+              kind: Pod
+              metadata:
+                  name: testpod
+              spec:
+                  container:
+                    - name:
+                      image:
+               envFrom:
+                  - configMapRef:
+                         name: app-config(name of config map which was created)
+            
+## Kube Secrets
+       kubernetes allows us to store user name password in more secure way by using secrets, you can define secretes in 2 ways
+       2)imperative way 2)declarative way
+       imperative  way: kubectl create secret
+                                    <secret-name> --from-literal=<key>=<value>
+                                                  --from-literal=<key>=<value>
+                                                  --from-literal=<key>=<value>
+                              kubectl create secret
+                                    <secret-name> --from-file=<path to file>
+                                    
+             declarative way: kubectl create -f secret.yaml 
+             
+                              apiVersion: v1
+                              kind: Secret
+                              metadata:
+                                  name: app-secret
+                              data:
+                                 db_host: 
+                                 db_username
+                                 db_password: 
+            
+            to generate hash version of db host and db_password use following command in linux 
+            echo -n 'mysql' | base64
+            echo -n 'root' | base64
+            echo -n 'pass' | base64
+            kubectl get configmaps
+            kubectl describe configmaps
+### now inject secret file into pod defination file
+      appVersion: v1
+              kind: Pod
+              metadata:
+                  name: testpod
+              spec:
+                  container:
+                    - name:
+                      image:
+                      envFrom:
+                        - secretRef:
+                               name: app-secret(name of config map which was created)           
+ ### secret in POD as volume
+            volume:
+             - name: app-secret-volume
+               secret:
+                 secretName: app-secret       
+            
+## Kube Mulit Container Pod     
+## kube initContainer
+            init container will run before app container will start run,
+            If an Init Container fails for a Pod, Kubernetes restarts the Pod repeatedly until the Init Container succeeds,However, if the Pod has a restartPolicy of Never, it is not restarted .
+            apiVersion: v1
+            kind: Pod
+            metadata:
+              name: myapp-pod
+              labels:
+                app: myapp
+            spec:
+              containers:
+              - name: myapp-container
+                image: busybox:1.28
+                command: ['sh', '-c', 'echo The app is running! && sleep 3600']
+              initContainers:
+              - name: init-myservice
+                image: busybox:1.28
+                command: ['sh', '-c', 'until nslookup myservice; do echo waiting for myservice; sleep 2; done;']
+## Kube OS upgrade to node
+             in kube cluster if any node need to updated then node needs downtime, during this down time pods will also go down,
+             eviction timeout 5 m, the time it waits for pod to come back is called eviction timeout, which is set on controller manager
+             with default value of 5 miniutes.so when ever node goes down,master node waits for 5m to consedring node dead.
+             if node comes back after eviction time then node comes blank.
+             so if u have any maintince task to be performed then u drain the node by running following command
+            # kubectl drain node-1
+             once maintanence activity is done u need to run following command so that master will assign pods to node
+            # kubectl uncordon node-1
+            # kubectl cordon   # this command will not terminate insted it will make sure that new pods should not be scheduled
+              kubectl get pods -o wide
+              
+              Upgrade of cluster: all components of kubernetes must be one version lower than kubeapiserver, kubectl can be one version lower or upper, ant any time kubernetes will to use 3 stable version,
+              1st u need to upgrage kube master and then u need to updgarde nodes , during master upgrade nodes will work independtly, users will not have any intruption but master cannot control nodes
+              apt install kubeadm=1.12.0-00
+              kubeadm upgrade apply v1.12.0
+              apt install kubelet=1.12.0-00 
+## kube Cluster Upgarde
+* since kubeapi server talks to all components, all other components version should be less than kubeapi server 
+      * controller manager & scheduler can be one version lower x-1
+      * kubelet & kube poroxy can be two version lower x-2
+      * kubectl can be one version higher or one version lower x+1 > x-1
+* at any time kubernetes will allow 3 version upgrade 
+* upgradin kubernetes involves in two steps
+ * upgrade master node
+ * upgrade worker node
+## Backup and restore methods
+backup - resources and configuration
+      kubectl get all --all-namespaces -o yaml > file.yaml
+backup of etcd 
+      ectd can be backedup by using data directory (check in etcd service file)
+      etch can be backed using command ETCDCTL_API=3 etcdctl snapshot save snapshot.db
+# Kube Security
+
 ## Resources & Requirments
 * by default kube assumes pod requries 0.5 cpu, 256Mi memory, if we know application requires more than this then u can specfiy in pod defination file
 
@@ -464,7 +715,7 @@ to access priveate repo u must specfiy in username & passwd in yaml file but def
 ## Security Context 
 * security context can be defined under pod level or container level, to define context under pod level mention context in spec level and to define under container level move context under container level
 
-## Storage:
+# Storage:
 
 ## Volumes:
 * when pod is created it has its own data & this data will be lost when pod is deleted so to avoid this we use volumes where volumes are mounted on drive and this drive is mounted to pod so if pod is deleted only pod is deleted but not volumes, each volumes is defined in pod defination file 
@@ -472,6 +723,7 @@ to access priveate repo u must specfiy in username & passwd in yaml file but def
   defining and editing the volumes induvill is very difficule so we use persistant volume, persistant volume can be defined in persitant volume.yaml file
   * persistant volume claims:
     previsouly we create presistant volumes to use storage we need to create persistant volume claims, persitant volumes claims are created kubernetes will bind pv with pvc, during the claim kubernetes will look for pvc, however if there are multiple matches for the claim then u can use labels to match the claim, there is one to one relationship bw claims and volumes , if pvc conxumes only 50% of pv then remaning pv cannot be used by others, if no pv is avilable for pvc then pvc will be in pending state
+    # Networking
   
 
 
