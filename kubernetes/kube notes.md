@@ -458,6 +458,21 @@ kubectl auth can-i delete nodes --as dev-user
 * if u create user to access pods using cluster role binding the user will get access to all pods in all namespaces
 
 ## Images Security:
+* images for pod are stored in regestry like docker gcr and private repo, in order to store images privately u must store in private repo, 
+to access priveate repo u must specfiy in username & passwd in yaml file but defining username & passwd in yaml file is not good pratice so we create secrete, in secrete we define username and passwd
+
+## Security Context 
+* security context can be defined under pod level or container level, to define context under pod level mention context in spec level and to define under container level move context under container level
+
+## Storage:
+
+## Volumes:
+* when pod is created it has its own data & this data will be lost when pod is deleted so to avoid this we use volumes where volumes are mounted on drive and this drive is mounted to pod so if pod is deleted only pod is deleted but not volumes, each volumes is defined in pod defination file 
+* persistant volumes:
+  defining and editing the volumes induvill is very difficule so we use persistant volume, persistant volume can be defined in persitant volume.yaml file
+  * persistant volume claims:
+    previsouly we create presistant volumes to use storage we need to create persistant volume claims, persitant volumes claims are created kubernetes will bind pv with pvc, during the claim kubernetes will look for pvc, however if there are multiple matches for the claim then u can use labels to match the claim, there is one to one relationship bw claims and volumes , if pvc conxumes only 50% of pv then remaning pv cannot be used by others, if no pv is avilable for pvc then pvc will be in pending state
+  
 
 
 
