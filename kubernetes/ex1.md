@@ -77,3 +77,53 @@ spec:
      requests:
        storage: 1Gi
 ```
+## Step3- Creating POD
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: nginx1
+  name: nginx-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx1
+  template:
+    metadata:
+      labels:
+        app: nginx1
+    spec:
+      containers:
+        - image: "nginx:1.7.9"
+          name: nginx1
+          volumeMounts:
+            - name: nfs-volume
+              mountPath: /usr/share/nginx/html
+          ports:
+            - containerPort: 80
+
+      volumes:
+        - name: nfs-volume
+          persistentVolumeClaim:
+              claimName: nfs-pvc
+
+```
+
+##Step4- Creating Service
+
+```
+apiVersion: v1
+kind: Service
+metadata:
+    name: nginx1-frontend
+spec:
+  type: NodePort
+  ports:
+   - targetPort: 80
+     port: 80
+     nodePort: 30000
+  selector:
+     app: nginx1
+```
