@@ -63,6 +63,7 @@ spec:
   readOnly: false
 
 ```
+###kubectl create -f nfs-pv.yaml
 ## Step2- Creating object definition for the PVC
 nfs-pvc.yaml
 ```
@@ -77,6 +78,7 @@ spec:
      requests:
        storage: 1Gi
 ```
+###kubectl create -f nfs-pvc.yaml
 ## Step3- Creating POD
 ```
 apiVersion: apps/v1
@@ -110,8 +112,8 @@ spec:
               claimName: nfs-pvc
 
 ```
-
-##Step4- Creating Service
+###kubectl create -f nginx-deployment.yaml
+## Step4- Creating Service
 
 ```
 apiVersion: v1
@@ -127,3 +129,4 @@ spec:
   selector:
      app: nginx1
 ```
+###kubectl create -f nginx-frontend.yaml
