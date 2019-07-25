@@ -18,7 +18,7 @@
       Step3: Creating the NGINX Pod
       step5: Creating Service to access NGINX pod 
 ```
-##Prerequests- Installing NFS Server 
+## Prerequests- Installing NFS Server 
 ```
 yum -y install nfs-utils nfs-utils-lib
 chkconfig nfs on
@@ -27,7 +27,7 @@ service nfs start
 echo -e "/root/share	10.200.20.245(rw,syncno_root_squash)" >> /etc/exports
 exportfs -a
 ```
-##Prerequests- Installing NFS Client On kubernets Master
+## Prerequests- Installing NFS Client On kubernets Master
 ```
 yum -y install nfs-utils nfs-utils-lib -y
 systemctl enable rpcbind &&
@@ -63,7 +63,7 @@ spec:
   readOnly: false
 
 ```
-###kubectl create -f nfs-pv.yaml
+### kubectl create -f nfs-pv.yaml
 ## Step2- Creating object definition for the PVC
 nfs-pvc.yaml
 ```
@@ -78,7 +78,7 @@ spec:
      requests:
        storage: 1Gi
 ```
-###kubectl create -f nfs-pvc.yaml
+### kubectl create -f nfs-pvc.yaml
 ## Step3- Creating POD
 ```
 apiVersion: apps/v1
@@ -112,7 +112,7 @@ spec:
               claimName: nfs-pvc
 
 ```
-###kubectl create -f nginx-deployment.yaml
+### kubectl create -f nginx-deployment.yaml
 ## Step4- Creating Service
 
 ```
@@ -129,4 +129,4 @@ spec:
   selector:
      app: nginx1
 ```
-###kubectl create -f nginx-frontend.yaml
+### kubectl create -f nginx-frontend.yaml
