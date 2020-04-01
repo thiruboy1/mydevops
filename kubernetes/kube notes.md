@@ -312,6 +312,36 @@ spec:
   dnsPolicy: ClusterFirst
   restartPolicy: Always
 ```
+## Node Selectors
+* nodeSelector is the simplest recommended form of node selection constraint. nodeSelector is a field of PodSpec. It specifies a map of key-value pairs. For the pod to be eligible to run on a node, the node must have each of the indicated key-value pairs as labels (it can have additional labels as well). The most common usage is one key-value pair
+
+* for using node selector first u must label the node
+```
+kubectl label nodes <node-name> <label-key>=<label-value>
+kubectl label nodes node01 size=large
+```
+* to add nodeselector field to pod config file
+ ```
+  apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx
+  labels:
+    env: test
+spec:
+  containers:
+  - name: nginx
+    image: nginx
+    imagePullPolicy: IfNotPresent
+  nodeSelector:
+    size: large   
+ ```  
+ * you cannot achive large or medium node be selected or to selest not small node so for this we use Node Affinity
+ 
+ ## Node Affinity
+      
+      
+
  ## editing PODs and Deployments
             kubectl edit pod <pod name>
             kubectl edit deployment my-deployment
