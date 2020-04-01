@@ -277,7 +277,7 @@ kubectl get services
 
 * Taints and tolerations work together to ensure that pods are not scheduled onto inappropriate nodes. One or more taints are applied to a node; this marks that the node should not accept any pods that do not tolerate the taints. Tolerations are applied to pods, and allow (but do not require) the pods to schedule onto nodes with matching taints.
 
-* Adding taint to node
+### Adding taint to node
 ```
 kubectl taint nodes node1 key=value:NoSchedule
 
@@ -286,6 +286,31 @@ tolerations:
   operator: "Equal"
   value: "value"
   effect: "NoSchedule"
+```
+### Removing Taing
+```
+kubectl taint nodes node1 key:NoSchedule-
+kubectl taint nodes master node-role.kubernetes.io/master:NoSchedule-'.
+```
+### POD with toleration 
+```
+apiVersion: v1
+kind: Podmetadata:  creationTimestamp: null
+  labels:
+    run: bee
+  name: bee
+spec:
+  containers:
+  - image: nginx
+    name: bee
+    resources: {}
+  tolerations:
+  - key: "spray"
+    operator: "Equal"
+    value: "mortein"
+    effect: "NoSchedule"
+  dnsPolicy: ClusterFirst
+  restartPolicy: Always
 ```
  ## editing PODs and Deployments
             kubectl edit pod <pod name>
