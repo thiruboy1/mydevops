@@ -336,11 +336,114 @@ spec:
   nodeSelector:
     size: large   
  ```  
- * you cannot achive large or medium node be selected or to selest not small node so for this we use Node Affinity
+ * you cannot provide AND OR with node selectors like large or medium node be selected or to selest not small node so for this we use Node Affinity
  
  ## Node Affinity
-      
-      
+ Node affinity is conceptually similar to nodeSelector – it allows you to constrain which nodes your pod is eligible to be scheduled on, based on labels on the node
+ 
+ * The affinity feature consists of two types of affinity, “node affinity” and “inter-pod affinity/anti-affinity”. Node affinity is like the existing nodeSelector
+ 1) offers more matching rules besides exact matches created with a logical AND operation;
+ 2) you can indicate that the rule is “soft”/“preference” rather than a hard requirement, so if the scheduler can’t satisfy it, the pod will still be scheduled;
+ ```
+ apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    deployment.kubernetes.io/revision: "1"
+  creationTimestamp: "2020-04-01T14:15:52Z"
+  generation: 1
+  labels:
+    run: blue
+  name: blue
+  namespace: default
+  resourceVersion: "805"
+  selfLink: /apis/apps/v1/namespaces/default/deployments/blue
+  uid: 0ca8dfe2-3895-447d-a9c6-87d68c72d92a
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 6
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      run: blue
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        run: blue
+    spec:
+      affinity:
+       nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+         nodeSelectorTerms:
+         - matchExpressions:
+           - key: color
+             operator: In
+             values:
+             - blue
+      containers:
+      - image: nginx
+        imagePullPolicy: Always
+        name: blue
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+status:
+  availableReplicas: 6
+  conditions:
+  - lastTransitionTime: "2020-04-01T14:16:05Z"
+    lastUpdateTime: "2020-04-01T14:16:05Z"
+    message: Deployment has minimum availability.
+    reason: MinimumReplicasAvailable
+    status: "True"
+    type: Available
+  - lastTransitionTime: "2020-04-01T14:15:52Z"
+    lastUpdateTime: "2020-04-01T14:16:07Z"
+    message: ReplicaSet "blue-5f8c8796ff" has successfully progressed.
+    reason: NewReplicaSetAvailable
+    status: "True"
+    type: Progressing
+  observedGeneration: 1
+  readyReplicas: 6
+  replicas: 6
+  updatedReplicas: 6
+ ```
+ * for master node
+ ```
+ apiVersion: apps/v1kind: Deploymentmetadata:  name: redspec:  replicas: 3  selector:
+    matchLabels:      run: nginx
+  template:
+    metadata:
+      labels:
+        run: nginx
+    spec:
+      containers:
+      - image: nginx
+        imagePullPolicy: Always
+        name: nginx
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: node-role.kubernetes.io/master
+                operator: Exists
+ ```
+ * The new node affinity syntax supports the following operators: In, NotIn, Exists, DoesNotExist, Gt, Lt. You can use NotIn and DoesNotExist to achieve node anti-affinity behavior, or use node taints to repel pods from specific nodes.     
+```      
+kubectl label node node01 color=blue
+```
+
 
  ## editing PODs and Deployments
             kubectl edit pod <pod name>
