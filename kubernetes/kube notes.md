@@ -63,6 +63,13 @@ Other than from a PodSpec from the apiserver, there are three ways that a contai
  * Pods in a Kubernetes cluster can be used in two main ways:
       * Pods that run a single container
       * Pods that run multiple containers that need to work together
+      
+```
+Run the kubectl edit pod <pod name> 
+kubectl get pod webapp -o yaml > my-new-pod.yaml
+kubectl edit deployment my-deployment
+```
+      
 ## Replication Controller:
 * A ReplicationController ensures that a specified number of pod replicas are running at any one time. In other words, a ReplicationController makes sure that a pod or a homogeneous set of pods is always up and available
 * another use of RC is during loadbalancing, if load increacese RC will replicate the pod is another node  in cluster when demand increces
@@ -443,7 +450,42 @@ status:
 ```      
 kubectl label node node01 color=blue
 ```
+## Resource Requirments & Limits
 
+* Scheduler scheduels the pods on nodes, when resource are not availabel on node then scheduler wont schecdule pods,then scheduler will check for other nodes, if no sufficient resourese are avilabel in all nodes then pods will go in pending state  
+* by default kubernets assumes pod requers 0.5 cpu and 256mi memory this is know as resource requirments of container, this limit can be changed by specfing the resource limit on pod/deployment defination file
+* in docker container has no limit to cpu it can go up to the node limit which will sufficote other containers, however u can set resouce limits on pods by default kubernetes will set limit to 1vcpu & 512 mi , if u need to set more limit then u can specfiy it in pod/deployment defination file
+* in case of cpu kubernetes throtols cpu but this not the case for memory it will to use , but if pod constantly consumes more memory then pod will be terminated
+
+* When a pod is created the containers are assigned a default CPU request of .5 and memory of 256Mi". For the POD to pick up those defaults you must have first set those as default values for request and limit by creating a LimitRange in that namespace.
+
+```
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: mem-limit-range
+spec:
+  limits:
+  - default:
+      memory: 512Mi
+    defaultRequest:
+      memory: 256Mi
+    type: Container
+```
+
+```
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: cpu-limit-range
+spec:
+  limits:
+  - default:
+      cpu: 1
+    defaultRequest:
+      cpu: 0.5
+    type: Container
+```
 
  ## editing PODs and Deployments
             kubectl edit pod <pod name>
@@ -455,7 +497,7 @@ kubectl label node node01 color=blue
                         
   ## Daemone Sets
     Daemone set will make sure that service is running on all nodes
-    A DaemonSet ensures that all (or some) Nodes run a copy of a Pod. As nodes are added to the cluster, Pods are added to them. As nodes are removed from the cluster, those Pods are garbage collected. Deleting a DaemonSet will clean up the Pods it created
+    A DaemonSet ensures that on copy pos runs on  all nodes in cluster, As nodes are added to the cluster, Pods are added to them. As nodes are removed from the cluster, those Pods are garbage collected. Deleting a DaemonSet will clean up the Pods it created
   
             apiVersion: apps/v1
             kind: DaemonSet
@@ -484,6 +526,7 @@ kubectl label node node01 color=blue
                 namespace: kube-system
 ## Static Pods
            kublete is service installed in nodes , this kubelet can operate even without kube master, in order to run kubelet without master u need to place yaml file in /etc/kubernetes/manifestes/. now kublete will check for update in this location if any update kubelet will update the same in pod.
+           note: node name is appended and end of  static pod name eg:  kube-apiserver-master,kube-controller-manager-master,kube-scheduler-master &etcd-master
            in static pods you cannot create replica sets,deployments without kube master
            1) specfiy in kubelet.service file
            --pod-manifest-path=/etc/kubernetes/manifestes\\
@@ -491,8 +534,10 @@ kubectl label node node01 color=blue
                   --config-kubeconfig.yaml
                   staticPodPath: /etc/kubernetes/manifestes
             kubectl get pods --all-namespaces
+* Create a static pod named static-busybox that uses the busybox image and the command sleep 1000
+```
             kubectl run --restart=Never --image=busybox static-busybox --dry-run -o yaml --command -- sleep 1000 > /etc/kubernetes/manifests/static-busybox.yaml
-            
+ ```
 ## Kube Multiple Scheduler
 
 * Kubernetes allows us to create multiple scheduler, in order to create custom scheduler u can use the schedule.yaml file in manifest folder, 
