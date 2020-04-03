@@ -593,9 +593,49 @@ kubctl get events
               kubectl rollout history                                         #rollback
               
 ```
+## Commands
+in docker
+* Containers are designed for running specific tasks and processes, not for hosting operating systems. You create a container to serve a single unit task. Once it completes the given task, it stops. Therefore, the container life-cycle depends on the ongoing process inside of it. Once the process stops, the container stops as well.
+
+* In this script, there are two types of instructions that can define the process running in the container: 
+1) CMD : 
+CMD defines default commands and/or parameters for a container. CMD is an instruction that is best to use if you need a default command which users can easily override. If a Dockerfile has multiple CMDs, it only applies the instructions from the last one.
+
+2) ENTRYPOINT:
+On the other hand, ENTRYPOINT is preferred when you want to define a container with a specific executable. You cannot override the ENTRYPOINT instruction by adding command-line parameters to the docker run command,  unless you add the --entrypoint flag
+
+NOTE: https://phoenixnap.com/kb/docker-cmd-vs-entrypoint
+
+```
+apiVersion: v1
+kind: Pod
+metadata:
+  name: command-demo
+  labels:
+    purpose: demonstrate-command
+spec:
+  containers:
+  - name: command-demo-container
+    image: debian
+    command: ["printenv"]
+    args: ["HOSTNAME", "KUBERNETES_PORT"]
+  restartPolicy: OnFailure
+```
+Run the following on command line
+
+```
+kubectl apply -f https://k8s.io/examples/pods/commands.yaml
+kubectl get pods
+kubectl logs command-demo
+```
+The output shows the values of the HOSTNAME and KUBERNETES_PORT environment variables:
+```
+command-demo
+tcp://10.3.240.1:443
+```
 ## Kube Env Variables
               in pod defination file u can specfiy the env variables, Enfiroment variable can be set in two ways
-         ## 1) direct way
+### 1) direct way
              
               to set an Enviorment variable use "env" array
               appVersion: v1
@@ -612,7 +652,7 @@ kubctl get events
             
       when you have lot pods it will become difficult to manage Envirorment Variables so we use config map                
               
-## 2)Config Maps:
+### 2)Config Maps:
              is used to pass configuration data in the form of key value pairs in kubernetes
              there are two phases in config map 1) create config map file 2) inject into kubernetes
              imperative  way: kubectl create configmap
@@ -635,7 +675,7 @@ kubctl get events
             kubectl get configmaps
             kubectl describe configmaps
             
-      ## now inject configmap file into pod defination file
+#### now inject configmap file into pod defination file
       appVersion: v1
               kind: Pod
               metadata:
@@ -648,7 +688,7 @@ kubctl get events
                   - configMapRef:
                          name: app-config(name of config map which was created)
             
-## Kube Secrets
+### Kube Secrets
        kubernetes allows us to store user name password in more secure way by using secrets, you can define secretes in 2 ways
        2)imperative way 2)declarative way
        imperative  way: kubectl create secret
@@ -675,7 +715,7 @@ kubctl get events
             echo -n 'pass' | base64
             kubectl get configmaps
             kubectl describe configmaps
-### now inject secret file into pod defination file
+#### now inject secret file into pod defination file
       appVersion: v1
               kind: Pod
               metadata:
@@ -687,7 +727,7 @@ kubctl get events
                       envFrom:
                         - secretRef:
                                name: app-secret(name of config map which was created)           
- ### secret in POD as volume
+ #### secret in POD as volume
             volume:
              - name: app-secret-volume
                secret:
