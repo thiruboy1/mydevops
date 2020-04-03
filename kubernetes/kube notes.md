@@ -684,8 +684,8 @@ tcp://10.3.240.1:443
                   container:
                     - name:
                       image:
-               envFrom:
-                  - configMapRef:
+                      envFrom:
+                      - configMapRef:
                          name: app-config(name of config map which was created)
             
 ### Kube Secrets
@@ -715,6 +715,8 @@ tcp://10.3.240.1:443
             echo -n 'pass' | base64
             kubectl get configmaps
             kubectl describe configmaps
+``` kubectl create secret generic db-secret --from-literal=DB_Host=sql01 --from-literal=DB_User=root --from-literal=DB_Password=password123     
+```
 #### now inject secret file into pod defination file
       appVersion: v1
               kind: Pod
@@ -734,6 +736,7 @@ tcp://10.3.240.1:443
                  secretName: app-secret       
             
 ## Kube Mulit Container Pod     
+
 ## kube initContainer
             init container will run before app container will start run,
             If an Init Container fails for a Pod, Kubernetes restarts the Pod repeatedly until the Init Container succeeds,However, if the Pod has a restartPolicy of Never, it is not restarted .
