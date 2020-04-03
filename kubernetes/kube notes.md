@@ -546,7 +546,8 @@ spec:
 * to create custom scheduler yaml file, juct copy the orginal scheduler file and update the custom name and create the scheduler 
 * update "lock-object-name=my-custom-schuduler
 * you can run pod with custome scheduler by inserting property in pod yaml file : schedulerName: my-custom-scheduler
-            
+
+ ```           
                   apiVersion: v1
                   kind: Pod
                   metadata:
@@ -556,21 +557,25 @@ spec:
                     -  image: nginx
                        name: nginx
                     schedulerName: my-scheduler
+``` 
 * to check which scheduler created pod use following command.
 kubctl get events
 
 # Kube Monitoring & loging
-            Kubernetes dosent have complete monitoring feature, so we use other tools like metrics
+* Kubernetes dosent have complete monitoring feature, so we use other tools like metrics
             metrics installatino:
+```
             https://github.com/kodekloudhub/kubernetes-metrics-server.git
             cd <downloded folder>
             kubectl creat -f .
             kubectl top nodes
             kubectl top pods
-      ## Log
-            simalar like docker kubernetes have feature to moniter logs, by using simple command,
-            kubernets allows us to moniter multiple contianers in single pod by using following command
+```
+## Log
+* simalar like docker kubernetes have feature to moniter logs, by using simple command, kubernets allows us to moniter multiple contianers in single pod by using following command
+```
             kubectl log -f <pod name> <container name>
+```            
 ## Kube Application lifecycle Managment
             in kubernetes there two types of update are there
             1)Rolling Update(Default): 
@@ -578,7 +583,7 @@ kubctl get events
                 if there is any issue in new updated pod then u can roll back to old pods
             2)Recreate Update:
               old pods are Destroyed and new pods are created, in this method there will application down time
-              
+```              
               kubectl create -f deployment-defination.yaml                    #create
               kubectl get deployments                                         #get
               kubectl describe deployment
@@ -587,6 +592,7 @@ kubctl get events
               kubectl rollout status deployment/myapp-deployment              #status
               kubectl rollout history                                         #rollback
               
+```
 ## Kube Env Variables
               in pod defination file u can specfiy the env variables, Enfiroment variable can be set in two ways
          ## 1) direct way
