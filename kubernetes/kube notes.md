@@ -756,22 +756,33 @@ tcp://10.3.240.1:443
                 image: busybox:1.28
                 command: ['sh', '-c', 'until nslookup myservice; do echo waiting for myservice; sleep 2; done;']
 ## Kube OS upgrade to node
-             in kube cluster if any node need to updated then node needs downtime, during this down time pods will also go down,
-             eviction timeout 5 m, the time it waits for pod to come back is called eviction timeout, which is set on controller manager
-             with default value of 5 miniutes.so when ever node goes down,master node waits for 5m to consedring node dead.
+
+* in kube cluster if any node need to updated then node needs downtime, during this down time pods will also go down,
+             eviction timeout 5 m, the time it waits for pod to come back is called eviction timeout, which is set on controller manager with default value of 5 miniutes.so when ever node goes down,master node waits for 5m to consedring node dead.
              if node comes back after eviction time then node comes blank.
-             so if u have any maintince task to be performed then u drain the node by running following command
+* so if u have any maintince task to be performed and ur not sure that when node will come back and u dont want to loose that running container on the node then u must drain the node by running following command
+```
             # kubectl drain node-1
              once maintanence activity is done u need to run following command so that master will assign pods to node
             # kubectl uncordon node-1
             # kubectl cordon   # this command will not terminate insted it will make sure that new pods should not be scheduled
               kubectl get pods -o wide
-              
-              Upgrade of cluster: all components of kubernetes must be one version lower than kubeapiserver, kubectl can be one version lower or upper, ant any time kubernetes will to use 3 stable version,
-              1st u need to upgrage kube master and then u need to updgarde nodes , during master upgrade nodes will work independtly, users will not have any intruption but master cannot control nodes
+```              
+#### Upgrade of cluster: 
+* all components of kubernetes must be one version lower than kubeapiserver, 
+* kubectl can be one version lower or upper,
+* at any time kubernetes will to use 3 stable version,
+
+* 1st u need to upgrage kube master and then u need to updgarde nodes , 
+* during master upgrade nodes will work independtly, 
+* users will not have any intruption but master cannot control nodes
+
+```               
+              kubeadm upgrade plan <this will display all existing version details>
               apt install kubeadm=1.12.0-00
               kubeadm upgrade apply v1.12.0
               apt install kubelet=1.12.0-00 
+ ```             
 ## kube Cluster Upgarde
 * since kubeapi server talks to all components, all other components version should be less than kubeapi server 
       * controller manager & scheduler can be one version lower x-1
@@ -781,12 +792,58 @@ tcp://10.3.240.1:443
 * upgradin kubernetes involves in two steps
  * upgrade master node
  * upgrade worker node
+ step1: upgrade master node
+ Upgrade the master components to exact version v1.17.0
+ 
+ Upgrade kubeadm tool (if not already), then the master components, and finally the kubelet. Practice referring to the kubernetes documentation page. Note: While upgrading kubelet, if you hit dependency issue while running the apt-get upgrade kubelet command, use the apt install kubelet=1.17.0-00 command instead
+ ```
+apt install kubeadm=1.17.0-00
+kubeadm upgrade apply v1.17.0
+install kubelet=1.17.0-00 to upgrade the kubelet on the master node
+ 
+ ```
+ step2: upgrade worker node
+ ```
+ kubeadm upgrade node
+ apt install kubeadm=1.17.0-00
+ apt install kubelet=1.17.0-00'
+ apt-mark hold kublet <this will make sure that kublet will not update automaticaly> 
+ kubeadm upgrade node config --kubelet-version $(kubelet --version | cut -d ' ' -f 2)
+ ```
 ## Backup and restore methods
-backup - resources and configuration
+backup - resources and configuration 
       kubectl get all --all-namespaces -o yaml > file.yaml
-backup of etcd 
+      you can use tools to take backup like ARK,Velero
+* backup of etcd 
       ectd can be backedup by using data directory (check in etcd service file)
       etch can be backed using command ETCDCTL_API=3 etcdctl snapshot save snapshot.db
+      
+if you want to take a snapshot of etcd, use: 
+```
+etcdctl snapshot save -h 
+```
+and keep a note of the mandatory global options.
+Since our ETCD database is TLS-Enabled, the following options are mandatory:
+```
+--cacert                       verify certificates of TLS-enabled secure servers using this CA bundle
+--cert                         identify secure client using this TLS certificate file
+--endpoints=[127.0.0.1:2379]   This is the default as ETCD is running on master node and exposed on localhost 2379.
+--key                          identify secure client using this TLS key file
+
+```
+
+Similarly use the help option for snapshot restore to see all available options for restoring the backup. etcdctl snapshot restore -h
+For a detailed explanation on how to make use of the etcdctl command line tool and work with the -h flags, check out the solution video for the Backup and Restore Lab.
+
+lab question:
+The master nodes in our cluster are planned for a regular maintenance reboot tonight. While we do not anticipate anything to go wrong, we are required to take the necessary backups. Take a snapshot of the ETCD database using the built-in snapshot functionality.
+```
+ ETCDCTL_API=3 etcdctl --endpoints=https://[127.0.0.1]:2379 --cacert=/etc/kubernetes/pki/etcd/ca.crt --cert=/etc/kubernetes/pki/etcd/server.crt --key=/etc/kubernetes/pki/etcd/server.key snapshot save /tmp/snapshot-pre-boot.db. 
+```
+
+Store the backup file at location /tmp/snapshot-pre-boot.db
+note:https://github.com/mmumshad/kubernetes-the-hard-way/blob/master/practice-questions-answers/cluster-maintenance/backup-etcd/etcd-backup-and-restore.md
+
 # Kube Security
 
 ## Resources & Requirments
