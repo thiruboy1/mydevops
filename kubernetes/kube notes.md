@@ -909,6 +909,7 @@ CA uses its own private and publick key , and public key are built in browsers
 private CA: 
 ## Certificate createion for kube
 * ther are many tools avilable to generate certificate we use openssl
+```
 * CA certificates:
       generate keys:                ca.key      openssl genrsa -out ca.key 2048
       certificate signing request   ca.csr      openssl req -new -key ca.key "/CN=KUBERNETES-CA" -out ca.csr
@@ -947,7 +948,7 @@ private CA:
       generate keys:                apiserver.key      openssl genrsa -out apiserver.key 2048
       certificate signing request   apiserver.csr      openssl req -new -key  apiserver.key -SUBJ "/CN=KUBE-apiserverr -out apiserver.csr
       signing certificate           apiserver.crt      openssl x509 -req -in apiserver.csr -signkey apiserver.key -out apiserver.crt
-           
+```           
 * everyone will access kubeapi server so list of all dns & IP ADDRESS  must be specfide in openssl.cnf file 
 * then pass all certificate location in kube-apisesrver file first ca.pem,api server.crt, apiserver.key
 * then etct ca.pem, api-server-etcd-client.crt, api-server-etcd-client.key,
