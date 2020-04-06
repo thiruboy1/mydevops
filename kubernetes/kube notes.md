@@ -970,22 +970,51 @@ private CA:
 * then kubelet, each kubelet in node will have seperate certificate, certificate name will be node name, once certificate is created it mentioned in kube-config.yaml, name must me like system:node:node01
 
 * to decode the certificate use following command:
+```
 openssl x509 -in /etc/kubernetes/pki/apiserver.crt -text  -noout
+```
 * to check logs:
+```
 kubectl logs etcd-master
+```
 
 ## Certificates and API
 * now we have one admin access api server , if another admin needs access then new admin will create key and csr file and sends it to admin then admin will have access to CA server then admin creates certificate for new admin and sends it new admin now new admin will have access to kubeapiserver.
 * CA server is just pair of certificate of key and files which is stored in server, anyone how can access this file can get access to kubeapi server so this need to be stored in secure location,
 * this process creating certificate is manually but when users increases this will be difficult so need to automated, kube has its bultin certificate API certificate API
 * now using certificate API, when admin recives new admin csr then insted of loging in into ca server admin will use certificate api,
-then creates an object called 1) CSR 2)REVIEW 3)APPROVED
+then creates an object called 
+1) CSR 
+2)REVIEW 
+3)APPROVED
 then request can be review and approved by admin then this certificate can be extracted and shared to user
 steps:
-* user creates key and csr openssl  genrsa -out vas.key 2048, openssl req -new -key vas.key -subj "CN=vas" -out vas.csr
-* then admin takes csr not as plain text insted encode it using base 64 and then create vas-csr.yaml file and copy the crs in vas-csr.yaml file, apiversion: certificates.k8s.io/v1beta1, kind: CertificateSigningRequest
-* once object is created then admin can view all request using following command " kubectl get csr" and then u can approve using :
-kubectl certificate approve vas   , kubectl get csr vas -o yaml
+* user creates key and csr 
+```openssl  genrsa -out vas.key 2048, openssl req -new -key vas.key -subj "CN=vas" -out vas.csr
+```
+* then admin takes csr not as plain text insted encode it using base 64 and then create vas-csr.yaml file and copy the crs in vas-csr.yaml file, 
+```
+apiVersion: certificates.k8s.io/v1beta1
+kind: CertificateSigningRequest
+metadata:
+  name: akshay
+spec:
+  groups:
+  - system:authenticated
+  request: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURSBSRVFVRVNULS0tLS0KTUlJQ1ZqQ0NBVDRDQVFBd0VURVBNQTBHQTFVRUF3d0dZV3R6YUdGNU1JSUJJakFOQmdrcWhraUc5dzBCQVFFRgpBQU9DQVE4QU1JSUJDZ0tDQVFFQXN4bGllWDVnbm1CN2trNkZnYXNVRVNXOEEwVUkrZGVtZkViRVNFa1VNUEYyCkZ3QTB4cU1Cbm9GK1pNZ2xIOVo1N24wT1A2Wmt1Z2JIMzBQK1VkMkZ1djEvS0x1L2tjaWRDQTFnUmJrZ2t3TVoKWkNwc3d3UHZmSi9sVmpReTVneGhOTE5rc0R6VWxvcmM5cHMyRUJnZGF0a3lQcEhBbitSU0t4Ykd3cGpmaTNCdwpJTms0RVJZT0RZL1BDekxPTkE2eW0wVmZqS051WTFpYTJLODJONXl2MWNUeHlyL0YyblE1RzF1N2M1dmoyZXdBCjNhWnVidTZ4Y3grcXJISlBsd09tTlUxdEpyQXF6Z2JaVFVKZXp6Qk5zek9ZNFIzTmQ4UmVpWUNTbDZrNitISlAKQ1p2STRYb2FMaVRTSHl3RUE3OG15RmxTMGFUN0tNOGMycUxiWnB5TmF3SURBUUFCb0FBd0RRWUpLb1pJaHZjTgpBUUVMQlFBRGdnRUJBSFRUNUwyTy9CeVM4WDR1dWViUW5oWGhRNHlhRFJSanJiZkl6ZUlzT1daK3lSWXZzZ2QvCk9TUTdCWTNtNkVoNHlaUTRCTHlqTEhyQ3p5RFJzVDI5STJXY0ZBNThnQ1ltUnBoQSt2aUVBbk4rcTZ4WXNLNXgKQmhnaXBWcXdGNmM0alFXRWtWSVlZVTlaRm9pVkRRS1dMaGtBZ3NXTHczYkprdllkV0VVRUJjcjI3OXo3bjY3awpvSTFiSjV6Q2N2VGw4SXliaFQ3UWwxSWFseFo0M0s0R1M3YkJoYlU4b2xmKytxNVduaDlGdG9la1pDbWs3aVc2Ck5FemY4VnJLU0tBS1k2ZTNENWdpUmJ4U2xnYThXUVJLd2RpNFkzUytFUmRFSHJnb0xqYnBKK3I5WVUwOTJvaC8KVndhRU9BY3pJN25JaXJ3czlvSEwwMzZCS0YvK2ljckczVmc9Ci0tLS0tRU5EIENFUlRJRklDQVRFIFJFUVVFU1QtLS0tLQo=
+  usages:
+  - digital signature
+  - key encipherment
+  - server auth
+
+```
+apiversion: certificates.k8s.io/v1beta1, kind: CertificateSigningRequest
+* once object is created then admin can view all request using following command 
+```
+" kubectl get csr" and then 
+kubectl certificate approve vas ---u can approve using this command
+kubectl get csr vas -o yaml
+```
 * all certificate approving siging will taken care by kube controller manager , 
 ## Kube Config
 * to access the server u need to specfiy port,key, admin.crt,ca.crt file but each time mentioning will be tedios job so we add this in kube config file, "$HOME/.kube/config" by defalut kubelet will look for cofig will in this location.
