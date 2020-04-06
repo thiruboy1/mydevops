@@ -1014,11 +1014,46 @@ apiversion: certificates.k8s.io/v1beta1, kind: CertificateSigningRequest
 " kubectl get csr" and then 
 kubectl certificate approve vas ---u can approve using this command
 kubectl get csr vas -o yaml
+kubectl delete csr vas
 ```
 * all certificate approving siging will taken care by kube controller manager , 
 ## Kube Config
 * to access the server u need to specfiy port,key, admin.crt,ca.crt file but each time mentioning will be tedios job so we add this in kube config file, "$HOME/.kube/config" by defalut kubelet will look for cofig will in this location.
-* config file has 3 formatas, cluster,user & Context, context definds which user can access which clusters eg: admin@production
+* config file has 3 formatas, 
+1) Cluster,
+2) Context
+3) User
+context definds which user can access which clusters eg: admin@production
+```
+kubectl config view
+kubectl config -h
+To change current context to prod user and prod cluster use follwing command:
+kubectl config use-context prod-user@production
+* you can provide the certificate data directly like
+certificate-authority: /etc/kubernetes/pki/ca.crt
+but u can also mention base64 encoded data in  certificate-authority-data: 
+--------------------------------------------------------------------------
+apiVersion: v1
+kind: Config
+current-context: kubernetes-admin@kubernetes
+clusters:
+- cluster:
+    certificate-authority-data: DATA+OMITTED
+    server: https://10.200.20.247:6443
+  name: kubernetes
+contexts:
+- context:
+    cluster: kubernetes
+    user: kubernetes-admin
+  name: kubernetes-admin@kubernetes
+preferences: {}
+users:
+- name: kubernetes-admin
+  user:
+    client-certificate-data: REDACTED
+    client-key-data: REDACTED
+
+```
 * eg: https://github.com/zecke/Kubernetes/blob/master/docs/user-guide/kubeconfig-file.md
 ## API GROUPS:
 API groups make it easier to extend the Kubernetes API. The API group is specified in a REST path and in the apiVersion field of a serialized object
@@ -1071,7 +1106,9 @@ kubectl auth can-i delete nodes --as dev-user
 * to restrcte user to access only certian pos mention resourcesNames: ["blue","green"]
 
 ## kube cluster roles and role bindings
-* there are two scope 1) namespace scope & 2)cluster scope
+* there are two scope 
+1) namespace scope & 
+2)cluster scope
 * to get all resources of kube run following:
       kubectl api-resources --namespaced=true
       kubectl api-resources --namespaced=false
