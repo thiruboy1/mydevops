@@ -1133,9 +1133,59 @@ to access priveate repo u must specfiy in username & passwd in yaml file but def
 ## Volumes:
 * when pod is created it has its own data & this data will be lost when pod is deleted so to avoid this we use volumes where volumes are mounted on drive and this drive is mounted to pod so if pod is deleted only pod is deleted but not volumes, each volumes is defined in pod defination file 
 * persistant volumes:
-  defining and editing the volumes induvill is very difficule so we use persistant volume, persistant volume can be defined in persitant volume.yaml file
+  defining and editing the volumes induvill is very difficule so we use persistant volume, persistant volume can be defined in 
+ persitant volume.yaml file
+ ```
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: django-nfs-share
+spec:
+  capacity:
+    storage: 1Gi # This size is used to match a volume to a tenents claim
+  accessModes:
+    - ReadWriteOnce # Access modes are defined below
+  persistentVolumeReclaimPolicy: Recycle # Reclaim policies are defined below
+  nfs:
+    server: 10.200.20.250 # Please change this to your NFS server
+    path: /root/share/django # Please change this to the relevant share
+  
+ ```
   * persistant volume claims:
     previsouly we create presistant volumes to use storage we need to create persistant volume claims, persitant volumes claims are created kubernetes will bind pv with pvc, during the claim kubernetes will look for pvc, however if there are multiple matches for the claim then u can use labels to match the claim, there is one to one relationship bw claims and volumes , if pvc conxumes only 50% of pv then remaning pv cannot be used by others, if no pv is avilable for pvc then pvc will be in pending state
+```
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: django-nfs
+  namespace: default
+spec:
+  accessModes:
+    - ReadWriteOnce # Access modes for volumes is defined under Persistent Volumes
+  resources:
+    requests:
+      storage: 1Gi # volume size requested
+
+```
+* Using PVCs in POD
+```
+apiVersion: v1
+kind: Pod
+metadata:
+  name: mypod
+spec:
+  containers:
+    - name: myfrontend
+      image: nginx
+      volumeMounts:
+      - mountPath: "/var/www/html"
+        name: mypd
+  volumes:
+    - name: mypd
+      persistentVolumeClaim:
+        claimName: myclaim
+
+```
 # Networking
   
   ## namespace Network
