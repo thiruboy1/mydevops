@@ -178,6 +178,14 @@ kubectl get namespaces
 kubectl get pod --all-nampespaces
 kubectl get pod -n kube-system
 
+* Not All Objects are in a Namespace:
+However namespace resources are not themselves in a namespace. And low-level resources, such as nodes and persistentVolumes, are not in any namespace.
+
+# In a namespace
+kubectl api-resources --namespaced=true
+
+# Not in a namespace
+kubectl api-resources --namespaced=false
       
 ## Services:
 * An abstract way to expose an application running on a set of Pods as a network service.
