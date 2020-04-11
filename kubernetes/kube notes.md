@@ -233,6 +233,9 @@ kubectl get services
                   ports:
                   - targetPort: 80 
                     port: 80
+                  selector:
+                   app: myapp
+                   type: backend
       
 
 
