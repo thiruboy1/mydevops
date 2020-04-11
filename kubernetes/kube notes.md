@@ -257,6 +257,10 @@ kubectl get services
 
 * Labels are key/value pairs that are attached to objects, such as pods. Labels are intended to be used to specify identifying attributes of objects that are meaningful and relevant to users, but do not directly imply semantics to the core system
 ```
+  kubectl get pods -l environment=production,tier=frontend
+  kubectl get pods -l 'environment in (production),tier in (frontend)'
+  kubectl get pods -l 'environment in (production, qa)'
+  kubectl get pods -l 'environment,environment notin (frontend)'
   kubectl get pods --selector app=app1
   kubectl get all --selector env=prod
   kubectl get pods --selector bu=finance
