@@ -301,7 +301,9 @@ kubectl get services
 
 ### Adding taint to node
 ```
-kubectl taint nodes node1 key=value:NoSchedule
+kubectl taint nodes node1 key1=value1:NoSchedule
+kubectl taint nodes node1 key1=value1:NoExecute
+kubectl taint nodes node1 key2=value2:NoSchedule
 
 tolerations:
 - key: "key"
@@ -442,8 +444,15 @@ status:
  ```
  * for master node
  ```
- apiVersion: apps/v1kind: Deploymentmetadata:  name: redspec:  replicas: 3  selector:
-    matchLabels:      run: nginx
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:  
+  name: red
+ spec:  
+  replicas: 3  
+  selector:
+    matchLabels:      
+     run: nginx
   template:
     metadata:
       labels:
@@ -469,7 +478,7 @@ kubectl label node node01 color=blue
 
 * Scheduler scheduels the pods on nodes, when resource are not availabel on node then scheduler wont schecdule pods,then scheduler will check for other nodes, if no sufficient resourese are avilabel in all nodes then pods will go in pending state  
 * by default kubernets assumes pod requers 0.5 cpu and 256mi memory this is know as resource requirments of container, this limit can be changed by specfing the resource limit on pod/deployment defination file
-* in docker container has no limit to cpu it can go up to the node limit which will sufficote other containers, however u can set resouce limits on pods by default kubernetes will set limit to 1vcpu & 512 mi , if u need to set more limit then u can specfiy it in pod/deployment defination file
+* in dockerm, container has no limit to cpu it can go up to the node limit which will sufficote other containers, however u can set resouce limits on pods by default kubernetes will set limit to 1vcpu & 512 mi , if u need to set more limit then u can specfiy it in pod/deployment defination file
 * in case of cpu kubernetes throtols cpu but this not the case for memory it will to use , but if pod constantly consumes more memory then pod will be terminated
 
 * When a pod is created the containers are assigned a default CPU request of .5 and memory of 256Mi". For the POD to pick up those defaults you must have first set those as default values for request and limit by creating a LimitRange in that namespace.
@@ -649,7 +658,7 @@ command-demo
 tcp://10.3.240.1:443
 ```
 ## Kube Env Variables
-              in pod defination file u can specfiy the env variables, Enfiroment variable can be set in two ways
+              in pod defination file u can specfiy the env variables, Enviroment variable can be set in two ways
 ### 1) direct way
              
               to set an Enviorment variable use "env" array
@@ -894,7 +903,7 @@ Genrally 1cup = 1aws Vcpu, 1GCP Core, 1Azure Core,
       * files user name and tokens
       * certificate
       * ldap
-      * service accoutns
+      * service accounts
 * Authorization:
       * RBAC 
       * ABAC
@@ -910,8 +919,8 @@ once created u can acces by using "curl -v -k https://localhost:6443/api/v1/pods
 ## TLS Basic
 tls certificate is used to authenticate both client and server 
 * when client send uname and pass to server as plain text - attacker may access the unam & pass and hack account
-* asymentric kye: to avoid this clinet encryptes uname, pass & key and send to server - but if attacker hack key then attacker will hack account
-* symentric kye : to avoid this we have concept of public key and private key, initaly both will exchange ther public key, then clinet will encrypt 
+* asymentric key: to avoid this clinet encryptes uname, pass & key and send to server - but if attacker hack key then attacker will hack account
+* symentric key : to avoid this we have concept of public key and private key, initaly both will exchange ther public key, then clinet will encrypt 
 uname & pass using server public key and send to server not server will have server.private key then server decrypt the data using it private key similarly communication happens successfuly 
 * now only way to hack is by hacking ur private key so hacker will create similar website and he ll make u to enter pass, after account 
 will be hacked
