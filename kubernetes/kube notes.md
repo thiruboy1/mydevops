@@ -171,13 +171,14 @@ You describe a desired state in a Deployment, and the Deployment controller chan
 kubectl create -f file.yaml 
       
 * to switch namespace form default namespace to custom (dev) namespace is by using following command
-      * kubectl config set-context $(kubectl current-context) --namespace=dev
-
-
+```
+kubectl config set-context --current --namespace=<insert-namespace-name-here>
+# Validate it
+kubectl config view --minify | grep namespace:
 kubectl get namespaces
 kubectl get pod --all-nampespaces
 kubectl get pod -n kube-system
-
+```
 * Not All Objects are in a Namespace:
 However namespace resources are not themselves in a namespace. And low-level resources, such as nodes and persistentVolumes, are not in any namespace.
 
