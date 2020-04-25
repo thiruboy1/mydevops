@@ -658,6 +658,28 @@ The output shows the values of the HOSTNAME and KUBERNETES_PORT environment vari
 command-demo
 tcp://10.3.240.1:443
 ```
+
+```
+apiVersion: v1
+kind: Pod
+metadata:
+  name: command-demo
+  labels:
+    purpose: demonstrate-command
+spec:
+  containers:
+  - name: command-demo-container
+    image: debian
+    command:
+     - printenv
+     - "HOSTNAME"
+     - "KUBERNETES_PORT"
+    command:
+     - sleep
+     - "1000"
+  restartPolicy: OnFailure
+
+```
 ## Kube Env Variables
               in pod defination file u can specfiy the env variables, Enviroment variable can be set in two ways
 ### 1) direct way
