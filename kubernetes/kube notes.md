@@ -738,7 +738,7 @@ spec:
 ### Kube Secrets
        kubernetes allows us to store user name password in more secure way by using secrets, you can define secretes in 2 ways
        2)imperative way 2)declarative way
-       imperative  way: kubectl create secret
+       imperative  way: kubectl create secret generic
                                     <secret-name> --from-literal=<key>=<value>
                                                   --from-literal=<key>=<value>
                                                   --from-literal=<key>=<value>
