@@ -369,6 +369,11 @@ spec:
  * The affinity feature consists of two types of affinity, “node affinity” and “inter-pod affinity/anti-affinity”. Node affinity is like the existing nodeSelector
  1) offers more matching rules besides exact matches created with a logical AND operation;
  2) you can indicate that the rule is “soft”/“preference” rather than a hard requirement, so if the scheduler can’t satisfy it, the pod will still be scheduled;
+ 3)There are currently two types of node affinity, called requiredDuringSchedulingIgnoredDuringExecution and preferredDuringSchedulingIgnoredDuringExecution
+ in this scheduler will try to enforce but will not guarantee
+ 
+ The “IgnoredDuringExecution” part of the names means that, similar to how nodeSelector works, if labels on a node change at runtime such that the affinity rules on a pod are no longer met, the pod will still continue to run on the node. In the future we plan to offer requiredDuringSchedulingRequiredDuringExecution which will be just like requiredDuringSchedulingIgnoredDuringExecution except that it will evict pods from nodes that cease to satisfy the pods’ node affinity requirements.
+ 
  ```
  apiVersion: apps/v1
 kind: Deployment
@@ -480,6 +485,8 @@ kubectl label node node01 color=blue
 * Scheduler scheduels the pods on nodes, when resource are not availabel on node then scheduler wont schecdule pods,then scheduler will check for other nodes, if no sufficient resourese are avilabel in all nodes then pods will go in pending state  
 * by default kubernets assumes pod requers 0.5 cpu and 256mi memory this is know as resource requirments of container, this limit can be changed by specfing the resource limit on pod/deployment defination file
 * in dockerm, container has no limit to cpu it can go up to the node limit which will sufficote other containers, however u can set resouce limits on pods by default kubernetes will set limit to 1vcpu & 512 mi , if u need to set more limit then u can specfiy it in pod/deployment defination file
+requests: amount of cpu/mem request for pod 
+limits: amount of cpu/mem that pod can use , if pod exceeds the limit for predefined time the kubernetes will evict the pod
 * in case of cpu kubernetes throtols cpu but this not the case for memory it will to use , but if pod constantly consumes more memory then pod will be terminated
 
 * When a pod is created the containers are assigned a default CPU request of .5 and memory of 256Mi". For the POD to pick up those defaults you must have first set those as default values for request and limit by creating a LimitRange in that namespace.
