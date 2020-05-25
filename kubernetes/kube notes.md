@@ -485,12 +485,15 @@ kubectl label node node01 color=blue
 * Scheduler scheduels the pods on nodes, when resource are not availabel on node then scheduler wont schecdule pods,then scheduler will check for other nodes, if no sufficient resourese are avilabel in all nodes then pods will go in pending state  
 * by default kubernets assumes pod requers 0.5 cpu and 256mi memory this is know as resource requirments of container, this limit can be changed by specfing the resource limit on pod/deployment defination file
 * in dockerm, container has no limit to cpu it can go up to the node limit which will sufficote other containers, however u can set resouce limits on pods by default kubernetes will set limit to 1vcpu & 512 mi , if u need to set more limit then u can specfiy it in pod/deployment defination file
-requests: amount of cpu/mem request for pod 
-limits: amount of cpu/mem that pod can use , if pod exceeds the limit for predefined time the kubernetes will evict the pod
 * in case of cpu kubernetes throtols cpu but this not the case for memory it will to use , but if pod constantly consumes more memory then pod will be terminated
 
 * When a pod is created the containers are assigned a default CPU request of .5 and memory of 256Mi". For the POD to pick up those defaults you must have first set those as default values for request and limit by creating a LimitRange in that namespace.
-
+requests: amount of cpu/mem request for pod 
+limits: amount of cpu/mem that pod can use , if pod exceeds the limit for predefined time the kubernetes will evict the pod
+1) if request and limits are not specfied in pod defination file then kubernetes will take default cpu/mem and assigins it to pod
+2) if we need more mem/cpu then we can specfiy the request and limit in pod defnation file
+3) if pod defination file has limits but not request then kubernetes will match its memory limit set by defination file
+4) if pod defination file has request but not limits then Container’s memory request is set to the value specified in the Container’s configuration file. The Container’s memory limit is to default value
 ```
 apiVersion: v1
 kind: LimitRange
@@ -518,6 +521,28 @@ spec:
       cpu: 0.5
     type: Container
 ```
+Resource Quotas:
+quotas for the total amount memory and CPU that can be used by all Containers running in a namespace
+```
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: mem-cpu-demo
+spec:
+  hard:
+    requests.cpu: "1"
+    requests.memory: 1Gi
+    limits.cpu: "2"
+    limits.memory: 2Gi
+```
+
+The ResourceQuota places these requirements on the quota-mem-cpu-example namespace:
+
+Every Container must have a memory request, memory limit, cpu request, and cpu limit.
+The memory request total for all Containers must not exceed 1 GiB.
+The memory limit total for all Containers must not exceed 2 GiB.
+The CPU request total for all Containers must not exceed 1 cpu.
+The CPU limit total for all Containers must not exceed 2 cpu.
 
  ## editing PODs and Deployments
             kubectl edit pod <pod name>
@@ -574,11 +599,43 @@ spec:
 
 * Kubernetes allows us to create multiple scheduler, in order to create custom scheduler u can use the schedule.yaml file in manifest folder, 
 * you can have any number of custom scheduler, 
-* in case of multiple scheduler , u must set leder elect to false in custom pod def file
+* in case of multiple scheduler , u must set  do the following
+      1) leder elect to false in custom pod def file
+      2) change the scheduler port ( - --port=10253)
+      3) change the name in pod defination file
+      4) add the custom scheduler name in pod defination file under command section (- --scheduler-name=kube-scheduler1)
 * to create custom scheduler yaml file, juct copy the orginal scheduler file and update the custom name and create the scheduler 
 * update "lock-object-name=my-custom-schuduler
 * you can run pod with custome scheduler by inserting property in pod yaml file : schedulerName: my-custom-scheduler
+```
+apiVersion: v1
+kind: Pod
+metadata:
+  name: kube-scheduler1
+  namespace: kube-system
+spec:
+  containers:
+  - command:
+    - kube-scheduler
+    - --bind-address=127.0.0.1
+    - --kubeconfig=/etc/kubernetes/scheduler.conf
+    - --leader-elect=false
+    - --scheduler-name=kube-scheduler1
+    - --port=10253
+    - --lock-object-name=kube-scheduler1
+    image: k8s.gcr.io/kube-scheduler:v1.14.3
+    imagePullPolicy: IfNotPresent
+    livenessProbe:
+      failureThreshold: 8
+      httpGet:
+        host: 127.0.0.1
+        path: /healthz
+        port: 10253
+        scheme: HTTP
+      initialDelaySeconds: 15
+      timeoutSeconds: 15
 
+```
  ```           
                   apiVersion: v1
                   kind: Pod
