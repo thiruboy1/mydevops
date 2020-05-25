@@ -600,10 +600,10 @@ The CPU limit total for all Containers must not exceed 2 cpu.
 * Kubernetes allows us to create multiple scheduler, in order to create custom scheduler u can use the schedule.yaml file in manifest folder, 
 * you can have any number of custom scheduler, 
 * in case of multiple scheduler , u must set  do the following
-      1) leder elect to false in custom pod def file
-      2) change the scheduler port ( - --port=10253)
-      3) change the name in pod defination file
-      4) add the custom scheduler name in pod defination file under command section (- --scheduler-name=kube-scheduler1)
+      ** leder elect to false in custom pod def file
+      ** change the scheduler port ( - --port=10253)
+      ** change the name in pod defination file
+      ** add the custom scheduler name in pod defination file under command section (- --scheduler-name=kube-scheduler1)
 * to create custom scheduler yaml file, juct copy the orginal scheduler file and update the custom name and create the scheduler 
 * update "lock-object-name=my-custom-schuduler
 * you can run pod with custome scheduler by inserting property in pod yaml file : schedulerName: my-custom-scheduler
