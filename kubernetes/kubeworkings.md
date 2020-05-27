@@ -84,3 +84,73 @@ spec:
       memory: 256Mi
     type: Container
 ```
+
+```
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: mem-cpu-demo
+spec:
+  hard:
+    requests.cpu: "1"
+    requests.memory: 1Gi
+    limits.cpu: "2"
+    limits.memory: 2Gi
+```
+
+* Create a static pod named static-busybox that uses the busybox image and the command sleep 1000
+```
+            kubectl run --restart=Never --image=busybox static-busybox --dry-run -o yaml --command -- sleep 1000 > /etc/kubernetes/manifests/static-busybox.yaml
+ ```
+### custom scheduler in pod defination file
+```
+                 apiVersion: v1
+                 kind: Pod
+                 metadata:
+                   name: nginx
+                 spec:
+                   containers:
+                   -  image: nginx
+                      name: nginx
+                   schedulerName: my-scheduler
+```
+
+```
+          appVersion: v1
+          kind: Pod
+          metadata:
+              name: testpod
+          spec:
+              container:
+                - name:
+                  image:
+             env:
+              - name: APP_Color
+                value: pink
+```
+
+```
+ imperative  way: kubectl create configmap
+                                <config-name> --from-literal=<key>=<value>
+                                              --from-literal=<key>=<value>
+                                              --from-literal=<key>=<value>
+                          kubectl create configmap
+                                <config-name> --from-file=<path to file>
+```
+
+```
+now inject configmap file into pod defination file
+  appVersion: v1
+          kind: Pod
+          metadata:
+              name: testpod
+          spec:
+              container:
+                - name:
+                  image:
+                  envFrom:
+                  - configMapRef:
+                     name: app-config(name of config map which was created)
+                    
+```
+
