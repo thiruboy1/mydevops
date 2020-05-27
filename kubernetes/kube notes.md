@@ -842,7 +842,30 @@ spec:
                       envFrom:
                         - secretRef:
                                name: app-secret(name of config map which was created)           
- #### secret in POD as volume
+
+### secret in POD as env key
+```
+apiVersion: v1
+kind: Pod
+metadata:
+  name: envvars-multiple-secrets
+spec:
+  containers:
+  - name: envars-test-container
+    image: nginx
+    env:
+    - name: BACKEND_USERNAME
+      valueFrom:
+        secretKeyRef:
+          name: backend-user
+          key: backend-username
+    - name: DB_USERNAME
+      valueFrom:
+        secretKeyRef:
+          name: db-user
+          key: db-username
+```
+#### secret in POD as volume
             volume:
              - name: app-secret-volume
                secret:
