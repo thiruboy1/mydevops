@@ -23,7 +23,7 @@
           name: nginx
           labels:nginx-app
       spec:
-         containers:
+         containers: 
          -  image: nginx
             name: nginx
          nodeName: <node name> 
