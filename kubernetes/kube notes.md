@@ -582,14 +582,16 @@ The CPU limit total for all Containers must not exceed 2 cpu.
                 name: elasticsearch
                 namespace: kube-system
 ## Static Pods
-           kublete is service installed in nodes , this kubelet can operate even without kube master, in order to run kubelet without master u need to place yaml file in /etc/kubernetes/manifestes/. now kublete will check for update in this location if any update kubelet will update the same in pod.
+  kublete is service installed in nodes , this kubelet can operate even without kube master, in order to run kubelet without master u need to place yaml file in /etc/kubernetes/manifestes/. now kublete will check for update in this location if any update kubelet will update the same in pod.
            note: node name is appended and end of  static pod name eg:  kube-apiserver-master,kube-controller-manager-master,kube-scheduler-master &etcd-master
            in static pods you cannot create replica sets,deployments without kube master
            1) specfiy in kubelet.service file
            --pod-manifest-path=/etc/kubernetes/manifestes\\
-           2)insted of defining in kubelet.service file create a kubeconfig.yaml and provide path in serive file and in that file enter the following
-                  --config-kubeconfig.yaml
-                  staticPodPath: /etc/kubernetes/manifestes
+           2)insted of defining in kubelet.service file create a kubeconfig.yaml and provide path in serive file and in that file enter the following(when cluster is setup using kubeadm then it follows this procedure)
+                 a) create kubeconfig.yaml file and add the following in the file
+                 b) staticPodPath: /etc/kubernetes/manifestes
+                 c) then insert this in kubelet.service file "--config=kubeconfig.yaml"
+                  
             kubectl get pods --all-namespaces
 * Create a static pod named static-busybox that uses the busybox image and the command sleep 1000
 ```
