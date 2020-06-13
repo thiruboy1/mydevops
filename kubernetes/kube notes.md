@@ -735,6 +735,16 @@ kubectl rollout resume deployment.v1.apps/nginx-deployment      #Resuming Deploy
 in docker
 * Containers are designed for running specific tasks and processes, not for hosting operating systems. You create a container to serve a single unit task. Once it completes the given task, it stops. Therefore, the container life-cycle depends on the ongoing process inside of it. Once the process stops, the container stops as well.
 
+docker sleeper image file
+```
+image ubutntu
+ENTRYPOINT sleep 
+CMD 10
+```
+by using above image sleeper container will start and it will run sleep command with value of 10 , 
+      a) if u need to change the value from 10 to 15 seconds the u can pass the new value in docker run commaand "docker  sleeper-container 15" now contaier will sleep for 15seconds
+      b) if u want to change sleep to sleep2.0 then append the entrypoint flag in docker run command docker sleeper container entrypoint
+
 * In this script, there are two types of instructions that can define the process running in the container: 
 1) CMD : 
 CMD defines default commands and/or parameters for a container. CMD is an instruction that is best to use if you need a default command which users can easily override. If a Dockerfile has multiple CMDs, it only applies the instructions from the last one.
@@ -744,7 +754,21 @@ On the other hand, ENTRYPOINT is preferred when you want to define a container w
 
 NOTE: https://phoenixnap.com/kb/docker-cmd-vs-entrypoint
 
+### Commands IN Kubernetes
+
+by using above sleeper container image in kubernetes, 
+a) if u want to overide sleep 10 seconds to 15 seconds then u can do this by specfing args in yaml file
+      args 15
+b) if u want to overide sleep command to sleep2.0 command then u can use command in yaml file this will overide enterypoint in docker 
+
+      command sleep2.0
+      
+
+
+
+
 ```
+
 apiVersion: v1
 kind: Pod
 metadata:
