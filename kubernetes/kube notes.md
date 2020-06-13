@@ -1004,17 +1004,45 @@ spec:
  
  Upgrade kubeadm tool (if not already), then the master components, and finally the kubelet. Practice referring to the kubernetes documentation page. Note: While upgrading kubelet, if you hit dependency issue while running the apt-get upgrade kubelet command, use the apt install kubelet=1.17.0-00 command instead
  ```
-apt install kubeadm=1.17.0-00
-kubeadm upgrade apply v1.17.0
-install kubelet=1.17.0-00 to upgrade the kubelet on the master node
+apt-mark unhold kubeadm
+apt-get update
+apt-get install kubeadm=1.17.0-00
+apt-mark hold kubeadm
+kubeadm version
+kubectl drain <cp-node-name> --ignore-daemonsets # drain node
+sudo kubeadm upgrade plan
+sudo kubeadm upgrade apply v1.17.0
+kubectl uncordon <cp-node-name>
+sudo kubeadm upgrade node
+
+upgrading kubelet and kubectl
+apt-mark unhold kubelet kubectl
+apt-get update
+apt-get install -y kubelet=1.18.x-00 kubectl=1.18.x-00
+apt-mark hold kubelet kubectl
+sudo systemctl daemon-reload
+sudo systemctl restart kubelet
  
  ```
  step2: upgrade worker node
  ```
- kubeadm upgrade node
- apt install kubeadm=1.17.0-00
- apt install kubelet=1.17.0-00'
- apt-mark hold kublet <this will make sure that kublet will not update automaticaly> 
+apt-mark unhold kubeadm
+apt-get update
+apt-get install -y kubeadm=1.18.x-00
+apt-mark hold kubeadm 
+kubectl drain <node-to-drain> --ignore-daemonsets
+kubeadm upgrade node
+
+upgrading kubelet and kubectl
+apt-mark unhold kubelet kubectl
+apt-get update
+apt-get install -y kubelet=1.18.x-00 kubectl=1.18.x-00
+apt-mark hold kubelet kubectl
+sudo systemctl daemon-reload
+sudo systemctl restart kubelet
+kubectl uncordon <node-to-drain>
+
+
  kubeadm upgrade node config --kubelet-version $(kubelet --version | cut -d ' ' -f 2)
  ```
 ## Backup and restore methods
