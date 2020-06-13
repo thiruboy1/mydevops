@@ -684,9 +684,52 @@ kubctl get events
               kubectl describe deployment
               kubectl apply -f deployment-defination.yaml                     #update
               kubectl set image deployment/myapp-deployment nginx=nginx:1.9.1
+              kubectl rollout undo deployment/myapp-deployment                # this will undo the recent upgrade, this will destroy the pod in new replicas set and bring older one up in old replica set 
               kubectl rollout status deployment/myapp-deployment              #status
               kubectl rollout history                                         #rollback
               
+```
+* Deployment ensures that only a certain number of Pods are down while they are being updated. By default, it ensures that at least 75% of the desired number of Pods are up (25% max unavailable).
+* Deployment also ensures that only a certain number of Pods are created above the desired number of Pods. By default, it ensures that at most 125% of the desired number of Pods are up (25% max surge)
+* It does not kill old Pods until a sufficient number of new Pods have come up, and does not create new Pods until a sufficient number of old Pods have been killed. It makes sure that at least 2 Pods are available and that at max 4 Pods in total are available.
+* updating deployment
+```
+kubectl --record deployment.apps/nginx-deployment set image deployment.v1.apps/nginx-deployment nginx=nginx:1.16.1
+or
+kubectl set image deploymTo see the rollout status, runent/nginx-deployment nginx=nginx:1.16.1 --record
+1) To see the rollout status
+kubectl rollout status deployment.v1.apps/nginx-deployment
+2) kubectl get rs
+```
+* Rolling Back a Deployment
+```
+kubectl set image deployment.v1.apps/nginx-deployment nginx=nginx:1.161 --record=true
+kubectl rollout status deployment.v1.apps/nginx-deployment
+kubectl get rs
+```
+
+```
+kubectl rollout history deployment.v1.apps/nginx-deployment
+```
+the output is simalar
+```
+deployments "nginx-deployment"
+REVISION    CHANGE-CAUSE
+1           kubectl apply --filename=https://k8s.io/examples/controllers/nginx-deployment.yaml --record=true
+```
+* CHANGE-CAUSE is copied from the Deployment annotation kubernetes.io/change-cause to its revisions upon creation. You can specify theCHANGE-CAUSE message by:
+* Annotating the Deployment with 
+kubectl annotate deployment.v1.apps/nginx-deployment kubernetes.io/change-cause="image updated to 1.16.1"
+```
+kubectl rollout history deployment.v1.apps/nginx-deployment --revision=2 #To see the details of each revision
+```
+Rolling Back to a Previous Revision
+```
+kubectl rollout undo deployment.v1.apps/nginx-deployment
+kubectl rollout undo deployment.v1.apps/nginx-deployment --to-revision=2 # rollback to a specific revision by specifying it with --to-revision
+kubectl scale deployment.v1.apps/nginx-deployment --replicas=10 #scaling deployment
+kubectl rollout pause deployment.v1.apps/nginx-deployment       #pausing deployment
+kubectl rollout resume deployment.v1.apps/nginx-deployment      #Resuming Deployment
 ```
 ## Commands
 in docker
