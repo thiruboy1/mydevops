@@ -1146,34 +1146,46 @@ private CA:
 * ther are many tools avilable to generate certificate we use openssl
 ```
 * CA certificates:
-      generate keys:                ca.key      openssl genrsa -out ca.key 2048
-      certificate signing request   ca.csr      openssl req -new -key ca.key "/CN=KUBERNETES-CA" -out ca.csr
-      signing certificate           ca.crt      openssl x509 -req -in ca.csr -signkey ca.key -out ca.crt
-      now ca has its own private key and public key so now we can use this to create certificate for
-      other services in kubernetes
+# Create private key for CA
+openssl genrsa -out ca.key 2048
+
+# Comment line starting with RANDFILE in /etc/ssl/openssl.cnf definition to avoid permission issues
+sudo sed -i '0,/RANDFILE/{s/RANDFILE/\#&/}' /etc/ssl/openssl.cnf
+
+# Create CSR using the private key
+openssl req -new -key ca.key -subj "/CN=KUBERNETES-CA" -out ca.csr
+
+# Self sign the csr using its own private key
+openssl x509 -req -in ca.csr -signkey ca.key -CAcreateserial  -out ca.crt -days 1000
+
+now ca has its own private key and public key so now we can use this to create certificate for other services in kubernetes
       
 ```
 ### Client Cetificate
 ```
-* admin certificate:
-      generate keys:                admin.key      openssl genrsa -out admin.key 2048
-      certificate signing request   admin.csr      openssl req -new -key admin.key -subj "/CN=KUBE-ADMIN/O=system.masters" -out admin.csr
-* adding gorup details by adding "O=" paramater, so that we will get admin users and rights   
-      signing certificate           admin.crt      openssl x509 -req -in admin.csr -CA ca.crt -CAkey ca.key -out admin.crt
-      now admin client has signed certificate to access kubeapiserver 
-      
+The Admin Client Certificate
+
+            # Generate private key for admin user
+            openssl genrsa -out admin.key 2048
+
+            # Generate CSR for admin user. Note the OU.
+            openssl req -new -key admin.key -subj "/CN=admin/O=system:masters" -out admin.csr
+
+            # Sign certificate for admin user using CA servers private key
+            openssl x509 -req -in admin.csr -CA ca.crt -CAkey ca.key -CAcreateserial  -out admin.crt -days 1000
+                  now admin client has signed certificate to access kubeapiserver 
+
       
 * kube scheduler certificates:
-      generate keys:                scheduler.key      openssl genrsa -out scheduler.key 2048
-      certificate signing request   scheduler.csr      openssl req -new -key  scheduler.key "/CN=SYSTEM-KUBE-SCHEDULER" -out ca.csr
-      signing certificate           scheduler.crt      openssl x509 -req -in scheduler.csr  -CA ca.crt -CAkey ca.key -out ca.crt
-
+            openssl genrsa -out kube-scheduler.key 2048
+            openssl req -new -key kube-scheduler.key -subj "/CN=system:kube-scheduler" -out kube-scheduler.csr
+            openssl x509 -req -in kube-scheduler.csr -CA ca.crt -CAkey ca.key -CAcreateserial  -out kube-scheduler.crt -days 1000
 
 * kube Controller-manager certificates:
-      generate keys:                Controller-manager.key      openssl genrsa -out Controller-manager.key 2048
-      certificate signing request  Controller-manager.csr      openssl req -new -key  Controller-manager.key "/CN=SYSTEM-KUBE-Controller-manager" -out ca.csr
-      signing certificate           Controller-manager.crt      openssl x509 -req -in Controller-manager.csr  -CA ca.crt -CAkey ca.key -out ca.crt
- 
+
+            openssl genrsa -out kube-controller-manager.key 2048
+            openssl req -new -key kube-controller-manager.key -subj "/CN=system:kube-controller-manager" -out kube-controller-manager.csr
+            openssl x509 -req -in kube-controller-manager.csr -CA ca.crt -CAkey ca.key -CAcreateserial -out kube-controller-manager.crt -days 1000
  
 * kube Proxy certificates:
       generate keys:                Proxy.key      openssl genrsa -out Proxy.key 2048
@@ -1181,24 +1193,13 @@ private CA:
       signing certificate           Proxy.crt      openssl x509 -req -in Proxy.csr  -CA ca.crt -CAkey ca.key -out kube-proxy.crt
 ```
 * now all services has its own key and certificates, now to verfiy the certificate each kubernetes serices will requere access to ca.crt certificate.
- ### Server Certificate
+ ## Server Certificate
+ ## Kube-Apiserver
  ```
-* kube etcd certificates :
-      generate keys:                etcdserver.key      openssl genrsa -out etcdserver.key 2048
-      certificate signing request   etcdserver.csr      openssl req -new -key  etcdserver.key "/CN=SYSTEM-KUBE-etcdserver -out etcdservercsr
-      signing certificate           etcdserver.crt      openssl x509 -req -in etcdserver.csr  -CA ca.crt -CAkey ca.key -out etcdserver.crt
-
-
-* kube etcd peer certificates :
-      generate keys:                etcdpeer.key      openssl genrsa -out etcdpeer.key 2048
-      certificate signing request   etcdpeer.csr      openssl req -new -key  etcdpeer.key "/CN=KUBE-etcdserver -out etcdpeercsr
-      signing certificate           etcdpeer.crt      openssl x509 -req -in etcdpeer.csr  -CA ca.crt -CAkey ca.key -out etcdpeer.crt
-           
-
-* kubeapi-server certificates :
-      generate keys:                apiserver.key      openssl genrsa -out apiserver.key 2048
-      certificate signing request   apiserver.csr      openssl req -new -key  apiserver.key -SUBJ "/CN=KUBE-apiserverr -out apiserver.csr -config openssl.cnf
-      signing certificate           apiserver.crt      openssl x509 -req -in apiserver.csr -CA ca.crt -CAkey ca.key -out apiserver.crt
+ * kubeapi-server certificates :
+            openssl genrsa -out kube-apiserver.key 2048
+            openssl req -new -key kube-apiserver.key -subj "/CN=kube-apiserver" -out kube-apiserver.csr -config openssl.cnf
+            openssl x509 -req -in kube-apiserver.csr -CA ca.crt -CAkey ca.key -CAcreateserial  -out kube-apiserver.crt -extensions v3_req -extfile openssl.cnf -days 1000
 ```
 openssl.cnf
 ``` 
@@ -1215,7 +1216,65 @@ DNS.4 = kubernetes.default.svc.local.cluster
 IP.1
 IP.2
 ```
+ ##  The ETCD Server Certificate
+ ```
+ cat > openssl-etcd.cnf <<EOF
+[req]
+req_extensions = v3_req
+distinguished_name = req_distinguished_name
+[req_distinguished_name]
+[ v3_req ]
+basicConstraints = CA:FALSE
+keyUsage = nonRepudiation, digitalSignature, keyEncipherment
+subjectAltName = @alt_names
+[alt_names]
+IP.1 = 192.168.5.11
+IP.2 = 192.168.5.12
+IP.3 = 127.0.0.1
+EOF
+ ```
+ 
+ ```
+* kube etcd certificates :
+            openssl genrsa -out etcd-server.key 2048
+            openssl req -new -key etcd-server.key -subj "/CN=etcd-server" -out etcd-server.csr -config openssl-etcd.cnf
+            openssl x509 -req -in etcd-server.csr -CA ca.crt -CAkey ca.key -CAcreateserial  -out etcd-server.crt -extensions v3_req -extfile openssl-etcd.cnf -days 1000
 
+* kube etcd peer certificates :
+      generate keys:                etcdpeer.key      openssl genrsa -out etcdpeer.key 2048
+      certificate signing request   etcdpeer.csr      openssl req -new -key  etcdpeer.key "/CN=KUBE-etcdserver -out etcdpeercsr
+      signing certificate           etcdpeer.crt      openssl x509 -req -in etcdpeer.csr  -CA ca.crt -CAkey ca.key -out etcdpeer.crt
+           
+
+```
+## Service Account Certificate
+```
+openssl genrsa -out service-account.key 2048
+openssl req -new -key service-account.key -subj "/CN=service-accounts" -out service-account.csr
+openssl x509 -req -in service-account.csr -CA ca.crt -CAkey ca.key -CAcreateserial  -out service-account.crt -days 1000
+```
+
+## worker node
+
+```
+cat > openssl-worker-1.cnf <<EOF
+[req]
+req_extensions = v3_req
+distinguished_name = req_distinguished_name
+[req_distinguished_name]
+[ v3_req ]
+basicConstraints = CA:FALSE
+keyUsage = nonRepudiation, digitalSignature, keyEncipherment
+subjectAltName = @alt_names
+[alt_names]
+DNS.1 = worker-1
+IP.1 = 192.168.5.21
+EOF
+
+openssl genrsa -out worker-1.key 2048
+openssl req -new -key worker-1.key -subj "/CN=system:node:worker-1/O=system:nodes" -out worker-1.csr -config openssl-worker-1.cnf
+openssl x509 -req -in worker-1.csr -CA ca.crt -CAkey ca.key -CAcreateserial  -out worker-1.crt -extensions v3_req -extfile openssl-worker-1.cnf -days 1000
+```
 * everyone will access kubeapi server so list of all dns & IP ADDRESS  must be specfide in openssl.cnf file 
 * then pass all certificate location in kube-apisesrver file first ca.pem,api server.crt, apiserver.key
 * since kube api server is client for etcd server and kublet server , kubeapi server need to access etcd server and kubelet so we need to generate kube-etcd-client certificate and kubelet-client certificate and mention the same in kube-apiserver.yaml file 
