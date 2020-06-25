@@ -1,1 +1,17 @@
+# Creating New Admin User In Kubernetes
 
+## Step1: create key, certificate signing request and certificate
+
+```
+openssl genrsa -out admin-user.key 2048
+openssl req -new -key admin-user.key -subj "/CN=admin-user/O=system:masters" -out admin-user.csr
+openssl x509 req -in admin-user.csr -CA ca.crt -CAkey ca.key -CAcreateserial -out admin-user.crt
+```
+
+## Step2: Creat kube config file using admin-user.crt
+
+```
+kubectl config set-cluster kubernetes --certificate-authority=/etc/kubernetes/pki/ca.crt --server=https://10.200.20.247:6443 --embed-certs=true --kubeconfig config
+kubectl config set-credentials thiru --client-certificate=thiru.crt --client-key=thiru.key --embed-certs=true --kubeconfig config
+kubectl config set-context thiru@kubernetes --cluster=kubernetes --user=thiru --kubeconfig config
+```
