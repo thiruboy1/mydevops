@@ -1331,20 +1331,41 @@ kubectl delete csr vas
 * all certificate approving siging will taken care by kube controller manager , 
 ## Kube Config
 * to access the server u need to specfiy port,key, admin.crt,ca.crt file but each time mentioning will be tedios job so we add this in kube config file, "$HOME/.kube/config" by defalut kubelet will look for cofig will in this location.
-* config file has 3 formatas, 
-1) Cluster,
-2) Context
-3) User
+### config file has 3 formatas, 
+* Cluster,
+* Context
+* User
 context definds which user can access which clusters eg: admin@production
+#### kubectl config use-context prod-user@production
+# Creating New Admin User In Kubernetes
+
+## Step1: create key, certificate signing request and certificate
+
+```
+openssl genrsa -out admin-user.key 2048
+openssl req -new -key admin-user.key -subj "/CN=admin-user/O=system:masters" -out admin-user.csr
+openssl x509 req -in admin-user.csr -CA ca.crt -CAkey ca.key -CAcreateserial -out admin-user.crt
+```
+
+## Step2: Creat kube config file using admin-user.crt
+
+```
+kubectl config set-cluster kubernetes --certificate-authority=/etc/kubernetes/pki/ca.crt --server=https://10.200.20.247:6443 --embed-certs=true --kubeconfig config
+kubectl config set-credentials thiru --client-certificate=thiru.crt --client-key=thiru.key --embed-certs=true --kubeconfig config
+kubectl config set-context thiru@kubernetes --cluster=kubernetes --user=thiru --kubeconfig config
+```
+
 ```
 kubectl config view
 kubectl config -h
 To change current context to prod user and prod cluster use follwing command:
-kubectl config use-context prod-user@production
+
 * you can provide the certificate data directly like
 certificate-authority: /etc/kubernetes/pki/ca.crt
 but u can also mention base64 encoded data in  certificate-authority-data: 
 --------------------------------------------------------------------------
+```
+```
 apiVersion: v1
 kind: Config
 current-context: kubernetes-admin@kubernetes
