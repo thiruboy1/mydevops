@@ -1394,7 +1394,15 @@ API groups make it easier to extend the Kubernetes API. The API group is specifi
 
 ## Role Based Access Control:
 * Role-based access control (RBAC) is a method of regulating access to computer or network resources based on the roles of individual users within an enterprise
-* create a role defination file in role.yaml 
+* Creating Role Declerative way
+```
+kubectl create role -h
+kubectl create role pod-reader --verb=get --verb=list --verb=watch --resource=pods
+kubectl create role pod-reader --verb=get --resource=pods --resource-name=readablepod --resource-name=anotherpod
+kubectl create role foo --verb=get,list,watch --resource=rs.extensions
+kubectl create role foo --verb=get,list,watch --resource=pods,pods/status
+```
+* create a role defination imperitave way- in role.yaml 
 ```
                   apiversion: rbac.authorization.k8s.io/v1 
                   kind: V1
@@ -1439,6 +1447,9 @@ kubectl auth can-i delete nodes --as dev-user
 * to restrcte user to access only certian pos mention resourcesNames: ["blue","green"]
 
 ## kube cluster roles and role bindings
+
+kubectl create clusterrole <role name> --verb=create,get,delete --resource=pods,nodes
+kubectl create clusterrolebinding <rolebinding name> --clusterrole=<clusterrole name> --user=<user name>
 * there are two scope 
 1) namespace scope & 
 2)cluster scope
@@ -1454,7 +1465,30 @@ kubectl auth can-i delete nodes --as dev-user
 ## Images Security:
 * images for pod are stored in regestry like docker gcr and private repo, in order to store images privately u must store in private repo, 
 to access priveate repo u must specfiy in username & passwd in yaml file but defining username & passwd in yaml file is not good pratice so we create secrete, in secrete we define username and passwd
+nginx pod
+```
+apiVersion: v1
+kind: pod
+metadata:
+ name: nginx-pod
+spec:
+ containers:
+     - name: nginx-pod
+       image: private-registry.io/apps/internal-app
+ imagePullSecret:
+    - name: regcred
+       
 
+ 
+```
+```
+kubectl create secret docker-registry regcred \
+      --docker-server= privateregistry.io 
+      --docker-username=registry-user \
+      --docker-password=registry-password \
+      --docker-email=email 
+then add this sceret (regcred) in pod yaml file
+```
 ## Security Context 
 * security context can be defined under pod level or container level, to define context under pod level mention context in spec level and to define under container level move context under container level
 
