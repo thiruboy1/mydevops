@@ -401,6 +401,8 @@ users:
 
 
 ## kube proxy:
+kube porxy is a daemon sets in kubeadm setup
+
   The Kubernetes network proxy runs on each node. This reflects services as defined in the Kubernetes API on each node and can do simple TCP, UDP, and SCTP stream forwarding or round robin TCP, UDP, and SCTP forwarding across a set of backends. Service cluster IPs and ports are currently found through Docker-links-compatible environment variables specifying ports opened by the service proxy. There is an optional addon that provides cluster DNS for these cluster IPs. The user must create a service with the apiserver API to configure the proxy.
   
 ## Pod:
@@ -412,6 +414,7 @@ users:
       
 ```
 Run the kubectl edit pod <pod name> 
+kubectl run nginx-pod --image=nginx --generator=run-pod/v1 --dry-run -o yaml
 kubectl get pod webapp -o yaml > my-new-pod.yaml
 kubectl edit deployment my-deployment
 ```
@@ -470,11 +473,53 @@ apiVersion: apps/v1
 You describe a desired state in a Deployment, and the Deployment controller changes the actual state to the desired state at a controlled rate. You can define Deployments to create new ReplicaSets, or to remove existing Deployments and adopt all their resources with new Deployments.
 
 ```
+      kubectl run nginx-deployment --image=nginx --replicas=2
       kubectl create -f deployment.yml
       kubectl get deployments
       kubectl get all
       kubectl rollout status deployment.v1.apps/nginx-deployment # to c deployment roll out status
       kubectl get pods --show-labels # to see labels 
+```
+### kubectl run -h
+```
+# Start a single instance of nginx.
+  kubectl run nginx --image=nginx
+
+  # Start a single instance of hazelcast and let the container expose port 5701 .
+  kubectl run hazelcast --image=hazelcast --port=5701
+
+  # Start a single instance of hazelcast and set environment variables "DNS_DOMAIN=cluster" and "POD_NAMESPACE=default"
+in the container.
+  kubectl run hazelcast --image=hazelcast --env="DNS_DOMAIN=cluster" --env="POD_NAMESPACE=default"
+
+  # Start a single instance of hazelcast and set labels "app=hazelcast" and "env=prod" in the container.
+  kubectl run hazelcast --image=hazelcast --labels="app=hazelcast,env=prod"
+
+  # Start a replicated instance of nginx.
+  kubectl run nginx --image=nginx --replicas=5
+
+  # Dry run. Print the corresponding API objects without creating them.
+  kubectl run nginx --image=nginx --dry-run
+
+  # Start a single instance of nginx, but overload the spec of the deployment with a partial set of values parsed from
+JSON.
+  kubectl run nginx --image=nginx --overrides='{ "apiVersion": "v1", "spec": { ... } }'
+
+  # Start a pod of busybox and keep it in the foreground, don't restart it if it exits.
+  kubectl run -i -t busybox --image=busybox --restart=Never
+
+  # Start the nginx container using the default command, but use custom arguments (arg1 .. argN) for that command.
+  kubectl run nginx --image=nginx -- <arg1> <arg2> ... <argN>
+
+  # Start the nginx container using a different command and custom arguments.
+  kubectl run nginx --image=nginx --command -- <cmd> <arg1> ... <argN>
+
+  # Start the perl container to compute π to 2000 places and print it out.
+  kubectl run pi --image=perl --restart=OnFailure -- perl -Mbignum=bpi -wle 'print bpi(2000)'
+
+  # Start the cron job to compute π to 2000 places and print it out every 5 minutes.
+  kubectl run pi --schedule="0/5 * * * ?" --image=perl --restart=OnFailure -- perl -Mbignum=bpi -wle 'print bpi(2000)'
+
 ```
 ```                       
                        apiVersion: apps/v1
