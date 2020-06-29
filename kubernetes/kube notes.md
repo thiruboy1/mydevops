@@ -15,6 +15,71 @@ Kubernetes (K8s) is an open-source system for automating deployment, scaling, an
 * Etcd is a consistent and highly-available key value store used as Kubernetes’ backing store for all cluster data
 * ETCD Stores information for nodes,pods,config,secret,accoutns,roles,bindings & others, every command u run through kubctl & every node added will be updated in etcd server
 * ETCD use port 2379
+ETCD POD
+```
+apiVersion: v1
+kind: Pod
+metadata:
+  creationTimestamp: null
+  labels:
+    component: etcd
+    tier: control-plane
+  name: etcd
+  namespace: kube-system
+spec:
+  containers:
+  - command:
+    - etcd
+    - --advertise-client-urls=https://10.200.20.247:2379
+    - --cert-file=/etc/kubernetes/pki/etcd/server.crt
+    - --client-cert-auth=true
+    - --data-dir=/var/lib/etcd
+    - --initial-advertise-peer-urls=https://10.200.20.247:2380
+    - --initial-cluster=kubemaster=https://10.200.20.247:2380
+    - --key-file=/etc/kubernetes/pki/etcd/server.key
+    - --listen-client-urls=https://127.0.0.1:2379,https://10.200.20.247:2379
+    - --listen-peer-urls=https://10.200.20.247:2380
+    - --name=kubemaster
+    - --peer-cert-file=/etc/kubernetes/pki/etcd/peer.crt
+    - --peer-client-cert-auth=true
+    - --peer-key-file=/etc/kubernetes/pki/etcd/peer.key
+    - --peer-trusted-ca-file=/etc/kubernetes/pki/etcd/ca.crt
+    - --snapshot-count=10000
+    - --trusted-ca-file=/etc/kubernetes/pki/etcd/ca.crt
+    image: k8s.gcr.io/etcd:3.3.10
+    imagePullPolicy: IfNotPresent
+    livenessProbe:
+      exec:
+        command:
+        - /bin/sh
+        - -ec
+        - ETCDCTL_API=3 etcdctl --endpoints=https://[127.0.0.1]:2379 --cacert=/etc/kubernetes/pki/etcd/ca.crt
+          --cert=/etc/kubernetes/pki/etcd/healthcheck-client.crt --key=/etc/kubernetes/pki/etcd/healthcheck-client.key
+          get foo
+      failureThreshold: 8
+      initialDelaySeconds: 15
+      timeoutSeconds: 15
+    name: etcd
+    resources: {}
+    volumeMounts:
+    - mountPath: /var/lib/etcd
+      name: etcd-data
+    - mountPath: /etc/kubernetes/pki/etcd
+      name: etcd-certs
+  hostNetwork: true
+  priorityClassName: system-cluster-critical
+  volumes:
+  - hostPath:
+      path: /etc/kubernetes/pki/etcd
+      type: DirectoryOrCreate
+    name: etcd-certs
+  - hostPath:
+      path: /var/lib/etcd
+      type: DirectoryOrCreate
+    name: etcd-data
+status: {}
+
+```
 ## KubeApi Server: 
 * The Kubernetes API server validates and configures data for the api objects which include pods, services, replicationcontrollers, and others. The API Server services REST operations and provides the frontend to the cluster’s shared state through which all other components interact.
 * kube api server performs following functions,
@@ -1680,7 +1745,23 @@ spec:
    10  kubectl create serviceaccount ingress-serviceaccount -n ingress-space
    11  kubectl get serviceaccount -n ingress-space
    12  kubectl get roles -n ingress-space
-   13  kubectl get rolebinding -n ingress-space         
+   13  kubectl get rolebinding -n ingress-space    
+   
+   What is the range of IP addresses configured for PODs on this cluster?
+   The network is configured with weave. Check the weave pods logs using command kubectl logs <weave-pod-name> weave -n kube-system and look for ipalloc-range
+      
+   What type of proxy is the kube-proxy configured to use?
+   Check the logs of the kube-proxy pods. Command: kubectl logs kube-proxy-ft6n7 -n kube-system
+   
+   Where is the configuration file located for configuring the CoreDNS service?
+   Inspect the Args of the coredns deployment and check the file used, example: kubectl -n kube-system describe deployments.apps coredns | grep -A2 Args | grep Corefile
+   
+   How is the Corefile passed in to the CoreDNS POD?
+   corefile is passed as config map
+   k get configmap -n kube-system
+   
+   From the hr pod nslookup the mysql service and redirect the output to a file /root/nslookup.out
+   Run the command kubectl exec -it hr nslookup mysql.payroll > /root/nslookup.out
    ```       
 
 
