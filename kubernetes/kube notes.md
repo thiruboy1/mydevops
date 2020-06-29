@@ -197,12 +197,139 @@ status: {}
  * kube controller server file is located in /etc/kubernetes/manifests/kube-controller-manager.yaml
 * kube api services for nod kubeadmin setup  /etc/systemd/system/kube-controller-manager.service 
 
+```
+apiVersion: v1
+kind: Pod
+metadata:
+  creationTimestamp: null
+  labels:
+    component: kube-controller-manager
+    tier: control-plane
+  name: kube-controller-manager
+  namespace: kube-system
+spec:
+  containers:
+  - command:
+    - kube-controller-manager
+    - --authentication-kubeconfig=/etc/kubernetes/controller-manager.conf
+    - --authorization-kubeconfig=/etc/kubernetes/controller-manager.conf
+    - --bind-address=127.0.0.1
+    - --client-ca-file=/etc/kubernetes/pki/ca.crt
+    - --cluster-signing-cert-file=/etc/kubernetes/pki/ca.crt
+    - --cluster-signing-key-file=/etc/kubernetes/pki/ca.key
+    - --controllers=*,bootstrapsigner,tokencleaner
+    - --kubeconfig=/etc/kubernetes/controller-manager.conf
+    - --leader-elect=true
+    - --requestheader-client-ca-file=/etc/kubernetes/pki/front-proxy-ca.crt
+    - --root-ca-file=/etc/kubernetes/pki/ca.crt
+    - --service-account-private-key-file=/etc/kubernetes/pki/sa.key
+    - --use-service-account-credentials=true
+    image: k8s.gcr.io/kube-controller-manager:v1.15.12
+    imagePullPolicy: IfNotPresent
+    livenessProbe:
+      failureThreshold: 8
+      httpGet:
+        host: 127.0.0.1
+        path: /healthz
+        port: 10252
+        scheme: HTTP
+      initialDelaySeconds: 15
+      timeoutSeconds: 15
+    name: kube-controller-manager
+    resources:
+      requests:
+        cpu: 200m
+    volumeMounts:
+    - mountPath: /etc/ssl/certs
+      name: ca-certs
+      readOnly: true
+    - mountPath: /etc/pki
+      name: etc-pki
+      readOnly: true
+    - mountPath: /usr/libexec/kubernetes/kubelet-plugins/volume/exec
+      name: flexvolume-dir
+    - mountPath: /etc/kubernetes/pki
+      name: k8s-certs
+      readOnly: true
+    - mountPath: /etc/kubernetes/controller-manager.conf
+      name: kubeconfig
+      readOnly: true
+  hostNetwork: true
+  priorityClassName: system-cluster-critical
+  volumes:
+  - hostPath:
+      path: /etc/ssl/certs
+      type: DirectoryOrCreate
+    name: ca-certs
+  - hostPath:
+      path: /etc/pki
+      type: DirectoryOrCreate
+    name: etc-pki
+  - hostPath:
+      path: /usr/libexec/kubernetes/kubelet-plugins/volume/exec
+      type: DirectoryOrCreate
+    name: flexvolume-dir
+  - hostPath:
+      path: /etc/kubernetes/pki
+      type: DirectoryOrCreate
+    name: k8s-certs
+  - hostPath:
+      path: /etc/kubernetes/controller-manager.conf
+      type: FileOrCreate
+    name: k
+```
 ## Kube Schedluer:
 * The Kubernetes scheduler is a policy-rich, topology-aware, workload-specific function that significantly impacts availability, performance, and capacity. The scheduler needs to take into account individual and collective resource requirements, quality of service requirements, hardware/software/policy constraints, affinity and anti-affinity specifications, data locality, inter-workload interference, deadlines, and so on. Workload-specific requirements will be exposed through the API as necessary.
 
 * scheduler decides which pods goes to which node , it decides based on requirments
 first scheduler filter the node then scheduler ranks the node scale of 0 to 10, scheduer calculater amount resources free after placing pod, more free resources will get better rank
 
+```
+apiVersion: v1
+kind: Pod
+metadata:
+  creationTimestamp: null
+  labels:
+    component: kube-scheduler
+    tier: control-plane
+  name: kube-scheduler
+  namespace: kube-system
+spec:
+  containers:
+  - command:
+    - kube-scheduler
+    - --bind-address=127.0.0.1
+    - --kubeconfig=/etc/kubernetes/scheduler.conf
+    - --leader-elect=true
+    image: k8s.gcr.io/kube-scheduler:v1.15.12
+    imagePullPolicy: IfNotPresent
+    livenessProbe:
+      failureThreshold: 8
+      httpGet:
+        host: 127.0.0.1
+        path: /healthz
+        port: 10251
+        scheme: HTTP
+      initialDelaySeconds: 15
+      timeoutSeconds: 15
+    name: kube-scheduler
+    resources:
+      requests:
+        cpu: 100m
+    volumeMounts:
+    - mountPath: /etc/kubernetes/scheduler.conf
+      name: kubeconfig
+      readOnly: true
+  hostNetwork: true
+  priorityClassName: system-cluster-critical
+  volumes:
+  - hostPath:
+      path: /etc/kubernetes/scheduler.conf
+      type: FileOrCreate
+    name: kubeconfig
+status: {}
+
+```
 ## kubelet:
 * The kubelet is the primary “node agent” that runs on each node. The kubelet works in terms of a PodSpec. A PodSpec is a YAML or JSON object that describes a pod. The kubelet takes a set of PodSpecs that are provided through various mechanisms (primarily through the apiserver) and ensures that the containers described in those PodSpecs are running and healthy. The kubelet doesn’t manage containers which were not created by Kubernetes.
 Other than from a PodSpec from the apiserver, there are three ways that a container manifest can be provided to the Kubelet.
@@ -211,6 +338,67 @@ Other than from a PodSpec from the apiserver, there are three ways that a contai
 * HTTP endpoint: HTTP endpoint passed as a parameter on the command line. This endpoint is checked every 20 seconds (also configurable with a flag).
 
 * HTTP server: The kubelet can also listen for HTTP and respond to a simple API (underspec’d currently) to submit a new manifest
+
+kubelet service file is in : /usr/lib/systemd/system/kubelet.service
+```
+
+[Unit]
+Description=kubelet: The Kubernetes Node Agent
+Documentation=https://kubernetes.io/docs/
+
+[Service]
+ExecStart=/usr/bin/kubelet
+Restart=always
+StartLimitInterval=0
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
+
+```
+
+### /usr/lib/systemd/system/kubelet.service.d/10-kubeadm.conf
+```
+[Service]
+Environment="KUBELET_KUBECONFIG_ARGS=--bootstrap-kubeconfig=/etc/kubernetes/bootstrap-kubelet.conf --kubeconfig=/etc/kubernetes/kubelet.conf"
+Environment="KUBELET_CONFIG_ARGS=--config=/var/lib/kubelet/config.yaml"
+# This is a file that "kubeadm init" and "kubeadm join" generates at runtime, populating the KUBELET_KUBEADM_ARGS variable dynamically
+EnvironmentFile=-/var/lib/kubelet/kubeadm-flags.env
+# This is a file that the user can use for overrides of the kubelet args as a last resort. Preferably, the user should use
+# the .NodeRegistration.KubeletExtraArgs object in the configuration files instead. KUBELET_EXTRA_ARGS should be sourced from this file.
+EnvironmentFile=-/etc/sysconfig/kubelet
+ExecStart=
+ExecStart=/usr/bin/kubelet $KUBELET_KUBECONFIG_ARGS $KUBELET_CONFIG_ARGS $KUBELET_KUBEADM_ARGS $KUBELET_EXTRA_ARGS
+
+```
+
+### kubeconfig=/etc/kubernetes/kubelet.conf
+```
+apiVersion: v1
+clusters:
+- cluster:
+    certificate-authority: <ca.crt>
+    server: https://10.200.20.247:6443
+  name: kubernetes
+contexts:
+- context:
+    cluster: kubernetes
+    user: system:node:kubemaster
+  name: system:node:kubemaster@kubernetes
+current-context: system:node:kubemaster@kubernetes
+kind: Config
+preferences: {}
+users:
+- name: system:node:kubemaster
+  user:
+    client-certificate: <admin.crt>
+
+```
+
+
+
+
+
 
 ## kube proxy:
   The Kubernetes network proxy runs on each node. This reflects services as defined in the Kubernetes API on each node and can do simple TCP, UDP, and SCTP stream forwarding or round robin TCP, UDP, and SCTP forwarding across a set of backends. Service cluster IPs and ports are currently found through Docker-links-compatible environment variables specifying ports opened by the service proxy. There is an optional addon that provides cluster DNS for these cluster IPs. The user must create a service with the apiserver API to configure the proxy.
