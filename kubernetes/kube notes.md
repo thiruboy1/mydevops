@@ -472,13 +472,16 @@ apiVersion: apps/v1
 * A Deployment controller provides declarative updates for Pods and ReplicaSets.
 You describe a desired state in a Deployment, and the Deployment controller changes the actual state to the desired state at a controlled rate. You can define Deployments to create new ReplicaSets, or to remove existing Deployments and adopt all their resources with new Deployments.
 
-```
+``` 
+      kubectl run nginx-deploy --image=nginx --replicas=2 -l="tier=frontend" --env="nm=thiru" --requests="cpu=100m,memory=256Mi" --expose=true --port=80 --limits="cpu=1,memory=512Mi" --dry-run -o yaml 
       kubectl run nginx-deployment --image=nginx --replicas=2
+      kubectl create deployment my-dep --image=busybox
       kubectl create -f deployment.yml
       kubectl get deployments
       kubectl get all
       kubectl rollout status deployment.v1.apps/nginx-deployment # to c deployment roll out status
-      kubectl get pods --show-labels # to see labels 
+      kubectl get pods --show-labels # to see labels
+      
 ```
 ### kubectl run -h
 ```
@@ -553,6 +556,9 @@ JSON.
 * if u want to create pod in ur namespace then u can use following command are u can specfiy in pod-definationfile.yaml under metadata 
       * kubectl create -f pod-definationi.yaml -n dev   # creates pod in custom(dev) namespaces
 * creating namespace
+```
+      kubectl create namespace my-namespace
+```
 ```
       apiVersion: v1
       kind: Namespace
@@ -650,7 +656,8 @@ kubectl get services
          nodeName: <node name>   # to get node name run <kubectl get node>
 ```
  ### Manualy Scheduing POD:
-     scheduler will check of the pods which dosent have node names assigned if it identifys the pod then it allocates the node, if pod u want to schedule u pod manualy then u need to assign node name. but u can assign node name only during creation of pod wat if pod is already created then u can create "binding object"    bind-defination.yaml file
+ 
+* scheduler will check of the pods which dosent have node names assigned if it identifys the pod then it allocates the node, if u want to schedule a pod manualy then u need to assign node name. but u can assign node name only during creation of pod wat if pod is already created then u can create "binding object"    bind-defination.yaml file
      
      
 ## Labels & Selectors
@@ -2061,8 +2068,9 @@ spec:
                                 backend:
                                   serviceName: test
                                   servicePort: 80
-          
-     4  kubectl get deployments --all-namespaces
+```    
+    
+    4  kubectl get deployments --all-namespaces
     5  kubectl create namespace ingress-space
     6  kubectl get namespace
     7  kubectl create configmap nginx-configuration -n ingress-space
@@ -2071,7 +2079,12 @@ spec:
    10  kubectl create serviceaccount ingress-serviceaccount -n ingress-space
    11  kubectl get serviceaccount -n ingress-space
    12  kubectl get roles -n ingress-space
-   13  kubectl get rolebinding -n ingress-space    
+   13  kubectl get rolebinding -n ingress-space
+   14 k run nginx-deploy --image=nginx --replicas=2 -l="tier=frontend" --env="nm=thiru" --requests="cpu=100m,memory=256Mi" --expose=true --port=80 --limits="cpu=1,memory=512Mi" --dry-run -o yaml 
+   15 kubectl config set-context --current --namespace=<insert-namespace-name-here>
+
+
+```  
    
    What is the range of IP addresses configured for PODs on this cluster?
    The network is configured with weave. Check the weave pods logs using command kubectl logs <weave-pod-name> weave -n kube-system and look for ipalloc-range
