@@ -982,16 +982,21 @@ The CPU limit total for all Containers must not exceed 2 cpu.
 ## Static Pods
  * kublete is service installed in nodes , this kubelet can operate even without kube master, in order to run kubelet without master u need to place yaml file in /etc/kubernetes/manifestes/. now kublete will check for update in this location if any update kubelet will update the same in pod.
  * note: node name is appended and end of  static pod name eg:  kube-apiserver-master,kube-controller-manager-master,kube-scheduler-master &etcd-master
- ```
-           in static pods you cannot create replica sets,deployments without kube master
+
+* in static pods you cannot create replica sets,deployments without kube master
            1) specfiy in kubelet.service file
            --pod-manifest-path=/etc/kubernetes/manifestes\\
-           2)insted of defining in kubelet.service file create a kubeconfig.yaml and provide path in serive file and in that file enter the following(when cluster is setup using kubeadm then it follows this procedure)
+           2)insted of defining in kubelet.service file create a kubeconfig.yaml and provide path in serive file and in that file enter the following
+           (when cluster is setup using kubeadm then it follows this procedure)
                  a) create kubeconfig.yaml file and add the following in the file
                  b) staticPodPath: /etc/kubernetes/manifestes
                  c) then insert this in kubelet.service file "--config=kubeconfig.yaml"
                   
 kubectl get pods --all-namespaces
+
+kubeconfig.yaml
+```
+staticPodPath: /etc/kubernetes/manifestes
 ```
 * Create a static pod named static-busybox that uses the busybox image and the command sleep 1000
 ```
@@ -1006,6 +1011,7 @@ kubectl get pods --all-namespaces
       ** leder elect to false in custom pod def file
       ** change the scheduler port ( - --port=10253)
       ** change the name in pod defination file
+      ** add this in command section(--secure-port=0)
       ** add the custom scheduler name in pod defination file under command section (- --scheduler-name=kube-scheduler1)
  ```
 * to create custom scheduler yaml file, juct copy the orginal scheduler file and update the custom name and create the scheduler 
@@ -1026,6 +1032,7 @@ spec:
     - --leader-elect=false
     - --scheduler-name=kube-scheduler1
     - --port=10253
+    - --secure-port=0
     - --lock-object-name=kube-scheduler1
     image: k8s.gcr.io/kube-scheduler:v1.14.3
     imagePullPolicy: IfNotPresent
