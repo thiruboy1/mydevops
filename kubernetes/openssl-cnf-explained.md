@@ -1,18 +1,19 @@
 # Certificate Authorities & Intermediate CAs
 Self-signed CA
-keyUsage: cRLSign, digitalSignature, keyCertSign
-Should not contain any other KUs or EKUs
+    keyUsage: cRLSign, digitalSignature, keyCertSign  #Should not contain any other KUs or EKUs
 V3 Profile:
 
 [ v3_ca ]
+```
 basicConstraints        = critical, CA:TRUE
 subjectKeyIdentifier    = hash
 authorityKeyIdentifier  = keyid:always, issuer:always
 keyUsage                = critical, cRLSign, digitalSignature, keyCertSign
 subjectAltName          = @alt_ca
-Intermediate CA
-keyUsage: cRLSign, digitalSignature, keyCertSign
-Should not contain any other KUs or EKUs
+
+## Intermediate CA
+    keyUsage: cRLSign, digitalSignature, keyCertSign #Should not contain any other KUs or EKUs
+```
 V3 Profile:
 
 [ v3_ica ]
