@@ -1864,9 +1864,7 @@ users:
 ```
 * eg: https://github.com/zecke/Kubernetes/blob/master/docs/user-guide/kubeconfig-file.md
 ## API GROUPS:
-
 ![](images/apigroups1.png)
-
 ![](images/apigroups.png)
 API groups make it easier to extend the Kubernetes API. The API group is specified in a REST path and in the apiVersion field of a serialized object
 * ertain resources and API groups are enabled by default. You can enable or disable them by setting --runtime-config on the apiserver. --runtime-config accepts comma separated values. For example: - to disable batch/v1, set --runtime-config=batch/v1=false - to enable batch/v2alpha1, set --runtime-config=batch/v2alpha1
