@@ -1827,6 +1827,7 @@ openssl x509 req -in admin-user.csr -CA ca.crt -CAkey ca.key -CAcreateserial -ou
 kubectl config set-cluster kubernetes --certificate-authority=/etc/kubernetes/pki/ca.crt --server=https://10.200.20.247:6443 --embed-certs=true --kubeconfig config
 kubectl config set-credentials thiru --client-certificate=thiru.crt --client-key=thiru.key --embed-certs=true --kubeconfig config
 kubectl config set-context thiru@kubernetes --cluster=kubernetes --user=thiru --kubeconfig config
+kubectl config use-context thiru@kubernetes --kubeconfig=kube-proxy.kubeconfig
 ```
 
 ```
@@ -1863,6 +1864,10 @@ users:
 ```
 * eg: https://github.com/zecke/Kubernetes/blob/master/docs/user-guide/kubeconfig-file.md
 ## API GROUPS:
+
+![](images/apigroups1.png)
+
+![](images/apigroups.png)
 API groups make it easier to extend the Kubernetes API. The API group is specified in a REST path and in the apiVersion field of a serialized object
 * ertain resources and API groups are enabled by default. You can enable or disable them by setting --runtime-config on the apiserver. --runtime-config accepts comma separated values. For example: - to disable batch/v1, set --runtime-config=batch/v1=false - to enable batch/v2alpha1, set --runtime-config=batch/v2alpha1
 
