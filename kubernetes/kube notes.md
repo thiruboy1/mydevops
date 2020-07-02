@@ -1606,6 +1606,9 @@ then CA will verfiy and send certificate ,
 CA uses its own private and publick key , and public key are built in browsers
 private CA: 
 ## Certificate createion for kube
+
+![](images/kube-certificate.png)
+
 * ther are many tools avilable to generate certificate we use openssl
 ```
 * CA certificates:
