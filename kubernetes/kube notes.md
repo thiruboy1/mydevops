@@ -1866,6 +1866,11 @@ users:
 ## API GROUPS:
 ![](images/apigroups1.png)
 ![](images/apigroups.png)
+
+to list all the api run the following
+kubectl proxy
+curl http://localhost:8001 -k
+
 API groups make it easier to extend the Kubernetes API. The API group is specified in a REST path and in the apiVersion field of a serialized object
 * ertain resources and API groups are enabled by default. You can enable or disable them by setting --runtime-config on the apiserver. --runtime-config accepts comma separated values. For example: - to disable batch/v1, set --runtime-config=batch/v1=false - to enable batch/v2alpha1, set --runtime-config=batch/v2alpha1
 
@@ -2097,6 +2102,87 @@ spec:
        core dns file is configured to dns pod using configmap
        kubectl get configmap -n kube-system
        kubectl describe configmap coredns -n kube-system
+       
+# Network Namespaces:
+
+A network namespace is logically another copy of the network stack, with its own routes, firewall rules, and network devices.
+for each child we create seprate namespace and only parent ll have access to all namespace, unless each are interconnected  
+each contianer are created on seprate namespace
+# Docker Networking
+docker consist of 3 types of networking
+1) none network  # no network
+2) Host Network  # Connects to host network, if container use port 80 then host post is maped with container port 80
+3) Bridge Network # internal private network
+The network named bridge is a special network. Unless you tell it otherwise, Docker always launches your containers in this network
+
+to check docker network run this
+docker netowrk ls
+
+# CNI
+Container Network Interface: Cni is set of standards that defines how programs should be developed to solve contianer netowrk chalanges
+CNI comes with default plugins like 1)bridge, vlan, ipvlan, macvlan, windows, dhcp, host-local other 3rd pary eg are weave, flanel, calico, vm ware nsx.
+docker dosent implement cni docker it has it own set of standerds called CNM, for docker u cannot create cni like this "docker run --network=cni-bridge"
+insted u can run docker run --network=none, &  docker add 23eaew43 /var/run/ntens/23eaew4
+
+this is how kubernetes creates container, kubernetes create container using none netowrk and invokes configured CNI plugin
+# POD Networking
+![](images/CNI.png)
+
+# CNI in Kubernetes
+CNI in kubernetes is configured in KUBELET, each time when container is created kubelet will call CNI, check kubelet.service file
+kubelet will check on /etc/cni/net.d/10-bridge.conf directory and decides which plugins to be used
+
+10-bridge.conf
+```
+{
+  "name": "cbr0",
+  "plugins": [
+    {
+      "type": "flannel",
+      "delegate": {
+        "hairpinMode": true,
+        "isDefaultGateway": true
+      }
+    },
+    {
+      "type": "portmap",
+      "capabilities": {
+        "portMappings": true
+      }
+    }
+  ]
+}
+
+```
+
+in this directory all bin files will be present /opt/cni/bin
+
+# weave
+![](images/weave.png)
+
+Install CNI plugins
+Download the CNI Plugins required for weave on each of the worker nodes - worker-1 and worker-2
+
+wget https://github.com/containernetworking/plugins/releases/download/v0.7.5/cni-plugins-amd64-v0.7.5.tgz
+
+Extract it to /opt/cni/bin directory
+
+sudo tar -xzvf cni-plugins-amd64-v0.7.5.tgz --directory /opt/cni/bin/
+
+Reference: https://kubernetes.io/docs/concepts/extend-kubernetes/compute-storage-net/network-plugins/#cni
+
+Deploy Weave Network
+Deploy weave network. Run only once on the master node.
+
+kubectl apply -f "https://cloud.weave.works/k8s/net?k8s-version=$(kubectl version | base64 | tr -d '\n')"
+
+# IPAM
+# Service Networking
+
+* when ever new service need to be created kube proxy will get into action, service is just virutal object ,like rules on all the nodes like iptables there is no component like,pods,process & interfaces
+* wen we create service , service will get ip from predefined range which is specfied on kube-apiserver --service-cluster-ip-range   
+
+
 # Ingress
       Ingress exposes HTTP and HTTPS routes from outside the cluster to services within the cluster. Traffic routing is controlled by rules defined on the Ingress resource
       An Ingress can be configured to give Services externally-reachable URLs, load balance traffic, terminate SSL / TLS, and offer name based virtual hosting
