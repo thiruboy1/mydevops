@@ -2267,12 +2267,40 @@ kubectl apply -f "https://cloud.weave.works/k8s/net?k8s-version=$(kubectl versio
    
    From the hr pod nslookup the mysql service and redirect the output to a file /root/nslookup.out
    Run the command kubectl exec -it hr nslookup mysql.payroll > /root/nslookup.out
-   ```       
+    
 
 
 
 
+# installing kubeadm
 
+```
+sudo apt-get update && sudo apt-get install -y apt-transport-https curl
+curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
+cat <<EOF | sudo tee /etc/apt/sources.list.d/kubernetes.list
+deb https://apt.kubernetes.io/ kubernetes-xenial main
+EOF
+sudo apt-get update
+sudo apt-get install -y kubelet kubeadm kubectl
+sudo apt-mark hold kubelet kubeadm kubectl
+systemctl daemon-reload
+systemctl restart kubelet
+```
+## Creating a single control-plane cluster with kubeadm
+
+```
+kubeadm init
+```
+
+```
+  mkdir -p $HOME/.kube
+  sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+  sudo chown $(id -u):$(id -g) $HOME/.kube/config
+```
+regenerating token
+```
+kubeadm token create --print-join-command
+```
 
 
 
