@@ -2248,6 +2248,7 @@ kubectl apply -f "https://cloud.weave.works/k8s/net?k8s-version=$(kubectl versio
    14 k run nginx-deploy --image=nginx --replicas=2 -l="tier=frontend" --env="nm=thiru" --requests="cpu=100m,memory=256Mi" --expose=true --port=80 --limits="cpu=1,memory=512Mi" --dry-run -o yaml 
    15 kubectl config set-context --current --namespace=<insert-namespace-name-here>
    16 k rollout history deployment $(k get deploy | awk 'FNR> 1 {print $1}')
+   17 'kubectl get all --selector env=prod
 
 
 ```  
