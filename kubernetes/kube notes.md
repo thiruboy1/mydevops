@@ -2304,6 +2304,121 @@ kubeadm token create --print-join-command
 ```
 
 
+# JSON PATH
+
+YAMAL Key Value Pair
+```
+FRUIT: apple
+Vegetable: carrot
+```
+Array/list
+```
+Fruits:
+- orange
+- apple
+- bannaa
+```
+
+Yamal Dictionary
+```
+Banana:
+ Calories: 10
+ fat: 10
+ carbs: 10
+Orange:
+ Calories: 10
+ fat: 10
+ carbs: 10
+```
+
+DICTONARY: is unorderd collection
+
+
+```
+Fruits:
+ apple:
+ banana:
+is same as 
+Fruits:
+ banana:
+ apple
+```
+list are order collection
+```
+Fruit:
+ - apple
+ - banana
+
+ 
+Fruits: 
+ - banana
+ - apple  
+
+ both are diffrent list and it is not same
+```
+
+## JSON
+
+```
+{
+ "vechical": {
+   "car": {
+       "color": "red"
+        "price": "1000"
+          }
+    
+              }
+      
+}
+```
+to access car color u have to run these query: $.vechical.car.color 
+where $ represents root 
+
+for array
+
+```
+[
+ car
+ bus
+ van
+]
+```
+to get array use $[0], 
+to get 1st and last $[0,2]
+
+### json query criteria
+
+```
+[1,2,45,67,78,90,98,96,89]
+```
+@ : it means each iteam
+?() : it means check if
+@ ==
+@ !=
+@ in [40,43,34]
+@ nin [1,3,4]
+to get number greater than to use $[ ?( @ > 40) ]
+query;     $.prizes[?(@.year == 2014)].laureates[*].firstname
+
+### search criteria
+
+$[?(@.location == "right")].model
+
+### wild cards
+
+$.*.color
+$.*.price
+
+
+
+
+
+
+
+
+
+
+
 
 
 
