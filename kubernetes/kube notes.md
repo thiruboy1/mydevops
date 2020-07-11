@@ -1425,6 +1425,14 @@ spec:
                 image: busybox:1.28
                 command: ['sh', '-c', 'until nslookup myservice; do echo waiting for myservice; sleep 2; done;']
 ```
+
+## kubeadm insatallation:
+
+https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/create-cluster-kubeadm/
+
+in case if u forget to save join commmand then u can use kubeadm create token -h
+kubeadm create token --print-join-command
+
 ## Kube OS upgrade to node
 
 * in kube cluster if any node need to updated then node needs downtime, during this down time pods will also go down,
@@ -2414,6 +2422,42 @@ $.*.price
 $[-1:0]  or $[-1:], this will retrive data from last to index 0
 $[-4:0] this will retrive last four data
 
+## Json Path Query in kubectl
+
+in kubectl jsonpath "$" in not mandatory
+
+kubectl get pods -o=jsonpath= '{.iteams[*].spec.containers[0].image   }'
+kubectl get nodes -o=jsonpath='{.items[*].metadata.name}'                                       #lists all names of the node in cluster
+kubectl get nodes -o=jsonpath='{.items[*].status.capacity.cpu}'                                 #lists cpu of all nodes
+
+you can also combaine namd and cpu in single command
+kubectl get nodes -o=jsonpath='{.items[*].metadata.name} {"\n"}{.items[*].status.capacity.cpu}'
+
+{"\n"}    #is for new line
+{"\t"}    # is fo Tab
+
+#### loops,ranges and sortby
+
+ '{range.iteams[*]}'                                   #for each key word is replaced with range in json    
+kubectl get nodes -o=jsonpath='{range.iteams[*]}{metadata.name}{"\t"}{status.capacity.cpu}{"\n"}{end}'
+
+#### jsonpath with custom columns
+in custom columns u must exculde "items[*]" query, as it assumes query is for each iteams in list
+kubectl get nodes -o=custom-columns=NODES:.metadata.name,CPU:.status.capacity.cpu
+ 
+ 
+#### jsonpath sortby
+
+kubectl get nodes --sort-by=.metadata.name
+kubectl get nodes --sort-by=.status.capacity.cpu
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
 
 
 
