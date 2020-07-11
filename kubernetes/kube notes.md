@@ -2399,6 +2399,8 @@ to get 1st and last $[0,2]
 ```
 [1,2,45,67,78,90,98,96,89]
 ```
+
+```
 @ : it means each iteam
 ?() : it means check if
 @ ==
@@ -2407,7 +2409,7 @@ to get 1st and last $[0,2]
 @ nin [1,3,4]
 to get number greater than to use $[ ?( @ > 40) ]
 query;     $.prizes[?(@.year == 2014)].laureates[*].firstname
-
+```
 ### search criteria
 ```
 $[?(@.location == "right")].model
