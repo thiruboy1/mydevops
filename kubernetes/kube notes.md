@@ -2409,7 +2409,10 @@ $[?(@.location == "right")].model
 $.*.color
 $.*.price
 
+### list indexing
 
+$[-1:0]  or $[-1:], this will retrive data from last to index 0
+$[-4:0] this will retrive last four data
 
 
 
