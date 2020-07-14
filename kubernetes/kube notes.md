@@ -1309,10 +1309,13 @@ spec:
 
 ## Using Secret:
 secret can be used in 2 ways
+```
 1) As Enviroment Variable
         1.1) using secret key
         1.2) using entire secret
+```        
 1.1) using secret key                                 # secret in POD as env key
+
 ```
 apiVersion: v1
 kind: Pod
@@ -1351,9 +1354,10 @@ spec:
 ``` 
 
 2) As Volume
+```
         1.1) using secret key
         1.2) using entire secret
-        
+```        
 1.1) using secret key       
 ```
 apiVersion: v1
