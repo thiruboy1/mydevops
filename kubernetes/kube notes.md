@@ -1306,20 +1306,13 @@ spec:
             kubectl describe configmaps
 ``` kubectl create secret generic db-secret --from-literal=DB_Host=sql01 --from-literal=DB_User=root --from-literal=DB_Password=password123     
 ```
-#### now inject secret file into pod defination file
-      appVersion: v1
-              kind: Pod
-              metadata:
-                  name: testpod
-              spec:
-                  container:
-                    - name:
-                      image:
-                      envFrom:
-                        - secretRef:
-                               name: app-secret(name of config map which was created)           
 
-### secret in POD as env key
+## Using Secret:
+secret can be used in 2 ways
+1) As Enviroment Variable
+        1.1) using secret key
+        1.2) using entire secret
+1.1) using secret key                                 # secret in POD as env key
 ```
 apiVersion: v1
 kind: Pod
@@ -1339,14 +1332,59 @@ spec:
       valueFrom:
         secretKeyRef:
           name: db-user
-          key: db-username
+               key: db-username
 ```
-#### secret in POD as volume
+     
+1.2) using entire secret                                    # now inject secret file into pod defination file
+```            
+      appVersion: v1
+              kind: Pod
+              metadata:
+                  name: testpod
+              spec:
+                  container:
+                    - name:
+                      image:
+                      envFrom:
+                        - secretRef:
+                              name: app-secret(name of config map which was created)    
+``` 
+
+2) As Volume
+        1.1) using secret key
+        1.2) using entire secret
+        
+1.1) using secret key       
+```
+apiVersion: v1
+kind: Pod
+metadata:
+  name: mypod
+spec:
+  containers:
+  - name: mypod
+    image: redis
+    volumeMounts:
+    - name: foo
+      mountPath: "/etc/foo"
+      readOnly: true
+  volumes:
+  - name: foo
+    secret:
+      secretName: mysecret
+      items:
+      - key: username
+        path: my-group/my-username
+```
+
+1.2) using entire secret                              # secret in POD as volume
+```
             volume:
              - name: app-secret-volume
                secret:
                  secretName: app-secret       
             
+```
 ## Kube Mulit Container Pod     
 
 ## kube initContainer
