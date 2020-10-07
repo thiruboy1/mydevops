@@ -1,5 +1,10 @@
-## create terraform directory
-## create terraform file with .tf extension and terraform will read all the file in this folder
+# Terraform
+## Start Guid
+```
+create terraform directory
+create terraform file with .tf extension and terraform will read all the file in this folder
+```
+## Terraform Commands
 ```
 terrraform version
 terraform init		# to initilize , when ever new provider is added we need to initilize so that required files will be downloaded in the local folder
@@ -18,44 +23,36 @@ terraform show		# this command will show the current state
 > terraform fmt		#is used to format the code
 
 ```
-##to destory created resources
-``
+## To destory created resources
+```
 terraform destory
-terraform destory -target aws_instance.web	#insted of deleting all the resource we 
-can specfiy the particular resource 
-```
-2nd way is commenting the to code in .tf file and run terraform plan and apply, then terraform will check the .tf 
-file and which ever resources is not ther it will remove  
+terraform destory -target aws_instance.web	#insted of deleting all the resource we can specfiy the particular resource 
 
-
-## Terraform State File- 
+2nd way is commenting the to code in .tf file and run terraform plan and apply, then terraform will check the .tf  file and which ever resources is not ther it will remove  
 ```
-terraform.tfstate	#this wil have current state of infrastructure
-terraform will store states of infracture that is being created from tf files
- eg: if u destory the resource then same will be updated in the 
-state file , then if u run terraform plan then terraform will recreate the resource
-```
-* manualy if u change the instance type in aws console then if run terraform plan
-then terraform will check the tf file and aws status and then it will notifiy 
-with ~ on command prompt and it indicates that follwing has been changed if u run
-terrafom apply then whatever is on tf file will be applied
 
-##Terraform State File-Desired State and Current State
+## Terraform State File
+
+```
+terraform.tfstate	
+```
+* this wil have current state of infrastructure terraform will store states of infracture that is being created from tf files
+eg: if u destory the resource then same will be updated in the state file , then if u run terraform plan then terraform will recreate the resource
+* manualy if u change the instance type in aws console then if run terraform plan then terraform will check the tf file and aws status and then it will notifiy 
+with ~ on command prompt and it indicates that follwing has been changed if u run terrafom apply then whatever is on tf file will be applied
+
+## Terraform State File-Desired State and Current State
 
 1)Desired State: its the state which is mentioned in the file
 2)Current State: current state
 
 terraform will alway try to match the desired state with current state
 
-if resources is not mentioned in the tf file eg: security group then if SG is update in the 
-aws console then if u run the terraform plan then terraform will notifity the changes
-coz terraform will monitor only state which is mentioned in tf file 
+if resources is not mentioned in the tf file eg: security group then if SG is update in the  aws console then if u run the terraform plan then terraform will notifity the changes coz terraform will monitor only state which is mentioned in tf file 
 
-##Terraform Provider Versionin
+## Terraform Provider Versionin
 
-provider will have multiple versions,if version is not mentioned int 
-the .tf file then terraform will assume most recent version,
-so for production its mandatory to mention the version 
+provider will have multiple versions,if version is not mentioned int  the .tf file then terraform will assume most recent version, so for production its mandatory to mention the version 
 ```
 provider "aws" {
 	region = "ap-south-1"
@@ -66,49 +63,43 @@ version >="2.7"
 version < "2.7"
 version ~> "2.0"	#any version in 2x range
 version >=2.10,<=2.30	#any version bw 2.10 and 2.30
-```	
-## Types of terraform provider
 ```
+
+## Types of terraform provider
+
 1)hasicorp distributed	#developed and tested by hasicorp
-2)3rd party		#developed by 3rd party,
-which cannto be downloade automaticaly, insted we need to install mannually
-install thirdparty providers by placing their plugin exe in the following direcotry
+2)3rd party		#developed by 3rd party, which cannto be downloade automaticaly, insted we need to install mannually install thirdparty providers by placing their plugin exe in the following direcotry
 windows: %APPDATA%\terraform.d\plugins
 all other: ~/.terraform.d/plugins
-```
+
 ## Terraform Attributes and Outputs
 
 * After terraform apply, the terraform will create the ec2 instance if u want to c the ip address of ece then u have to  login to console and note down the ip 
 * but in terraform you can output the variable so that there is no need to login to console
 
-*The outputed attributes can not oly be used for the user ref but it can also act as input to 
-other resources being created via terraform 
+*The outputed attributes can not oly be used for the user ref but it can also act as input to  other resources being created via terraform 
 
-for eg: after EIP gets created its ip should get whitleised in SG
-this in one most advantage of attibues and output
+for eg: after EIP gets created its ip should get whitleised in SG this in one most advantage of attibues and output
  
-##Refrencing cross account resource attributes
-```
+## Refrencing cross account resource attributes
+
 1)create EIP & EC2 and associate Eip with EC2
 2)create EIP & associate with Security Group
 
-```
+## Terraform Variables
 
-##Terraform Variables
-
-```
-to use variable in terraform we use following keyword
-insted defining the attribute on multiple location, we can create a single variable and 
-refrence that variable to multiple location so if there is any change in attribute just we need to change variable file
+To use variable in terraform we use following keyword insted defining the attribute on multiple location, we can create a single variable and  refrence that variable to multiple location so if there is any change in attribute just we need to change variable file
 
 varialbe are stored in variable.tf file same project structure and
+```
 variable "ip"{
 	default = "10.20.20.20/32"
 }
+```
  refrence them in ur file using var.ip
 
-##Variable Assignemnt
-
+## Variable Assignemnt
+```
 1)Env Variables
 	windows:
 		setx TF_VAR_instancetype t2.micro (where setx is windows command and TF_VAR is variable keyword
@@ -135,12 +126,13 @@ variable "instancetype" {
 	
 
 
+```
 
-
-###Data type for Variables:
+## Data type for Variables:
 
 when ever user reades templeats , its difficult to read withot types in the 
 variable to its better to mention type in variable
+```
 Number:
 variable "number"{
 	type = number
@@ -165,6 +157,8 @@ variable "mymap" {
 	default = [1,2,3]
 }
 
+
+```
 ## Fetchig data from map and list in variables
 MAP
 ```
@@ -189,7 +183,8 @@ variable "ttypes" {
 }
 ```
 
-#after loging to console to check variable run following
+## after loging to console to check variable run following
+```
 > var.myvar
 > "${var.myvar}"
 > var.mymap
@@ -198,10 +193,10 @@ variable "ttypes" {
 >var.mylist[0]
 >element(var.mylist,1)	#function 
 >slice(var.mylist, 0,2)
+```
 
-
-# resources.tf=>
-#variable can be defined in same file are in seperate file
+## resources.tf=>
+## variable can be defined in same file are in seperate file
 
 
 provider "aws"{
@@ -232,19 +227,21 @@ resource "aws_instance" "example2"{
 
 
 ```
-# u can also define variable in terrafrom.tfvars
+## u can also define variable in terrafrom.tfvars
+```
 cat terraform.tfvars
 terraform.tfvars
 AWS_REGION="eu-west-1"
+```
+* wen ever u change provider or moudle or plugin u need to initilize the terraform > terrafrom init
 
-#wen ever u change provider or moudle or plugin u need to initilize the terraform > terrafrom init
 >terrafrom console
 >var.AMIS[var.AWS_REGION]
 
 string
 nubmer
 bool
-
+```
 variable "a-string" {
 	type = string
  }
@@ -254,20 +251,20 @@ variable "a-number" {
 variable "a-bool" {
 	type = bool
  }
-
-##terraform complex
-
+```
+## terraform complex
+```
 list	list:[1,2,4]
 set	#unique values
 map	# map:{"key" = "value"}
 object  # is like map 
 tuple	#tuple is like list but each element can be diffrent type [1,"stirng",false]
 
-
-## variable
+```
+### variable
 use variable to hide secrets like aws key
 use variable for element that might change like ami
-
+```
 provider.tf
 provider "aws" {
   access_key = "${var.AWS_ACCESS_KEY}"
@@ -304,15 +301,16 @@ AWS_REGION = ""
 ```
 
 ## Count And Count INDEX
-Count Parameter: count parameter is used to increament the number or to scale the resources
-this count = 5 will create 5 ec2 instance in the name of ec2-1[0],ec2-1[2]...,ec2-1[4]
+Count Parameter: count parameter is used to increament the number or to scale the resources this count = 5 will create 5 ec2 instance in the name of ec2-1[0],ec2-1[2]...,ec2-1[4]
+```
 resource "aws_instance" "ec2-1" {
   ami = var.ami
   instance_type = var.ttypes["ap-south-1"]
   count = 5
 }
-
-###Count.index: will allows us to fetch the index of each iteration in the loop
+```
+### Count.index: will allows us to fetch the index of each iteration in the loop
+```
 resource "aws_instance" "ec2-1" {
   ami = var.ami
   name = "ec2-1.${count.index}"
@@ -330,10 +328,12 @@ resource "aws_instance" "ec2-1" {
   instance_type = var.ttypes["ap-south-1"]
   count = 5
 }
-
-##Conditional Expressions: it check for the condition ifts true then it assigns true value
+```
+## Conditional Expressions: it check for the condition ifts true then it assigns true value
 if false then it assigns false value
+```
 condation ? true_value:false_value
+
 variable "istest"{}
 resource "aws_instance" "dev" {
   ami = var.ami
@@ -341,7 +341,10 @@ resource "aws_instance" "dev" {
   count = var.istest == true ? 1 : 0
 
 }
+
+```
 ## if istest is true then set count = 1 else count is 0
+```
 resource "aws_instance" "prod" {
   ami = var.ami
   instance_type = var.instancetype[1]
@@ -349,14 +352,14 @@ resource "aws_instance" "prod" {
 
 
 }
+```
 
-## Local Values: assignes a name to expressin , allowing it to be used multiple times within 
-a moduel without repeating it
+## Local Values: 
+assignes a name to expressin , allowing it to be used multiple times within  a moduel without repeating it
 
 
 ## Terraform Functions: 
-Terraform langauage includes number of built in functions
-we must use terraform built in functions only we cannot create custom functions
+Terraform langauage includes number of built in functions we must use terraform built in functions only we cannot create custom functions
 Syntax:
 max(5,12,9)
 12
@@ -372,7 +375,7 @@ max(5,12,9)
 9)type conversion
 
 
-
+```
 ami = lookup(var.ami,var.region)
       lookup(map,key,default)
 tags = {
@@ -385,7 +388,7 @@ ${file("mykey.pub")} this will read the contents of pub file
 
 date & Time Function:
 
-
+```
 ## Data Sources
 Data Sources allow data to be fetched or computed for use elsewhere in terraform 
 config file
