@@ -496,11 +496,98 @@ resource "aws_security_group" "dynamicsg" {
   }
 }
 ```
+## Tainting Resources
+you have created new resources via terraform
+user have made lot of manual changes(both infra and inside server) due this its not working as 
+expected when ever u do terraform plan u get lot of errors, so we have two ways to deal this 
+
+```
+1) Import the changes to terraform
+2) Delete and recreate the resources
+
+```
+2) delete and recreate the resource
+the terraform taint command manually marks a terraform managed resource as tainted , forcing it to 
+be destoryed and recreated on the next apply
+when u do terraform plan then terraform will delete the resource and recreat from scratch
+
+```
+terraform taint aws_instance.myec2	#this command will taint and it will be recreated
+for next terraform plan & terraform apply
+```
+you can check the same in terraform state file
+* terraform taint will not modifiy the infra insted it will modfiy state file, to modifiy u have to run terraform apply
+* once resource is marked as tainted the next plan will show that the resource will be detroyed and recreated and 
+the next apply will implement this change
+ 
+## Splat Expressions
+
+Splat Expression allows us to get list of all the attributes
+(*) for all
+
+```
+resource "aws_iam_user" "lb" {
+  name = "iamuser.${count.index}"
+  count = 3
+  path = "/system/"
+}
+
+output "arns" {
+  value = aws_iam_user.lb[*].arn
+}
+```
+ 
+
+## Terraform Graph
+* The Terrafrom Graph command is used to generate a visual representation of either a config or execution plan
+* the output of terraform graph is in the dot format which is easyily converted to an image
+```
+terraform graph > graph.dot
+yum install graphviz
+cat graph.dot | dot -Tsvg > graph.svg
+```
+* output will be in dot format file , in order to read this u need use graphiviz or online graphiz and paste the code
 
 
+## Saving Terraform Plan to File
+The generated terraform plan can be saved to specfic path
+this plan can then be used with terraform apply to be certain that only the changes show in this plan are appplied
+
+```
+terraform plan -out=demofile	#created file will be binary file, u cannot read directly 
+
+terraform apply demofile
+```
+
+## Terraform Output
+The Terraform output command is used to extract the value of an output variable from state file
+
+```
+terraform output a
+```
+u can c output values in 3 ways
+1) terraform apply 
+2)terraform.tfstate		# inspect tfstate file
+3)terraform output iam_arn		#makeuse this command
+
+## Terraform Settings
+the special terraform config block type is used to confgure some behaviours of terraform 
+iteself such as requiring a minium terraform version to apply your config
+ terraform settings gathered togther into terraform blocks:
+
+terraform {
+	required_version = ">0.12.0	# tells which version to be used if it use version below this then it wil throw error
+	required_provider {
+		mycloud = {
+		source = "mycorp/mycloud"
+		version = "~> 1/0"
+		}
+	}
+
+}
 
 
-
+## Dealing with Large Infrastructure
 
 
 
@@ -532,7 +619,7 @@ resource "aws_instance" "example" {
 }
 ```
 
-## Terraform variable:
+
 
 
 
