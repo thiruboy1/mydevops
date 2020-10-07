@@ -197,11 +197,12 @@ variable "ttypes" {
 
 ## resources.tf=>
 ## variable can be defined in same file are in seperate file
-
+```
 
 provider "aws"{
 
 }
+```
 
 ```
 variable "AWS_REGION" {
@@ -363,7 +364,7 @@ Terraform langauage includes number of built in functions we must use terraform 
 Syntax:
 max(5,12,9)
 12
-
+```
 1)numeric
 2)string
 3)colletion
@@ -373,7 +374,7 @@ max(5,12,9)
 7)hash and crypto
 8)ip network
 9)type conversion
-
+```
 
 ```
 ami = lookup(var.ami,var.region)
@@ -398,37 +399,40 @@ so we can use data sources,
 
 1)data source must be defined under data block
 2)reads from specfic data source eg: aws_ami and exports results under "app_ami"
-
+```
 data "aws_ami" "app_ami"{
 	most_recent = true
 	owner = ["amazon"]
 }
-
+```
 and the above block will get multiple ami so to filter the requried ami we use follosing
+
+```
 filer{
 	name = "name"
 	values= ["amzn2-ami-hvm*"]
 
 }
-
+```
 and to use the result in .tf file we use the followig
-
+```
 resources "aws-inst"{
 	ami = data.aws_ami.app_ami.id
 
 }
 
-
+```
 ## Debugging In Terraform
 terrafrom has detaild logs which can be enabled by setting the 
 TF_LOG env variable to any value
 TF_LOG can be set to any one of this varialbe
+```
 1)TF_LOG = TRACE
 TF_LOG = DEBUD
 TF_LOG = INFO
 TF_LOG = WARN
 TF_LOG = ERROR
-
+```
 in order to redirect the log to file we can use 
 TF_LOG_PATH=/tmp/terrafrom-crash.log now logs will not be displayed in cmd prompt but it will be stored in file
 
