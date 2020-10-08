@@ -11,16 +11,21 @@ terraform init		# to initilize , when ever new provider is added we need to init
 terraform plan		#terraform plan will read the .tf file and will tel wat all be done
 terrafrom plan will run terraform refresh automaticaly
 terraform apply 	# this will create the resource for specfied .tf file
+terraform apply -auto-approve # this will auto approve 
 terraform console	# to login to terraform console
 terraform show		# this command will show the current state
-> terraform init
-> terrafrom apply
-> terrafrom destory 	to delete all created instance
-> terraform plan # testing infrasture, this will look the terrafrom file and will wat it will do without applying to infrastructure
-> terraform plan -out out.terraform # this will output to file, the changes going to make wil be saved inthis file
-> terraform apply out.terrafrom # its always recomendod to use this as it will show the changes
-> terraform validate #is used to check weither syntax is correct or not
-> terraform fmt		#is used to format the code
+terraform init
+terrafrom apply
+terrafrom destory 	to delete all created instance
+terraform plan # testing infrasture, this will look the terrafrom file and will wat it will do without applying to infrastructure
+terraform plan -out out.terraform # this will output to file, the changes going to make wil be saved inthis file
+terraform apply out.terrafrom # its always recomendod to use this as it will show the changes
+terraform validate #is used to check weither syntax is correct or not
+terraform fmt		#is used to format the code
+terraform workspace show
+terraform workspace list
+terraform workspace new
+terraform workspace delete
 
 ```
 ## To destory created resources
@@ -84,10 +89,10 @@ all other: ~/.terraform.d/plugins
 for eg: after EIP gets created its ip should get whitleised in SG this in one most advantage of attibues and output
  
 ## Refrencing cross account resource attributes
-
+```
 1)create EIP & EC2 and associate Eip with EC2
 2)create EIP & associate with Security Group
-
+```
 ## Terraform Variables
 
 To use variable in terraform we use following keyword insted defining the attribute on multiple location, we can create a single variable and  refrence that variable to multiple location so if there is any change in attribute just we need to change variable file
@@ -610,6 +615,303 @@ terraform plan -refresh=false
 ```
 # Terraform Provisioners
 
+* Terraform Provisioners will allow us to install a specfic configuration eg: installing nginx , on ec2 instance
+* so once ec2 is created application will be automatical configured
+* provisioners are used to execute scripts on local or remote machine as part of resource creation or destruction
+
+eg: on creation of web server execute a script which install nginx webserver
+
+## Types of Provisioners
+```
+1) local-exec	#this will run the command on local machine(terraform machine)
+		this is mainly used to execution of ansible playbooks
+2) remote-exec	# this will execute the commands on remote machine
+
+```
+
+## remote-exec
+The remote-exec provisioner invokes a script on a remote resource after it is created. This can be used to run a configuration management tool, bootstrap into a cluster, etc. To invoke a local process, see the local-exec provisioner instead. The remote-exec provisioner supports both ssh and winrm type connections.
+
+
+* first you have to make sure that remote resource are created first
+* provisioner connection #u need to mention ssh-key ,in order to install webserver   
+
+### Example usage
+```
+resource "aws_instance" "myec2" {
+   ami = "ami-082b5a644766e0e6f"
+   instance_type = "t2.micro"
+   key_name = "kplabs-terraform"
+
+   provisioner "remote-exec" {
+     inline = [
+       "sudo amazon-linux-extras install -y nginx1.12",
+       "sudo systemctl start nginx"
+     ]
+
+   connection {
+     type = "ssh"
+     user = "ec2-user"
+     private_key = file("./kplabs-terraform.pem")
+     host = self.public_ip
+   }
+   }
+}
+```
+### Script Arguments
+```
+resource "aws_instance" "web" {
+  # ...
+
+  provisioner "file" {
+    source      = "script.sh"
+    destination = "/tmp/script.sh"
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "chmod +x /tmp/script.sh",
+      "/tmp/script.sh args",
+    ]
+  }
+}
+```
+## Local-exec
+The local-exec provisioner invokes a local executable after a resource is created. This invokes a process on the machine running Terraform, not on the resource
+
+one of the most used approch of local-exec is to run ansilbe-playbook on the created server after the resource is created
+
+### Example Usage
+```
+resource "aws_instance" "web" {
+  # ...
+
+  provisioner "local-exec" {
+    command = "echo ${aws_instance.web.private_ip} >> private_ips.txt"
+  }
+}
+```
+
+## Creation-Time & Destory Time Provisioners
+
+1) Creation Time Provisioner:
+* creation time provisioner are only run during creation not duirng or any other lifecyclye 
+* if a creation time provisioiner fails the resource is marker as tainted(resource will be deleted and recreated)
+
+2) Destory time provisioner:
+* Destory time provisoners are run before the resource is destoryed
+* in real time we may need to remove the antivirus before deleting ec2 at this time we use destory time provisoners
+
+```
+provider "aws" {
+  region     = "ap-southeast-1"
+  access_key = "YOUR-KEY"
+  secret_key = "YOUR-KEY"
+}
+
+
+resource "aws_security_group" "allow_ssh" {
+  name        = "allow_ssh"
+  description = "Allow SSH inbound traffic"
+
+  ingress {
+    description = "SSH into VPC"
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  egress {
+    description = "Outbound Allowed"
+    from_port   = 0
+    to_port     = 65535
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+
+resource "aws_instance" "myec2" {
+   ami = "ami-0b1e534a4ff9019e0"
+   instance_type = "t2.micro"
+   key_name = "ec2-key"
+   vpc_security_group_ids  = [aws_security_group.allow_ssh.id]
+
+   provisioner "remote-exec" {
+     inline = [
+       "sudo yum -y install nano"
+     ]
+   }
+   provisioner "remote-exec" {
+       when    = destroy
+       inline = [
+         "sudo yum -y remove nano"
+       ]
+     }
+   connection {
+     type = "ssh"
+     user = "ec2-user"
+     private_key = file("./ec2-key.pem")
+     host = self.public_ip
+   }
+}
+```
+
+## Failure Behavior for Provisioners
+* By default provisoners that fail will also cause the terraform apply itself to fail
+* the on_failure settings can be used to change this the allowed values are
+
+```
+continue:	ignore the errot and continue with creation or destruction
+fail:		raise an error and stop applying(the default behaviour) if this is a creation provisioner , taint resource
+```
+
+```
+resource "aws_instance" "web"{
+	#......
+	provisoner "local-exec" {
+	 	command = "echo ther server $(Self.private_ip)"
+	on_failure = continue
+	}
+}
+```
+
+# Terraform Moudules & Workspaces
+
+## Understanding DRY Principle
+in software engi DRY(dont repeat yourself) is a principle of software development aimed at reducing repetition of software patterns
+
+in the earlier lecture we were making static content into variable so that there can be single source of information
+
+insted of repeting code each time, we can define the cetrilized location and we can use the same as modules
+
+
+## Implementing EC2 module with Terraform
+create module directory & place ec2 code
+
+module>ec2>ec2.tf
+```
+resource "aws_instance" "app-dev" {
+  ami           = "ami-0e306788ff2473ccb"
+  instance_type = "t2.micro"
+}
+```
+
+project>myprj>myec2.tf
+
+```
+module "ec2modules" {
+  source = "../../modules/ec2/"
+}
+```
+
+## Variables and Terraform Modules
+* we will have multiple enviroments like development,production,staging, each of them may require diffrent
+configuration of ec2 since we have encoded in moudle we cant change 
+* if paramaters (instance_type = "t2.micro")is hardcoded in the module the u cannot change 
+
+so in order to overcome the above issue we can use variables
+
+
+moudle>ec2>variables.tf
+```
+variable "instance_type"{
+	default = "t2.micro"
+}
+```
+
+module>ec2>ec2.tf
+```
+resource "aws_instance" "app-dev" {
+  ami           = "ami-0e306788ff2473ccb"
+  instance_type = var.instance_type.
+  
+}
+```
+project>myprj>myec2.tf
+
+```
+module "ec2modules" {
+  source = "../../modules/ec2/"
+  instance_type = "t2.large"
+}
+```
+* you can make any paramater as variable so that end use can define
+
+## Terraform Registry
+Terraform Registrh is a repository of moudle wiriten by the terraform community
+fetchin module directly from terraform registert
+```
+module "ec2-instance" {
+  source  = "terraform-aws-modules/ec2-instance/aws"
+  version = "2.15.0"
+  # insert the 10 required variables here
+}
+
+```
+
+
+## Terraform Workspace
+* Terraform allows us to have multiple workspaces with each of the workspace we can have diffrent set enviroment variable associated
+* staging will have instance-type = t2.micro and production instance-type = large
+so when u switch from staging to production workspace then it will automatical change instance type large
+
+terraform workspace show
+terraform workspace list
+terraform workspace new
+terraform workspace delete
+
+## Implementing Terraform workspace
+
+```
+provider "aws" {
+  region     = "us-west-2"
+  access_key = "YOUR-ACCESS-KEY"
+  secret_key = "YOUR-SECRET-KEY"
+}
+
+resource "aws_instance" "myec2" {
+   ami = "ami-082b5a644766e0e6f"
+   instance_type = lookup(var.instance_type,terraform.workspace)
+}
+
+variable "instance_type" {
+  type = "map"
+
+  default = {
+    default = "t2.nano"
+    dev     = "t2.micro"
+    prd     = "t2.large"
+  }
+}
+```
+
+# Remote State Managment
+
+## Integrating with GIT for team management
+
+## Security Challenges in Commiting TFState to GIT
+
+```
+not recomended
+* donot store the password in the .tf file insted store it in seperate file and use file(../../filename.txt) to import the passowrd
+  but the problem is same password will be stored in terraform.tfstate file
+```
+
+## Module Sources in Terraform
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -664,6 +966,8 @@ provisoner "file" {
 
 
 ##using ssh key pair
+
+```
 resource "aws_key_pair" "thiu-key" {
 	key_name = "my_key"
   	public_key "ssh-rsa my-public-key"
@@ -690,19 +994,19 @@ provisoner "remote-exec"{
 	]
 	} 
 }
-
+```
 ## Terraform Attribute
 
 terraform keeps attribute of all the resources you create
-eg:aws instance public_ip this attribute can be queried and outputed 
-you can use output to display the variable
-
+eg:aws instance public_ip this attribute can be queried and outputed you can use output to display the variable
+```
 output "ip" {
  value =  "${aws_instance.example.public_ip}"
 }
+```
 
 ## attribue in scripts
-
+```
 resource "aws_instance" "example" {
   ami           = "${lookup(var.AMIS, var.AWS_REGION)}"
   instance_type = "t2.micro"
@@ -710,9 +1014,10 @@ resource "aws_instance" "example" {
 	command = "echo ${aws_instance.example.private_ip}" >> private.txt
 	}
 }	
-
+```
 ## Remote State
-terraform keeps the remote state of the infra
+```
+terraform keeps the remote state of the infra 
 it store it in a file called terraform.tfstate
 there is also backup call terrafrom.tfstate.backup
 when u execute terraform apply, a new terraform.tfstat and backupfile is created
@@ -722,9 +1027,9 @@ eg: you terminate instance that is manage by terraform then aftet terrafom apply
 terraform state can be saved remote using backend function in terraform
 the default is local backend (local terraform state file)
 other backends are s3, consul, terraform enteerprise
-
+```
 ## configure remote state
-
+```
 1)add backend code to a backend.tf file
   a) run the init process
 
@@ -742,8 +1047,9 @@ terrafom{
 	}
 }
 
-
+```
 ## Data Sources
+
 Data sources allow data to be fetched or computed for use elsewhere in Terraform configuration. Use of data sources allows a Terraform configuration to make use of 
 information defined outside of Terraform, or defined by another separate Terraform configuration.
 
@@ -777,8 +1083,7 @@ resource "aws_security_group" "from_europe" {
 
 ## Template Provider
 
-this can help creating customized configuration files
-you can build tempalte based on variables  for terraform resources
+this can help creating customized configuration files you can build tempalte based on variables  for terraform resources
 
 in if u want to send data to "user-data" in aws then u can use template provider
 
@@ -809,31 +1114,33 @@ module-example/vars.tf
 module-example/output.tf
 module-example/cluster.tf
 
-
+```
 ### in main part of code use the output from the module
-
+```
 output "some-output" {
 	value = "${module.module-example.aws.cluster}"
 }
-
+```
 
 ## Terraform With AWS
 creating vpc
 https://github.com/wardviaene/terraform-course/blob/master/demo-7/vpc.tf
 https://github.com/wardviaene/terraform-course/blob/master/demo-7/nat.tf
+
 ##vpc
+```
 resource "aws_vpc" "vpc name" {
 
 }
-
+```
 ##  instance
-
+```
 resource "aws_instance" "instance name" {
 
 }
-
+```
 ## EBS
-
+```
 resource "aws_ebs_volume" "ebs-volume-1" {
   availability_zone = "eu-west-1a"
   size              = 20
@@ -850,20 +1157,23 @@ resource "aws_volume_attachment" "ebs-volume-1-attachment" {
 }
 
 
-
+```
 ## User Data
-user data in aws can be used to do any customization at launch
-you can install extra software, prepare the isntance to join cluster,mount volumes
+
+user data in aws can be used to do any customization at launch you can install extra software, prepare the isntance to join cluster,mount volumes
 
 ## AWS EIP
+
+
 you can use aws_eip.eipname.public_ip attribute to show ip address after terraform apply
+```
 resources "aws_eip" "eipname" {
 	instance = "${aws_instance.name.id}"
 	vpc = ture
 }
-
+```
 ## Route53 
-
+```
 resource "aws_route53_zone" "newtech-academy" {
   name = "newtech.academy"
 }
@@ -893,27 +1203,32 @@ output "ns-servers" {
   value = aws_route53_zone.newtech-academy.name_servers
 }
 
-
+```
 ##interpolation
 
 ### variables
+```
 string varialbe - "${var.somthing}"
 map variable  	-  "${var.AMIS["us-east-1"]}", "${lookup(var.AMIS,var.AWS_REGION)}"
 List Variable	-  "${var.subnets[i]}"
-
+```
 ### various
+
+```
 outputs of moudle - ${module.aws_vpc.vpcid}
 count information - ${count.index}
 path information  - path.cwd(current directory), path.module(module path), path.root(root module path)
 
-
+```
 ### math
+```
 add (+) (-) (*) (/)
 eg: ${2+3*4}
-
+```
 ## Conditionals
 
-#if else
+if else
+```
 condition ? tureval: falseval
 
 resource "aws_instance" "myinstance"{
@@ -922,20 +1237,22 @@ resource "aws_instance" "myinstance"{
 count = "${var.env == "prod" ? 2: 1}"
 
 }
-
+```
 ### 
+```
 Equlaity: == and !=
 numerical comparasion : >,<,>=,<=
 boolean logic: &&,||,unary !
-
+```
 demo-18
 
 ## Functions
 
 
-## for and for_each loop
+for and for_each loop
+```
 [for s in ["this is a ","list"]:upper(s)]
 
-
+```
 
 	 
