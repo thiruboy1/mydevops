@@ -72,8 +72,8 @@ version >=2.10,<=2.30	#any version bw 2.10 and 2.30
 
 ## Types of terraform provider
 
-1)hasicorp distributed	#developed and tested by hasicorp
-2)3rd party		#developed by 3rd party, which cannto be downloade automaticaly, insted we need to install mannually install thirdparty providers by placing their plugin exe in the following direcotry
+1) hasicorp distributed	# developed and tested by hasicorp
+2) 3rd party		# developed by 3rd party, which cannto be downloade automaticaly, insted we need to install mannually install thirdparty providers by placing their plugin exe in the following direcotry
 windows: %APPDATA%\terraform.d\plugins
 all other: ~/.terraform.d/plugins
 
@@ -89,10 +89,10 @@ all other: ~/.terraform.d/plugins
 for eg: after EIP gets created its ip should get whitleised in SG this in one most advantage of attibues and output
  
 ## Refrencing cross account resource attributes
-```
-1)create EIP & EC2 and associate Eip with EC2
-2)create EIP & associate with Security Group
-```
+
+1) create EIP & EC2 and associate Eip with EC2
+2) create EIP & associate with Security Group
+
 ## Terraform Variables
 
 To use variable in terraform we use following keyword insted defining the attribute on multiple location, we can create a single variable and  refrence that variable to multiple location so if there is any change in attribute just we need to change variable file
@@ -107,21 +107,21 @@ variable "ip"{
 
 ## Variable Assignemnt
 ```
-1)Env Variables
+1) Env Variables
 	windows:
 		setx TF_VAR_instancetype t2.micro (where setx is windows command and TF_VAR is variable keyword
-2)Command Line Flags
+2) Command Line Flags
 	if u remove the default value then terraform will ask for value in cli
 variable can be explictly specfied in command line
 terraform plan -var="instancetype=t2.small"
 
-3)From File
+3) From File
 	##terraform.tfvars (this file name is very important, 
 and also u can define custom file name and define explctly in cli terraform plan -var-file="custom.tfvars"
 insted of defining the variable in command line u can defin the same in terraform.vars
 instancetype="t2.small"
 
-4)Variable Defaults: 
+4) Variable Defaults: 
 	this type of variable are defind in variables.tf file if no explice variable are specfied
 then it will access this default variable ,and it can be accessed in 
 .tf file using var.variable name.value
