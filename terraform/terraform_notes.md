@@ -48,8 +48,8 @@ with ~ on command prompt and it indicates that follwing has been changed if u ru
 
 ## Terraform State File-Desired State and Current State
 
-1)Desired State: its the state which is mentioned in the file
-2)Current State: current state
+1) Desired State: its the state which is mentioned in the file
+2) Current State: current state
 
 terraform will alway try to match the desired state with current state
 
