@@ -72,6 +72,8 @@ version >=2.10,<=2.30	#any version bw 2.10 and 2.30
 windows: %APPDATA%\terraform.d\plugins
 all other: ~/.terraform.d/plugins
 
+# Read Generate Modify Configuration
+
 ## Terraform Attributes and Outputs
 
 * After terraform apply, the terraform will create the ec2 instance if u want to c the ip address of ece then u have to  login to console and note down the ip 
@@ -592,9 +594,21 @@ terraform {
 
 
 ## Dealing with Large Infrastructure
+```
+when ur dealing with larger infra like 100s of sg ec2 then u may reach api limit, then ur request will not be serverd
+so to avoid u do the following
+1) insted of definig all the infra in one code define in each seperate file like(ec2,rds,iam,sg..etc) in this case only 
+requried resources need to be refreshed not all resources,
+advantage is each can be applied independently
 
+* wen u run terraforma plan then terraform will fetch state of all resource, 
+if u want avoid this run the follwoing
+terraform plan -refresh=false
+2)the -target=resource flag can be used to targer specfic resource
+2terraform plan -target=ece
 
-
+```
+# Terraform Provisioners
 
 
 
