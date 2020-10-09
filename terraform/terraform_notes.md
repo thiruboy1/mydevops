@@ -899,16 +899,202 @@ not recomended
 ```
 
 ## Module Sources in Terraform
+The Source argument in module block tells terraform where to find the source code for the desired child module
+
+1) local paths
+```
+A local path must begin with either ./or ../ to indicate that its a local path
+
+module "consul"{
+	source = "../consul"
+}
+
+```
+2) Terrform Registry
+3) GitHub
+4) Bitbucket
+5) Generic Git,Mercurial Repositories
+6) HTTP URLs
+7) s3 Buckets
+8) GCS bUCKETS
+
+
+### Generic Git Repository
+
+* by default terraform will clone and use default branch in the repo,
+* however you can overide this using ref argument
+*Arbitrary Git repositories can be used by prefixing the address with the special git:: prefix. After this prefix, any valid Git URL can be specified to select one of the protocols supported by Git.
+
+```
+module "vpc" {
+  source = "git::https://example.com/vpc.git"
+}
+
+module "storage" {
+  source = "git::ssh://username@example.com/storage.git"
+}
+
+```
+
+### GitHub
+Terraform will recognize unprefixed github.com URLs and interpret them automatically as Git repository sources.
+```
+module "consul" {
+  source = "github.com/hashicorp/example"
+}
+
+module "consul" {
+  source = "git@github.com:hashicorp/example.git"
+}
+```
+
+## Terraform and .gitignore
+gitignore tells which files are not be uploaded
+depending on env its redcomended to avoid commiting certian file to git
+file to ignore
+
+.terraform		#this file wil be recreated when terraform init
+terraform.tfvars	# likely to contain sensitive data
+terraform.tfstate	# should be stored in the remote side
+crash.log	#if terraform crashes the logs are stored to a file named crash.log
 
 
 
+## Remote State Management with Terraform
+
+if i ignore the tfstate file and push to repo then how will u colabrate the work?
+this can be done using remote backend 
+
+* all the tf files will be stored in git and tfstate file will be stored in (S3)remote backend
+Terraform Supports various types of remote backends which can be used to store state data
+as of now we were storing state data in local and git repository
+Depending on remote backends which is being used there can be various features
+
+Two types of backend
+1) Standard Backend:	State Storage and Locking 
+2) Enhanced Backend: 	All feature of standard +Remote Managment
+
+## Implementing S3 Backend
+if u want to store the tfstate file in remote backend the u have to tell terraform
+
+step 1) create s3 bucket
+step 2) create backend.tf in samedirectory and mention the s3 bucket name ..etc
+setp 3) run terraform init
+setp 4) then all the tfstate file will be stored in s3 bucket
 
 
 
+```
+terraform {
+  backend "s3" {
+    bucket = "thiru-remote-backend-terraform"
+    key    = "remote.tfstate"
+    region = "ap-south-1"
+    access_key = "AKIAUNKRSONDUGHACTBI"
+    secret_key = "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"
+  }
+}
+
+```
+
+## Challenges with State File locking
+if two ppl are working on same project which has same backend then if two ppl wirtes the same
+then state file will get corrupted, so to over come u must use locking machanisem
+
+Whenever you are performing write operation terraform would lock the state file
+this is very important as otherwise during your ongoing terraform apply operaton if others
+also try for the same it would corrupt the state file
+
+eg:-
+
+person a is terminating the rds resoure which has associated rds.tfstte file
+persion b is now tried resizing the same rds resource at same time
+
+so this is why state file will be locked so that 2nd person perform wirte operation ,
+then terraform will display error as" file is alredy locked"
+
+* this locking feature is not avilable on all backends, eg:- S3
+
+## Integrating DynamoDB with S3 for state locking
+if you want tfstate file locking with s3 then u have use dynomodb
+1) create dynomodb
+2) primary key as LockID and create table
+3) create backend file
+4) terraform init
+5) terraform plan
+```
+terraform {
+  backend "s3" {
+    bucket = "thiru-remote-backend-terraform"
+    key    = "remote.tfstate"
+    region = "ap-south-1"
+    access_key = "AKIAUNKRSONDUGHACTBI"
+    secret_key = "C3YkjqEHqqeeYZPfV1tN5qBbZu5OAtJiO1VDym4H"
+    dynamodb_table = "dynomodb-statelock"
+  }
+}
+
+```
+## Terraform State Management
+As your terraform usage become more advanced there are some cases where you may need to modify the terraform state
+its important to never modifiy the state file directly make use of terraform state command
+
+terraform state has multiple sub command
+
+1) terraform state list #basicaly shows the resource created by state file
+2) terraform state move
+* the terraform state mv command is used to move items in as terraform state
+* this command is used in many cases in which you want to rename an existing resource without destorying and recreating it
+```
+if u want to rename the ec2 then u can use "mv"
+```
+* due to destructive nature of this command, this command will output a backup copy of the state prior to saving changes
+
+```
+terraform state mv [options] source destination
+terraform state mv aws_instance.webapp aws_instance.my-ec2
+
+``` 
+
+3) Terraform Pull:
+(if backend s3)this command will pull the state form s3 and display is it 
+The terraform state pull command is used to manally download and output the state from remote state
+this is usefull for reading values out of state(poentially pairing this command with something like s=jq)
+
+4) Terraform Push:
+This command is used to manually upload a local state file to remote state
+this command should rarely be used
+
+5) Terraform rm:
+the terraform state rm command is used to remove items from the terraform state
+items removed from the terraform state are not physically destoryed
+items removed from terrafor state are only no longer managed by terraform 
+for eg: if u remove an aws instance from the state the aws instance will continue running but terrafrom plan will no longer see the instance
+after removing the resource , if resources is present in .tf file then resource will be created again
+
+6) terraform show:
+this command is used to show the attributes of single resource in the terraform state
+terraform state show aws_instance.webapp
 
 
+## Importing Existing Resources with Terraform Import
+if resource are allready created and u want maintain using terraform then u can use 
+import to import he allready creted resources
+
+till now if u want import the manual-resource then terraform will only create only state file not .tf file, then 
+u have to create the resource manualy .tf file
+mention all requried parameters in the tf file
+```
+resource "aws_instance" "example" {
+  # ...instance configuration...
+}
+```
+terraform import aws_instance.myec2.ec2-id
+1) when u run import , terraform will first state file
+2) then it ll map the state file with resource in .tf file
 
 
+# Security Primer
 
 
 
