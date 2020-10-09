@@ -1028,8 +1028,8 @@ terraform {
     bucket = "thiru-remote-backend-terraform"
     key    = "remote.tfstate"
     region = "ap-south-1"
-    access_key = "AKIAUNKRSONDUGHACTBI"
-    secret_key = "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"
+    access_key = ""
+    secret_key = ""
     dynamodb_table = "dynomodb-statelock"
   }
 }
