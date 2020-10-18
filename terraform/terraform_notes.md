@@ -1096,6 +1096,131 @@ terraform import aws_instance.myec2.ec2-id
 
 # Security Primer
 
+## Handling Access & Secret Keys the Right Way in Providers
+aws access key and secret keys are not recomended to store in the providers.tf file, insted install aws cli and configure the cli , when u run terraform plan terraform will automaticaly 
+takes the key from aws cli
+
+## Terraform Provider UseCase - Resources in Multiple Regions
+
+till now we are conifguring the region in provider.tf file but if we work on multiple region then this would be difficult.
+in provider.tf u cant specfit two diffrent regions , in order to specfiy multiple regions in provider.tf u must use alias
+
+provider.tf
+```
+provider "aws" {
+	region = "ap-south"
+}
+provider "aws" {
+	alias = "mumbai"
+	region = "ap-south"
+}
+
+```
+
+if u want to create resource in diffrent region then u can refrence this alias in the resource section
+
+```
+rerouce "aws_eip" "myeip" {
+	vpc = "true"
+	provider = "aws.mumbai"
+}
+```
+
+
+## Handling Multiple AWS Profiles with Terraform Providers
+launching multiple aws resource on multiple profiles
+so in order to use multiple profile u must specfiy in the  resource section
+in aws cli - credential file u will have two account creditenals then u can refrence the credintials name in provider.tf as profile
+
+aws cli -credentials
+```
+[default]
+aws_access_key_id
+aws_secret_access_key
+
+
+[account01]
+aws_access_key_id
+aws_secret_access_key
+```
+
+provider.tf
+```
+provider "aws" {
+	region = "ap-south"
+}
+provider "aws" {
+	alias = "mumbai"
+	region = "ap-south"
+	profile = "account01"
+}
+
+```
+
+```
+rerouce "aws_eip" "myeip" {
+	vpc = "true"
+	provider = "aws.mumbai"
+}
+``` 
+
+
+
+## Terraform & Assume Role with AWS STS
+when ever u assume role then aws will give temp access id & key,by using this key and id
+we can create resources, same has to be done using terraform
+
+terrafom has to assume role 
+
+* all the config related assume role need to be done in provider.tf
+
+```
+provider "aws" {
+	region = "ap-south"
+	assume_role {
+		role_arn = ""
+		session_name = "any name"
+	}
+}
+```
+## Sensitive Parameter
+with organization managing their entire infra in terraform it is likely that you will see 
+some senestive info embedded in the code
+
+when working with field that contains info likely to be considerd sensititve it is best 
+to set sensitive property on its schema to true
+
+note: even if u enable this, terraform will not encrypt in state file 
+
+```
+locals {
+	db_password = {
+		admin = "password"	
+	}
+}
+
+output "db_password" {
+	value = local.db_password
+	sensitive = true
+}
+```
+
+# Terraform Cloud & Enterprice Capabilites
+
+## overview of terraform cloud
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
