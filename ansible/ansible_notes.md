@@ -1,3 +1,50 @@
+
+ansible has file,system,ciommand,cloud,db,windor more modules
+
+script moudule # ansible will copy the script and exute the script
+
+lineinfile module # it finds line and replace the line 
+## Ansible Adhoc Commands
+
+
+
+## Ansible Playbooks:
+
+All playbooks are written in yaml file.
+a play definse set of activity to run on single or grop of hosts
+Task: is single action to be performed on the host
+  
+* in yaml list is order collection, order of list matters, which ever items is 1st it will be executed first
+*host and name are dictionary properties so order dosent mattess
+* commands,service,yum...etc are called modules there are 100s of modules
+to check details of ansibel modules u run following commanc
+```
+ansible-doc -l
+```
+playbook format
+```
+---
+name: Play1
+hosts: all
+tasks:
+ - name: installing nginx
+   yum: name:nginx state: present
+ - name executin date command
+   command: date
+ - name: starting web server
+   service: name: httpd state: started 
+ - name: starting web server
+   scripts: name: httpd state: started 
+      
+
+```
+
+```
+ansible-playbook playbook.yml --limit webservers 
+ansible-playbook playbook.yml --list-hosts
+ansible-playbook playbook.yml --remote-user=johndoe  #Setting user and sudo options with ansible-playbook
+ansible-playbook playbook.yml --sudo --sudo-user=janedoe --ask-sudo-pass
+```
 ## ansible facts:
 
 ansible gathers all the information related to host like,memory,cpu,disk,os name,.etc
@@ -23,22 +70,6 @@ in playbook we can mention variable and to use variable use it with '{{ dns_serv
   vars: 
     dns_server=10.200.20.39
 ```
-
-## Inventory
-
-you can add alias to inventory files
-
-web ansible_host=server1
-
-## Variables:
-
-variable stores info with each host
-in playbook we can mention variable and to use variable use it with '{{ dns_server }}'
-```
-- hosts: all
-  vars: 
-    dns_server=10.200.20.39
-```
 ### using variable to retrive the result of running command
 if you want to use variable from previous task then ,
 to add output of first task we use debug module so u can capture output of first task and pass it to second command
@@ -53,57 +84,45 @@ you can do this by using
   - debug:
     var: result
 ```
-### Magic Variables
 
-to extract variables defined in one host to another host we can use magic varialbes
+
+* ansible-playbook pl.yaml --start-at-task "start httpd service" # this will start at this task and ignore all above task
+* optional u can tag your playbook and u can mention the tag on command like "ansible-playbook pl.yaml --tags "install" or u can skip task 
 ```
-'{{ hostvar['web2'].ansible_host }}'
-'{{ hostvar['web2'].ansible_facts.architecture }}'
-'{{ hostvar['web2'].ansible_facts.devices }}'
-'{{ hostvar['web2'].ansible_facts.devices }}'
-
-````
-
-### Magic Variable-Groups Names
-msg: '{{ group_names }}' #this will return the group names in host inventory file it dosnet return host names
-
-msg: '{{ inventory_hostname }}' # this will return hostnames not group names
-
-
-### Jinj2 Template
-
-in order to use ansible fact variable like hostname  in html page we can use following
-```
-- hosts: web
-  tasks:
-    template:
-      src: index.html.j2 
-      dest: /var/www/nginx-default/index.html
-    
-```
-index.html.j2
-```
-<html>
-this is my host name {{ inventroy_hostname }}
-</html>
-```
-
-ansible-playbook pl.yaml --start-at-task "start httpd service" # this will start at this task and eignore all above task
-optional u can tag your playbook and u can mention the tag on command like
-"ansible-playbook pl.yaml --tags "install"
-or u can skip task 
 "ansible-playbook pl.yaml --skip-tags "install"
-
+```
+Disablind Fact Gathering,
 by default ansible will gather facts to disable facts u can mention 
 ```
 "gather_facts: no" in play book.yaml
 ```
-##configuration file
+## configuration file
+config file is in /etc/ansible/ansible.cfg,
+in case if have multiple config for multiple projects then u can copy the .cfg modefy as requried
+and place it project folder
+
+suppose if u want to use diffrent config file then u can pass the cfg file location in varialbe
+$ANSIBLE_CONFIG=<.cfg> ansible-playbook playbook.yaml
 ```
 default config file is created in /etc/ansible/ansible.cfg
 ansible-config list # list all configuration
 ansible-config view # shows the current config file
 ```
+
+## Ad hoc commands:
+```
+
+Ansible <host> –a “hostname”
+Ansible <host> –a “free –m”
+Ansible <host> –a “df -h”
+ansible <host> -s -m yum -a "name=ntp state=installed"
+ansible <host> -s -m service -a "name=ntpd state=started enabled=yes"
+
+where "-a" is used for moudle arguments module
+where "-s" is used for 
+where "-m" is used for module,module name to execute (default=command)
+```
+
 ```
 ansible    -m        ping     all
 <ansible><module><module name><host>
@@ -113,7 +132,7 @@ ansible -m setup localhost #nsible command to gather facts of the localhost
 ansible -m ping -i /home/thor/playbooks/inventory all
 ansible -m command -a date -i inventory web1 #Run an adhoc command to run a command on host web1 to print the date
 ```
-##Privilage Esclation
+## Privilage Esclation
 ```
 become: yes #this will assume it as root user like sudo 
 by default method used is sudo if u want to change this then u can use  following
@@ -126,7 +145,7 @@ anything passed in command line has highest priority
 anyting passed in default ansbile.cfg file has lowest priority
 ```
 
-###modules
+### Modules
 
 package module
 ```
@@ -189,7 +208,7 @@ package module
         name: httpd
         state: reloaded
 ```
-firewalld module
+## firewalld module
 
 ```
 - hosts: web1
@@ -215,7 +234,7 @@ zone:block
 ```
 
 
-On web1 node add firewall rule in internal zone to enable https connection from Ansible controller machine and make sure that rule must persist even after system reboot. You can create a playbook https.yml under ~/playbooks/ directory.
+* On web1 node add firewall rule in internal zone to enable https connection from Ansible controller machine and make sure that rule must persist even after system reboot. You can create a playbook https.yml under ~/playbooks/ directory.
 IP address of ansible controller is 172.20.1.2.
 ```
 ---
@@ -394,7 +413,7 @@ archive modules
 ```
 
 ```
-cron module
+## cron module
 ---
 - name: Create a cron job to clear last log
   hosts: node00
@@ -498,7 +517,7 @@ this one use epoch time
         state: absent
 ```
 
-### Parallelism
+## Parallelism
 when playbook are executed on multiple servers then ansible waits till each tasks completes on all servers,
 suppose if any one servers is slow then ansible will wait till it completes so if u want to over come this then u can use "liner stratgey"
 ```
@@ -509,3 +528,97 @@ c)serial:3		# we can decide how many servers can be processd similitenously
 ```
 by default ansible will run only 5 servers at a time if u want to change this then update the 
 forks = 5 in ansible.cfg
+
+
+## Ansible File Sepration
+structure
+```
+playbook.yaml
+inventory
+   |---	inventory
+   |--- host_vars 
+   |    |-----web1.yaml
+   |    |-----web2.yaml	
+   |    |------web3.yaml
+   |----group_vars
+     	----web_Server.yaml
+
+```
+* if ansible variables are specfied in another location the we can use "include_vars" to add the variable in playbook
+```
+tasks:
+- include_vars:
+        file: /opt/data/info.yaml
+        name: email_data
+- mail: 
+    to: {{email_data.admin.email }}
+```
+
+## Roles:
+
+roles make ansible to reuse the code very easyl, u can do this by creating directory sturctur
+to create direcorty sturctur use following command
+```
+ansible-galaxy --init mysql
+this will create folder sturcture
+playbook.yaml
+mysql
+	templates
+	tasks
+	handlers
+	vars
+	defaults
+	meta
+
+```
+```
+playbook.yml
+- hosts: all
+  roles:
+     - mysql
+```
+## ansible vault
+to store passwords and other secured data 
+
+magic variables
+
+{{hostvars[web1].ansible_facts.dns }}
+another magic variable si gorup_name
+
+{{ group_name }} # returns group in host fiel
+{{ inventory_hostname }} #this gives the list of host under the host file
+
+## Magic Variables
+
+to extract variables defined in one host to another host we can use magic varialbes
+```
+'{{ hostvar['web2'].ansible_host }}'
+'{{ hostvar['web2'].ansible_facts.architecture }}'
+'{{ hostvar['web2'].ansible_facts.devices }}'
+'{{ hostvar['web2'].ansible_facts.devices }}'
+
+````
+
+## Magic Variable-Groups Names
+msg: '{{ group_names }}' #this will return the group names in host inventory file it dosnet return host names
+
+msg: '{{ inventory_hostname }}' # this will return hostnames not group names
+
+
+## Jinj2 Template
+
+in order to use ansible fact variable like hostname  in html page we can use following
+```
+- hosts: web
+  tasks:
+    template:
+      src: index.html.j2 
+      dest: /var/www/nginx-default/index.html
+    
+```
+index.html.j2
+```
+<html>
+this is my host name {{ inventroy_hostname }}
+</html>
+```
