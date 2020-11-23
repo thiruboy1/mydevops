@@ -1,3 +1,29 @@
+## ansible facts:
+
+ansible gathers all the information related to host like,memory,cpu,disk,os name,.etc
+when u connect to client,
+ansible uses setup module ,even if u din specfiy the playbook
+all facts gatherd by ansible are stored under "ansible_facts" 
+
+to disable facts use "gather_facts=no" 
+## Inventory
+/etc/hosts
+
+you can add alias to inventory files
+
+web ansible_host=server1 ansible_connection=ssh ansible_port=222 ansible_user=root
+web ansible_host=server2
+
+## Variables:
+
+variable stores info with each host
+in playbook we can mention variable and to use variable use it with '{{ dns_server }}'
+```
+- hosts: all
+  vars: 
+    dns_server=10.200.20.39
+```
+
 ## Inventory
 
 you can add alias to inventory files
