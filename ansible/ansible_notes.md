@@ -220,12 +220,23 @@ eg: in this when dosent require {{}}
   - when: ansible_host != 'web'
     with_items: "{{ db_servers }}"
 ```
-
+* ansible_ssh_pass= is old way new way is ansible_password=
+* 
 # Ansible Modules
 
 ## Modules
+* To install packages on centos we use yum module and for ubuntu we use apt module so for diffrent os we use diifrent module
+* insted of this we can use package module however package name is diffrent on diffrent os eg: httpd on centos apache on ubunto in that case u can use variable are loops
 
-package module
+### Package module
+
+```
+- name: install nginx
+  hosts: all
+  tasks:  - name: Install httpd package
+    package: name=httpd state=installed
+```
+
 ```
 - hosts: web1
   tasks:  - name: Install httpd package
@@ -258,8 +269,8 @@ package module
 ```
 
 
-## service module
-
+### service module
+* service module is use to start stop a service 
 ```
 - hosts: web1
   tasks:
