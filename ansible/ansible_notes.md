@@ -4,8 +4,6 @@ ansible has file,system,ciommand,cloud,db,windor more modules
 script moudule # ansible will copy the script and exute the script
 
 lineinfile module # it finds line and replace the line 
-## Ansible Adhoc Commands
-
 
 
 ## Ansible Playbooks:
@@ -52,15 +50,157 @@ when u connect to client,
 ansible uses setup module ,even if u din specfiy the playbook
 all facts gatherd by ansible are stored under "ansible_facts" 
 
-to disable facts use "gather_facts=no" 
+Disablind Fact Gathering,
+by default ansible will gather facts to disable facts u can mention 
+```
+"gather_facts: no" in play book.yaml
+```
+
+## Configuration file
+
+* config file is in /etc/ansible/ansible.cfg,
+* in case if have multiple config for multiple projects then u can copy the .cfg modefy as requried
+and place it project folder
+* suppose if u want to use diffrent config file then u can pass the cfg file location in varialbe $ANSIBLE_CONFIG=<.cfg> ansible-playbook playbook.yaml
+
+* config file can be specfied in 3 diffrent types 
+	1) by specfiying path
+	2) by specfiying env variable
+	3) creating .cfg file in project directory or in default file location
+	4) .cfg file in use home directory eg: /home/ec2-user
+what if all 3 type of .cfg file is defined, what configuration will ansible will take?
+* 1st priority: .cfg file path mentioned in evn, cfg configured in env varialbe, any value specfied in this file overried other files
+* 2nd priority: .cfg file in current dirctory/project dirctory
+* 3rd priorty: .cfg file mentioned in user home directory 
+* 4th priorty: .cfg file /etc/ansible/ansible.cfg
+
+* u have storage dirctory and u want only value to be changed in .cfg and u dont want to copy all cfg, then u can use env,
+env is same as default value where u convert the value into uppper case and prefix ANSIBLE
+eg: gathering = implicit
+eg: export ANSIBLE_GATHERING=explicit
+any value specfied using evn will be consider highiest priority remaning will be ignored
+
+
+```
+default config file is created in /etc/ansible/ansible.cfg
+ansible-config list # list all configuration
+ansible-config view # shows the current config file
+```
+
+```
+[defaults]
+
+# some basic default values...
+
+#inventory      = /etc/ansible/hosts
+#library        = /usr/share/my_modules/
+#module_utils   = /usr/share/my_module_utils/
+#remote_tmp     = ~/.ansible/tmp
+#local_tmp      = ~/.ansible/tmp
+#plugin_filters_cfg = /etc/ansible/plugin_filters.yml
+#forks          = 5
+#poll_interval  = 15
+#sudo_user      = root
+#ask_sudo_pass = True
+#ask_pass      = True
+#transport      = smart
+#remote_port    = 22
+#module_lang    = C
+#module_set_locale = False
+
+
+```
 ## Inventory
-/etc/hosts
-
+* ansible inventory file is located in below mentioned location, this is set in .cfg file
+* ansible assumes default user as root if any other user then mention the same in host file
+* u and mention server password in host file
+* ansible will take the key in user default key location if its in other location then u have to mention in host file
+```
+/etc/ansible/hosts
+```
 you can add alias to inventory files
-
-web ansible_host=server1 ansible_connection=ssh ansible_port=222 ansible_user=root
+```
+web ansible_host=server1 ansible_connection=ssh ansible_ssh_private_key=/some/path/to-key ansible_port=222 ansible_user=root
 web ansible_host=server2
+```
 
+
+* if u install ansible using pip then host file will not be created
+
+
+## SSH key Based Authentication
+
+initaly to configure ssh key create a host file and mention password in the host file and after successful copy ssh key remove the password in host file
+
+```
+/etc/ansible/hosts
+
+web1 ansible_host=10.200.20.246 ansible_ssh_pass=password
+web2 ansible_host=10.200.20.246 ansible_ssh_pass=password
+
+```
+
+* create pub and private key, and share the public key to remote vm in authorized file,
+
+```
+ssh-keygen
+ssh-copy-id -i id_rsa user@server
+```
+## Ad hoc commands:
+```
+
+Ansible <host> –a “hostname”
+Ansible <host> –a “free –m”
+Ansible <host> –a “df -h”
+ansible <host> -s -m yum -a "name=ntp state=installed"
+ansible <host> -s -m service -a "name=ntpd state=started enabled=yes"
+ansible -m command -a date -i inventory web1 #Run an adhoc command to run a command on host web1 to print the date
+
+where "-a" if you dont want to use moudle insted u can derictly specfiy command using -a where is used for commands /moudle arguments 
+where "-s" is used for 
+where "-m" is used for module,module name to execute (default=command)
+
+```
+
+```
+ansible    -m        ping     all
+<ansible><module><module name><host>
+ansible    -a     'cat /etc/hosts'   all
+<ansible><command>     <value>	     <host>
+ansible -m setup localhost #nsible command to gather facts of the localhost
+ansible -m ping -i /home/thor/playbooks/inventory all
+
+## Ansible Ad-hoc Commands with shell script:
+```
+shell-script.sh
+
+export ANSIBLE_GATHERING=explicit
+ansible -m ping all
+ansible -a "cat /etc/host" all
+ansible-playbook playbook.yaml
+```
+./shell-script.sh
+
+## Privilage Esclation:
+* in order to use admin user as sudo we use privilage esclation we use become: yes 
+* in order to switch to other user (su nginx) we can use become nginx
+```
+become: yes #this will assume it as root user like sudo  by default method used is sudo if u want to change this then u can use  following
+
+become_methode: doas
+become_user: thiru
+you can also set the in inventory file and .cfg file like follwig
+
+/etc/ansible/hosts
+web1=10.200.20.1 ansible_user=admin ansible_become=yes ansible_become_user=nginx
+```
+* anything passed in command line has highest priority
+* anyting passed in default ansbile.cfg file has lowest priority
+* somtimes u may want to enter the sudo password at that time u can use this flag in ansible-playbook command
+```
+ansible-playbook --become-method=doas --become-user=nginx--ask-become-pass
+
+```
 ## Variables:
 
 variable stores info with each host
@@ -91,59 +231,8 @@ you can do this by using
 ```
 "ansible-playbook pl.yaml --skip-tags "install"
 ```
-Disablind Fact Gathering,
-by default ansible will gather facts to disable facts u can mention 
-```
-"gather_facts: no" in play book.yaml
-```
-## configuration file
-config file is in /etc/ansible/ansible.cfg,
-in case if have multiple config for multiple projects then u can copy the .cfg modefy as requried
-and place it project folder
 
-suppose if u want to use diffrent config file then u can pass the cfg file location in varialbe
-$ANSIBLE_CONFIG=<.cfg> ansible-playbook playbook.yaml
-```
-default config file is created in /etc/ansible/ansible.cfg
-ansible-config list # list all configuration
-ansible-config view # shows the current config file
-```
-
-## Ad hoc commands:
-```
-
-Ansible <host> –a “hostname”
-Ansible <host> –a “free –m”
-Ansible <host> –a “df -h”
-ansible <host> -s -m yum -a "name=ntp state=installed"
-ansible <host> -s -m service -a "name=ntpd state=started enabled=yes"
-
-where "-a" is used for moudle arguments module
-where "-s" is used for 
-where "-m" is used for module,module name to execute (default=command)
-```
-
-```
-ansible    -m        ping     all
-<ansible><module><module name><host>
-ansible    -a     'cat /etc/hosts'   all
-<ansible><command>     <value>	     <host>
-ansible -m setup localhost #nsible command to gather facts of the localhost
-ansible -m ping -i /home/thor/playbooks/inventory all
-ansible -m command -a date -i inventory web1 #Run an adhoc command to run a command on host web1 to print the date
-```
-## Privilage Esclation
-```
-become: yes #this will assume it as root user like sudo 
-by default method used is sudo if u want to change this then u can use  following
-become_methode: thiru
-you can also set the in inventory file like follwig
-/etc/hosts
-web1=10.200.20.1 ansible_user=admin ansible_become=yes ansible_become_user=nginx
-
-anything passed in command line has highest priority
-anyting passed in default ansbile.cfg file has lowest priority
-```
+ 
 
 ### Modules
 
