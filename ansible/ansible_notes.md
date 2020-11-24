@@ -1,11 +1,12 @@
+# ANSIBLE
 
+Notes
+```
 ansible has file,system,ciommand,cloud,db,windor more modules
-
 script moudule # ansible will copy the script and exute the script
-
 lineinfile module # it finds line and replace the line 
-
-
+```
+# Core Components
 ## Ansible Playbooks:
 
 All playbooks are written in yaml file.
@@ -171,6 +172,7 @@ ansible -m setup localhost #nsible command to gather facts of the localhost
 ansible -m ping -i /home/thor/playbooks/inventory all
 ```
 
+# Install and Configure
 ## Ansible Ad-hoc Commands with shell script:
 ```
 shell-script.sh
@@ -199,43 +201,29 @@ web1=10.200.20.1 ansible_user=admin ansible_become=yes ansible_become_user=nginx
 * anyting passed in default ansbile.cfg file has lowest priority
 * somtimes u may want to enter the sudo password at that time u can use this flag in ansible-playbook command
 ```
-ansible-playbook --become-method=doas --become-user=nginx--ask-become-pass
+ansible-playbook --become-method=doas --become-user=nginx--ask -become-pass
 
 ```
-## Variables:
 
-variable stores info with each host
-in playbook we can mention variable and to use variable use it with '{{ dns_server }}'
+## Yaml FAQ
+* for boolen values you can use yes,true,TRUE and True all are same in ansible all will work same goes for false
+* --- in begingn of yaml file its completely optional, if u are merging multiple ansible file then this --- will be usefull
+* "{{}}" this is use to mention variable in playbooks
+* there are someplaces wer u should not use {{dns_server }}as it directly expect variable u can mention varialbe directly insted of using {{}}}
+eg: in this when dosent require {{}}
 ```
-- hosts: all
-  vars: 
-    dns_server=10.200.20.39
-```
-### using variable to retrive the result of running command
-if you want to use variable from previous task then ,
-to add output of first task we use debug module so u can capture output of first task and pass it to second command
-you can do this by using 
-```
-- hosts: all
-  vars: 
-    dns_server=10.200.20.39
+- name: demo
+  host: all
   tasks:
-  - shell: cat /etc/hosts	
-    register: result
   - debug:
-    var: result
+    msg: "{{dns_server_ip}}"
+  - when: ansible_host != 'web'
+    with_items: "{{ db_servers }}"
 ```
 
+# Ansible Modules
 
-* ansible-playbook pl.yaml --start-at-task "start httpd service" # this will start at this task and ignore all above task
-* optional u can tag your playbook and u can mention the tag on command like "ansible-playbook pl.yaml --tags "install" or u can skip task 
-```
-"ansible-playbook pl.yaml --skip-tags "install"
-```
-
- 
-
-### Modules
+## Modules
 
 package module
 ```
@@ -606,6 +594,83 @@ this one use epoch time
         name: 'admin'
         state: absent
 ```
+# Variable & Jinj2
+
+## Variables:
+
+variable stores info with each host
+in playbook we can mention variable and to use variable use it with '{{ dns_server }}'
+```
+- hosts: all
+  vars: 
+    dns_server=10.200.20.39
+```
+### using variable to retrive the result of running command
+if you want to use variable from previous task then ,
+to add output of first task we use debug module so u can capture output of first task and pass it to second command
+you can do this by using 
+```
+- hosts: all
+  vars: 
+    dns_server=10.200.20.39
+  tasks:
+  - shell: cat /etc/hosts	
+    register: result
+  - debug:
+    var: result
+```
+
+
+* ansible-playbook pl.yaml --start-at-task "start httpd service" # this will start at this task and ignore all above task
+* optional u can tag your playbook and u can mention the tag on command like "ansible-playbook pl.yaml --tags "install" or u can skip task 
+```
+"ansible-playbook pl.yaml --skip-tags "install"
+```
+
+ magic variables
+
+{{hostvars[web1].ansible_facts.dns }}
+another magic variable si gorup_name
+
+{{ group_name }} # returns group in host fiel
+{{ inventory_hostname }} #this gives the list of host under the host file
+
+## Magic Variables
+
+to extract variables defined in one host to another host we can use magic varialbes
+```
+'{{ hostvar['web2'].ansible_host }}'
+'{{ hostvar['web2'].ansible_facts.architecture }}'
+'{{ hostvar['web2'].ansible_facts.devices }}'
+'{{ hostvar['web2'].ansible_facts.devices }}'
+
+````
+
+## Magic Variable-Groups Names
+msg: '{{ group_names }}' #this will return the group names in host inventory file it dosnet return host names
+
+msg: '{{ inventory_hostname }}' # this will return hostnames not group names
+
+
+## Jinj2 Template
+
+in order to use ansible fact variable like hostname  in html page we can use following
+```
+- hosts: web
+  tasks:
+    template:
+      src: index.html.j2 
+      dest: /var/www/nginx-default/index.html
+    
+```
+index.html.j2
+```
+<html>
+this is my host name {{ inventroy_hostname }}
+</html>
+```
+
+# Playbook Flow
 
 ## Parallelism
 when playbook are executed on multiple servers then ansible waits till each tasks completes on all servers,
@@ -670,45 +735,4 @@ playbook.yml
 ## ansible vault
 to store passwords and other secured data 
 
-magic variables
 
-{{hostvars[web1].ansible_facts.dns }}
-another magic variable si gorup_name
-
-{{ group_name }} # returns group in host fiel
-{{ inventory_hostname }} #this gives the list of host under the host file
-
-## Magic Variables
-
-to extract variables defined in one host to another host we can use magic varialbes
-```
-'{{ hostvar['web2'].ansible_host }}'
-'{{ hostvar['web2'].ansible_facts.architecture }}'
-'{{ hostvar['web2'].ansible_facts.devices }}'
-'{{ hostvar['web2'].ansible_facts.devices }}'
-
-````
-
-## Magic Variable-Groups Names
-msg: '{{ group_names }}' #this will return the group names in host inventory file it dosnet return host names
-
-msg: '{{ inventory_hostname }}' # this will return hostnames not group names
-
-
-## Jinj2 Template
-
-in order to use ansible fact variable like hostname  in html page we can use following
-```
-- hosts: web
-  tasks:
-    template:
-      src: index.html.j2 
-      dest: /var/www/nginx-default/index.html
-    
-```
-index.html.j2
-```
-<html>
-this is my host name {{ inventroy_hostname }}
-</html>
-```
