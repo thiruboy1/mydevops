@@ -169,6 +169,7 @@ ansible    -a     'cat /etc/hosts'   all
 <ansible><command>     <value>	     <host>
 ansible -m setup localhost #nsible command to gather facts of the localhost
 ansible -m ping -i /home/thor/playbooks/inventory all
+```
 
 ## Ansible Ad-hoc Commands with shell script:
 ```
