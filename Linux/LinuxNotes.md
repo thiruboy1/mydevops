@@ -275,9 +275,7 @@ This key is generated as a result of a negotiation  process between the client a
 * Asymmetric Encryption:
 This encryption uses a private/public key combination for encryption. These keys are randomly generated alphanumeric characters attached to messages during acommunication session. 
 The client transfers the information using a public key and the server decrypts it using the paired private key.
-
 The private key must be kept secure since it is private to that one system only. The public key is distributed to clients. 
-
 This method is used for channel encryption as well as  for user authentication. 
 
 
@@ -296,28 +294,18 @@ Open SSH offers several methods for this purpose, listed  below in the order in 
 
 
 GSSAPI - based authentication: 
-
 It provides a standard interface that allows security mechanism such as Kerberos to be plugged in. OpenSSH uses this interface and kerberos for authentication.
-
 With this method, an exchange of tokens takes place between the client and server to validate user identity.
-
 This method is only supported in OpenSSH version 2.
 
 
 * Host based authentication:  Allows a single user, a group of users or all users on the client to be authenticated on the server. A user may be configured to login with a matching user
 name on the server or as a differnt user that exists on the server.
 Each user that requires an automatic entry on the server a .shosts file is set up in the user's home directory.
-
 Group of users or all users setup is done in the  /etc/ssh/shosts.equiv file.
 
-* Private/Public key based authentication: This method uses a private/public key combination for user authentication. The user on the client has a publickey and the server stores the corresponding private key.
-
-When user tries to login, the server prompts the user to enter the key and lets the user login if the key is validated.
-
-
+* Private/Public key based authentication: This method uses a private/public key combination for user authentication. The user on the client has a publickey and the server stores the corresponding private key.When user tries to login, the server prompts the user to enter the key and lets the user login if the key is validated.
 * Challenge response authentication: This method is based on response to one or more  challenge questions that the user has to answer  correctly in order to gain login access to the server.
-
-
 * Password based authentication: Server prompts the user to enter their password. It checks the password against the stored entry in the /etc/shadow file and allows the user to login if the password is confirmed.
 
 
@@ -468,7 +456,934 @@ star -t -f=filename.tar	# displays content of tar
 
 
 
-## Create and Text Files
+## Create and Edit Text Files
+
+### File Type 
+Linux (Currently using RHEL 7.4 distro) supports several different types of files.
+
+
+Some of the common file types are listed below: 
+- Regular files
+- Directory files
+- Executable files
+- Symbolic link files
+- Device files
+
+
+- Regular files: Regular files may contain text or binary data. These files could be command in the binary form or shellscripts.
+Examples:
+```
+#- ls /bin
+#- file .bash_profile
+```
+
+- Directory files:  Directories are logical containers that are used to  hold files and sub-directories.
+Examples:
+```
+#- ll /  
+Letter d at the begining identifies the file as a directory.
+#- file / 
+Identifies / as a directory
+```
+
+- Executable Files: Any file that can be run is an executable, they could be shell scripts or binary commands.
+Examples: 
+```
+#- ll /usr/bin (x means it is executable)
+#- file /usr/bin/whoami (executable command)
+```
+
+- Symbolic link files(aka symlink or softlink):  These can be considered as a shortcut to another file or directory. Begins with letter l and shows an arrow.
+
+Examples: 
+```
+#- ll /usr/sbin/vigr
+l = soft link
+-> = point to original file
+#- file /usr/sbin/vigr
+```
+- Device Files:  Each piece of hardware in the system has an associated file called device file. 
+```
+Two types of device files are: 
+- character (or raw) device file,(keybord)
+- block device file
+
+Examples: 
+#- ll /dev/sda 
+#- ll /dev/tty
+First character b represents block device file
+First character c represents character device file.
+
+#- file /dev/sda
+#- file /dev/tty
+```
+
+### Listing Files
+
+- Use ll command to list files and directories.
+```
+#- ll 
+drwxr-xr-x. 3 root root 15 May  9 20:50 1
+```
+* Break down by Columns: 
+
+- Column 1: drwxr-xr-x. #First charcter indicates a directory, next 9 characters indicate permissions.
+- Column 2: 3 #Displays the number of links.
+- Column 3: root #Shows the owner name.
+- Column 4: root #Displays the owning group name.
+- Column 5: 15 #Identifies the file size in bytes. For directories this number reflects the number of blocks being usedby directory to hold info about its contents.
+- Column 6,7 and 8:  May  9 20:50 1 #Displays month, day of month and last modified time.
+- Column 9: 1 #Name of the file or directory.
+
+
+### VI & VIM
+vim #highlits the syntax
+
+There r 2 modes
+- insert mode(press i)
+- command mode(escap key)
+
+wq #save and quit
+dd #cut the line
+shift+g #top of the file
+cc #will remove the line and goes to insert mode
+? #to search text
+/ #to search text
+:%s/word/hello/g #to replace text in command mode
+
+## Create Delete copy move files and Directory 
+yum install tree #to c directory structure
+
+
+cp file1 file2 #- Copy file1 and name the copied file file2
+
+```
+- Delete a file
+#- rm file2
+#- rm -f filename (without asking for confirmation)
+```
+mv file1 to file3 #Rename or move a file
+mkdir dir1 #Create a Directory called dir1
+rmdir dir1- Remove a directory
+
+- Remove a directory with files in it.
+```
+#- rm -rf dir1
+-r = recursively
+-f = forcefully
+```
+
+- List history of your commands
+```
+#- history
+
+- Re run a command from history by number
+#- !# (# represents the command number)
+```
+
+
+## Hard Links & Soft Links
+
+
+- Before looking at soft and hard links, let's look at  some basics that you must understand:
+- Let's look at the result of below command: 
+```
+#- ll /usr/sbin/vigr 
+
+lrwxrwxrwx. 1 root root 4 Dec 20 06:10 /usr/sbin/vigr -> vipw
+```
+- Each file in a system has many attributes assigned to  it at the time of its creation known as metadata. These include file's type, size, permissions, owners nameowners group name, ACL, links and other related info.
+
+This metadata info has to be stores somewhere. This metadata info takes only 128-bytes of space and this tiny storage space is knows as inode (index node) Inode assigns a numeric identifier to each file which is used by the kernel.
+To find out inode number of a file use below command:
+```
+#- ll -i /usr/sbin/vigr 
+
+99699 lrwxrwxrwx. 1 root root 4 Dec 20 06:10 
+/usr/sbin/vigr -> vipw
+
+99699 = inode number
+
+```
+
+### Soft and hard links
+
+### Soft links (aka symlink or symbolic link):  
+
+Soft links(shortcuts) are similar to a short cut in windows, they point to another file.if u edit the symlink the ur actuly editing source file
+- u can any number of symlink for the same file 
+- if u delete or remove the target file then symlink will be broken
+- and if u try to create the file then new file will be created
+- symlink can be used accors filesystems
+
+Example: 
+- Create a soft link called file2 to an existing file called file1: 
+```
+#- ln -s file1 file2
+#- ll file2
+lrwxrwxrwx. 1 root root 5 May 10 15:34 file2 -> file1
+
+l = soft link
+-> = points to the linked file
+```
+
+- Show inodes of both files:
+```
+#- ll -i file*
+```
+Inodes assigned to both files are different.
+
+Note: If the original file is deleted symlink becomes  useless as it is a shortcut to a file that does not exist.
+
+- Hard link: 
+
+Hard link associates one or more files with a single inode number unlike a softlink. This also implies that any changes made to original  file will also be applied to the hard linked file.
+Example: 
+- hard link can be used to link file systems
+- Create a hard link called file2 to an existing  file called file1. 
+```
+#- ln file1 file2
+#- ll -i file*
+
+200622 -rw-r--r--. 2 root root 0 May 10 15:34 file1
+200622 -rw-r--r--. 2 root root 0 May 10 15:34 file2
+
+As you can see both files have the same inode number. 200622 is the inode number 2 represents number of hard links
+
+Note: If one file is deleted the other file will  exist unlike a symlink.
+```
+
+## List Set and Change Standard UGO/RWX Permission
+
+### Understanding permissions
+
+Let's look at permissions of file1 and file2:
+```
+#- ll file1 and ll file2
+-rwx-w---x. 1 root root 0 May 10 15:34 file1
+-rwxrwxrwx. 1 root root 0 May 10 16:18 file2
+
+r = read
+w = write
+x = execute/to navigate insde directory
+X = 
+
+u = user owner
+g = group owner
+o = others (or public)
+```
+###  Modifying permissions
+
+Let's look at permissions of file1:
+```
+#- ll file1 and ll file2
+-rwx-w---x. 1 root root 0 May 10 15:34 file1
+-rwxrwxrwx. 1 root root 0 May 10 16:18 file2
+	
+
+r = read
+w = write
+x = execute
+
+u = user owner
+g = group owner
+o = others (or public)
+
+r = read     = 4
+w = write    = 2
+x = execute  = 1
+rwx   =	       7 
+
+rwx-w---x     and  rwxrwxrwx
+7   2   1	   7   7   7
+```
+- Change rights of a file and grant full rights to user, group and others through octal notations.
+```
+#- ll
+#- chmod 777 file
+#- ll
+```
+- Change rights of a file - remove read, write and execute rights for group and others via symbolic notation.
+
+```
+chmod go-rw file 
+chmod ug+X # allows user to access directory but not scripts , none of scripts will excecute permission
+chmod ug+rwx -R docs # apply permission recursively on all directorys
+```
+To re-add read and write rights back to group &  others:
+```
+#- chmod go+rw
+$- ll file
+```
+- Assign read rights to all users
+```
+#- chmod a=rwx
+a = all
+```
+### default permissions
+Linux assigns default permissions to a file or a directory at the time of creation. 
+
+Default permissions are calculated based on the  umask (user mask)permission value subtracted from a  preset value called "initial" permissions.
+Default permission = umask - initial
+Example:
+```` 
+Create a file as a regular user 
+#- touch file
+#- ll
+-rw-rw--r--. 1 root root 0 May 10 17:04 file
+6   6   4
+
+readwrite-readwrite--read-- (default permissions)
+
+```
+### UMASK 
+when ever we create directory/file it will set the default-permission, this default permission will come from umask
+
+
+* umask can be changed using sudo vi /etc/profile
+* u can change umask value in bashrc file, (for root umask will be 666-002 and other users 666-022)
+* root user will have id of 199
+To find umsak value:
+```
+#- umask
+002
+umask can be changed using sudo vi /etc/profile
+For regular users: 
+- Initial permissions = 666 for files 
+- Initial permissions = 777 for directories 
+Files: 
+- Initial permissions - umask = Default permission  
+  666 - 002 = 664
+
+-rw-rw--r--. 1 root root 0 May 10 17:04 file
+6   6   4
+```
+Directories: 
+```
+- Initial permissions - umask = Default permission
+  777 - 002 = 775
+Example: 
+#- mkdir 2 (as regular user)
+#- ll 2
+drwxrwxr-x. 2 1 1 6 May 10 17:20 2
+7  7   5
+``` 
+
+
+
+### Setuid,Setgid & stickbit
+Linux offers 3 types of special permission bits that maybe set on executable files or directories to  respond differently for certain operations.
+
+These special permission bits are:
+```
+- setuid (set user identifier) bit
+- setgid (set group identifier) bit
+- sticky bit
+```
+
+- The setuid and setgid:
+- These 2 bits can provide non-owners and non-group owners the ability to run executables with same accessas the owner and group owner.
+
+### Setuid bit: this setuid bit on executable files: Setuid bit flag can provide regular users the ability to run the same access as the owner of the executable  file.
+
+It is represented by an s in the owner's permission class. 
+Example: 
+```
+#- ll /usr/bin/su
+-rwsr-xr-x. 1 root root 32096 Dec  1 18:28 /usr/bin/su
+s = setuid bit
+- Login with a regular user and run su command.
+- Lets remove the setuid flag 
+#- chmod u-s /usr/bin/su
+#- ll /usr/bin/su
+-rwxr-xr-x. 1 root root 32096 Dec  1 18:28 /usr/bin/su
+```
+Setuid bit has been removed, let try to run su again  as a regular user.
+su: Authentication failure
+
+- To re-add setuid bit:
+```
+#- chmod u+s /usr/bin/su
+#- ll /usr/bin/su
+-rwsr-xr-x. 1 root root 32096 Dec  1 18:28 /usr/bin/sure-added setuid bit represented by s.
+```
+- You can also use numbers to apply setuid bit.
+```
+chmod u+s /usr/bin/su
+or 
+chmod 4755 /usr/bin/su
+```
+4 adds the the setuid bit.
+
+find / -perm -4000 To search for all files with setuid bit permissions:
+
+
+### Setgid bit on executable files:
+
+- Setgid bit is set on executable files at the group  level. Setgid bit flag can provide regular users the  ability to run the same access as the group members of 
+the executable file.
+It is represented by an s in the group's permission class. 
+
+Example: 
+```
+#- ll /usr/bin/wall
+-r-xr-sr-x. 1 root tty 15344 Jun  9  2014 /usr/bin/wall
+s is the stickybit flag in group permissions
+
+chmod g-s /usr/bin/wall #To remove setgid bit: 
+chmod g+s /usr/bin/wall #To add setgid bit: 
+ or 
+chmod 2555 /usr/bin/wall
+
+
+find / -perm -2000 #To search for all files with setgid bit permissions:
+
+-------------
+
+### Stickybit: 
+
+Sticky bit is set on public writeable directories to 
+prevent moving or deletion by regular users.
+
+Example: 
+
+#- ll -d /tmp
+drwxrwxrwt. 7 root root 93 May 11 04:00 /tmp/
+
+t = stickybit in other's permissions
+
+- The stickybit can be set by following command:
+```
+- Create a directory
+#- mkdir dir1
+
+-Add stickybit with rwx permissions to all
+#- chmod o+t /tmp
+#- chmod 777 /tmp
+or
+#- chmod 1777
+#- ll dir1
+
+chmod o-t dir1 # To remove stickybit or
+chmod 777 dir1
+chmod 7777 # will set all permission
+1 sets the sticky bit.
+
+find / -type d -perm -1000 # To search for all files with stickybit permissions:
+```
+
+## Locate Read and use System Doc with man info and /usr/share/doc
+
+```
+man 5 passwd #this will open manual page 5 for passwd
+apropos passwd # this command will search for man page index,before running this command cache the man page by running following command 
+mandb #caching man page 
+which # comand
+apropos
+
+```
+
+## Finding files with locate and find
+- Typical running Linux system has hundreds and  thousands of files. You may need to search for a files by a particular user or search file by their size.
+
+1) Locate: 
+2) Find
+
+1) Locate: is command to find the files in the system, locate is cached and its updated by cron daily
+however we can manualy update the cache  
+
+updatedb # this command will update he cache of locate command
+
+locate httpd 
+
+
+2) Find:
+
+
+```
+find / -name fi* -print Using the find command 
+find = command
+/ = Path or location we want to search
+name = search option (search by name)
+print = action (print is default so no need to type it)
+delete = action
+
+```
+Example: 
+```
+- Find all files named "file1": under / directory and delete them all: 
+```
+#- find / -name files
+#- find / -name files -delete
+#- #- find / -name files
+find / -perm -4000
+find /etc/ -name motd
+find /etc/ -user root #finds all files related to the root user
+find / -mtime -3 #find all files that was modified last 3 days
+find / -mtime +3 #find all files that was not modified last 3 days
+find / -user thiru
+
+```
+### stat /etc/profile #this command will provides info about last modified date and time
+- Find files smaller than 1 MB in root's home directory
+-  find / -size -1M
+- Find files smaller than 1 MB in current directory.
+```
+find . -size -1M
+"." represents current director
+- To find files in /usr, larger than 40MB
+#- find /usr -size +40M
+- Find files that were modified 4 days ago:
+#- find /var -mtime 4
+#- man find 
+To learn more about find command.
+```
+ 
+
+
+# Operate Running System:
+
+## Boot, Reboot and shutdown a system
+
+- new redhat use systemd which handels the initilization of filesystem, it handles reboot shutdown and all activitys
+
+Reboot: 
+systemctl reboot
+shutdown -r now # reboot immidetly
+shutdown -r +5 #reboot wait 5 min before reboot, during it sends wall mesasge to all logined users
+if u want cancel the reboot before 5min(defined time) then u can use follwing command
+shutdown -c # this will cancle the shutdown  
+
+what happens wen u call for reboot?
+```
+brings the system down in a secure way. 
+All logged-in users are notified that the system is going down, and login(1) is blocked. 
+It is possible to shut the system down immediately or after a specified delay. 
+All processes are first notified that the system is going down by the signal SIGTERM. 
+So basically reboot calls the "shutdown".
+
+```
+
+Power off : 
+shutdown -h 
+shutdown -h +5
+
+## Boot System into diffrent targerts
+
+### Boot Porcess?
+
+1. BIOS
+BIOS stands for Basic Input/Output System
+Performs some system integrity checks
+Searches, loads, and executes the boot loader program.
+It looks for boot loader in floppy, cd-rom, or hard drive. You can press a key (typically F12 of F2, but it depends on your system) during the BIOS startup to change the boot sequence.
+Once the boot loader program is detected and loaded into the memory, BIOS gives the control to it.
+So, in simple terms BIOS loads and executes the MBR boot loader.
+2. MBR
+MBR stands for Master Boot Record.
+It is located in the 1st sector of the bootable disk. Typically /dev/hda, or /dev/sda
+MBR is less than 512 bytes in size. This has three components 1) primary boot loader info in 1st 446 bytes 2) partition table info in next 64 bytes 3) mbr validation check in last 2 bytes.
+It contains information about GRUB (or LILO in old systems).
+So, in simple terms MBR loads and executes the GRUB boot loader.
+3. GRUB
+GRUB stands for Grand Unified Bootloader.
+If you have multiple kernel images installed on your system, you can choose which one to be executed.
+GRUB displays a splash screen, waits for few seconds, if you don’t enter anything, it loads the default kernel image as specified in the grub configuration file.
+GRUB has the knowledge of the filesystem (the older Linux loader LILO didn’t understand filesystem).
+Grub configuration file is /boot/grub/grub.conf (/etc/grub.conf is a link to this). The following is sample grub.conf of CentOS.
+#boot=/dev/sda
+default=0
+timeout=5
+splashimage=(hd0,0)/boot/grub/splash.xpm.gz
+hiddenmenu
+title CentOS (2.6.18-194.el5PAE)
+          root (hd0,0)
+          kernel /boot/vmlinuz-2.6.18-194.el5PAE ro root=LABEL=/
+          initrd /boot/initrd-2.6.18-194.el5PAE.img
+As you notice from the above info, it contains kernel and initrd image.
+So, in simple terms GRUB just loads and executes Kernel and initrd images.
+4. Kernel
+Mounts the root file system as specified in the “root=” in grub.conf
+Kernel executes the /sbin/init program
+Since init was the 1st program to be executed by Linux Kernel, it has the process id (PID) of 1. Do a ‘ps -ef | grep init’ and check the pid.
+initrd stands for Initial RAM Disk.
+initrd is used by kernel as temporary root file system until kernel is booted and the real root file system is mounted. It also contains necessary drivers 
+compiled inside, which helps it to access the hard drive partitions, and other hardware.
+5. Init
+Looks at the /etc/inittab file to decide the Linux run level.
+Following are the available run levels
+0 – halt
+1 – Single user mode
+2 – Multiuser, without NFS
+3 – Full multiuser mode
+4 – unused
+5 – X11
+6 – reboot
+Init identifies the default initlevel from /etc/inittab and uses that to load all appropriate program.
+Execute ‘grep initdefault /etc/inittab’ on your system to identify the default run level
+If you want to get into trouble, you can set the default run level to 0 or 6. Since you know what 0 and 6 means, probably you might not do that.
+Typically you would set the default run level to either 3 or 5.
+6. Runlevel programs
+When the Linux system is booting up, you might see various services getting started. For example, it might say “starting sendmail …. OK”. Those are the runlevel programs, executed from the run level directory as defined by your run level.
+Depending on your default init level setting, the system will execute the programs from one of the following directories.
+Run level 0 – /etc/rc.d/rc0.d/
+Run level 1 – /etc/rc.d/rc1.d/
+Run level 2 – /etc/rc.d/rc2.d/
+Run level 3 – /etc/rc.d/rc3.d/
+Run level 4 – /etc/rc.d/rc4.d/
+Run level 5 – /etc/rc.d/rc5.d/
+Run level 6 – /etc/rc.d/rc6.d/
+Please note that there are also symbolic links available for these directory under /etc directly. So, /etc/rc0.d is linked to /etc/rc.d/rc0.d.
+Under the /etc/rc.d/rc*.d/ directories, you would see programs that start with S and K.
+Programs starts with S are used during startup. S for startup.
+Programs starts with K are used during shutdown. K for kill.
+There are numbers right next to S and K in the program names. Those are the sequence number in which the programs should be started or killed.
+For example, S12syslog is to start the syslog deamon, which has the sequence number of 12. S80sendmail is to start the sendmail daemon, which has the sequence number of 80. So, syslog program will be started before sendmail.
+
+
+
+### Targets: 
+Systemd has replaced sysVinit as the default service  manager in RHEL 7. Some of the sysVinit commands have been symlinked to their RHEL 7 counterparts, however  this will eventually be deprecated in favor of the standard systemd commands in the future.
+Systemd uses Targets instead of the runlevels.
+* to check targtes installed in my system
+```
+systemctl get-default #this will show the current target
+systemctl list-units --type=targets 
+systemtl -t help #to list all type of unit config file in system we mostly use service & target 
+```
+insted of writing startup scritp we wirte service, this are the services located in following directory 
+```
+cd /usr/lib/systemd/system
+
+sshd.service file
+[Unit]
+Description=OpenSSH server daemon
+Documentation=man:sshd(8) man:sshd_config(5)
+After=network.target sshd-keygen.service		#should start only after network target started
+Wants=sshd-keygen.service
+
+[Service]
+Type=notify
+EnvironmentFile=/etc/sysconfig/sshd
+ExecStart=/usr/sbin/sshd -D $OPTIONS  			# before start execute this
+ExecReload=/bin/kill -HUP $MAINPID			# when we issue ssh reload command execute this
+KillMode=process
+Restart=on-failure
+RestartSec=42s
+
+[Install]
+WantedBy=multi-user.target				# when system moves to multi user target then unit config file will be called
+```
+systemctl list-dependencies multi-user.target # this will displa the dependence of targets
+
+ 
+- Each Runlevel Target file is a symbolic link to the system-start Target equivalents. For example:
+```
+# cd /usr/lib/systemd/system
+# ls -l runlevel*
+```
+Comapring runlevel with Target: 
+```
+Runlevel 0 – shut down the system
+Runlevel 1 – single mode
+Runlevel 2 – multiuser mode without networking
+Runlevel 3 – multiuser with text login screen
+Runlevel 4- customized runlevel (not in use)
+Runlevel 5 – runlevel 3 with graphical login
+Runlevel 6 – Reboots the system
+
+````
+Targets: 
+```
+0- runlevel 0.target, poweroff.target 
+System halt/shutdown
+
+1- runlevel1.target, rescue.target
+Single-user mode (rescue mode)
+
+2- runlevel2.target
+User-defined/Site-specific runlevels. By default, 
+identical to 3.
+
+3- runlevel3.target, multi-user.target
+Multi-user, non-graphical mode, command line
+
+4-  runlevel4.target
+User-defined/Site-specific runlevels. By default, 
+identical to 3.
+
+5- runlevel5.target, graphical.target
+Multi-user, graphical mode
+
+6- runlevel6.target, reboot.target
+Reboot
+
+- emergency- emergency.target Emergency mode. Root fs is mounted read only, no other fs are mounted and no networking either.
+
+
+```
+
+
+- Managing Targets
+
+Viewing and setting Default boot Target:
+```
+- To check current default boot target
+# systemctl get-default
+
+multi-user.target
+
+- To change default boot target: when u run this default.target symlink will point to the multi-user.target
+# systemctl set-default multi-user.target
+
+-----
+
+Switching into specific targets: to move from one target to another target we can use systemctl isolate <target> command
+
+- Switch to graphical target (Legacy runlevel 5)
+# systemctl isolate graphical.target
+
+- Switch to multi-user Target (Legacy runlevel 3)
+# systemctl isolate multi-user.target
+
+- Shutdown system to halt state:
+# systemctl halt
+
+- Shutdown and power off
+# systemctl poweroff
+
+- Reboot
+# systemctl reboot
+
+- To switch to Legacy runlevel 3 Target:
+# systemctl isolate runlevel3.target
+```
+### going to rescue target/emergency target
+
+- reboot
+- go to boot menu and press up/down arrow key so that it takes away timer count
+- press e to edit the item
+- and search for vmlinx16 kernel edit the kernel command line , eg: linux16 , and at end of the line add systemd.unit=rescue.target
+- ctrl+x to contionue the boot process 
+
+
+## Intrupt Boot Process to Gain Access to a system
+
+
+### reseting root password
+
+initial when system boots up it hands the control to grub, when we select kernel, kernel needs to be loaded somewhere, so grub allow us 
+to load local kernel inside memory that kernel has systemd and root device that gona map, it mounts feature root device 
+as sysroot and initramfs and hands over control to initrms, so now we have to break into that process and get into
+initramfs debug shell and change password 
+
+* step 1) boot the system in rescuemode/recovery mode (reboot, go to boot menu and press up/down arrow key so that it takes away timer count)
+* step 2) search for vmlinx16 kernel edit the kernel command line , eg: linux16 , and at end of the line add "rd.break" this will take us to initramfs debug shell
+- go to shell 
+* notes: contents are mounted as sysroot, once initramfs is completed booting then its gona take contens from sysroot and mount it as root directory
+so we should make sure that mount that as root device using chrot
+now first we have to remount the sysroot directory as read wirte options
+- now the system will be read mode to enable it in write mode
+* step 3) mount -o rw,remount/          #remount sysroot for read write
+now i want to mount sysroot directory as my local root directory the reson i want to do is i want to run passwd command, i want to able to edit /etc/passwd directory
+
+* step 4) chroot /sysroot
+* step 5) passwd
+* step 6) touch /.autorelable  #since selinux is enable, we have to relable all our file just we have to make sure that file exists
+if this file exits the systme will instruct to relable if not passwd change will not be successfull
+* step 6) shutdown -r
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+- Files can be create in multiple ways. However, directories can only be created with one command.
+
+- Creating File with touch command: 
+```
+Examples: 
+#- touch file1
+#- ls
+#- touch file2 file3 file4
+#- ls
+Note : If the file already exists, it will update the
+timestamp on it to the current date and time.
+
+```
+- Creating files with vi editor: 
+Examples: 
+```
+#- vi filename
+- add text
+- save and exit 
+
+```
+- Creating directories using mkdir command:
+Examples: 
+```
+#- mkdir dir1
+To create a directory called dir1
+
+#- mkdir a b c 
+To create 3 directories a b c.
+
+#- mkdir -p 1/2/3
+To create hierarchy of sub-directories.
+```
+
 
 
 
