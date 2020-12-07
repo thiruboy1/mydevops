@@ -457,7 +457,39 @@ star -t -f=filename.tar	# displays content of tar
 
 
 ## Create and Edit Text Files
+- Files can be create in multiple ways. However, directories can only be created with one command.
 
+- Creating File with touch command: 
+```
+Examples: 
+#- touch file1
+#- ls
+#- touch file2 file3 file4
+#- ls
+Note : If the file already exists, it will update the
+timestamp on it to the current date and time.
+
+```
+- Creating files with vi editor: 
+Examples: 
+```
+#- vi filename
+- add text
+- save and exit 
+
+```
+- Creating directories using mkdir command:
+Examples: 
+```
+#- mkdir dir1
+To create a directory called dir1
+
+#- mkdir a b c 
+To create 3 directories a b c.
+
+#- mkdir -p 1/2/3
+To create hierarchy of sub-directories.
+```
 ### File Type 
 Linux (Currently using RHEL 7.4 distro) supports several different types of files.
 
@@ -726,7 +758,7 @@ Linux assigns default permissions to a file or a directory at the time of creati
 Default permissions are calculated based on the  umask (user mask)permission value subtracted from a  preset value called "initial" permissions.
 Default permission = umask - initial
 Example:
-```` 
+```
 Create a file as a regular user 
 #- touch file
 #- ll
@@ -837,7 +869,7 @@ chmod 2555 /usr/bin/wall
 
 
 find / -perm -2000 #To search for all files with setgid bit permissions:
-
+```
 -------------
 
 ### Stickybit: 
@@ -846,14 +878,12 @@ Sticky bit is set on public writeable directories to
 prevent moving or deletion by regular users.
 
 Example: 
-
-#- ll -d /tmp
-drwxrwxrwt. 7 root root 93 May 11 04:00 /tmp/
-
-t = stickybit in other's permissions
-
-- The stickybit can be set by following command:
 ```
+ll -d /tmp
+drwxrwxrwt. 7 root root 93 May 11 04:00 /tmp/
+t = stickybit in other's permissions
+- The stickybit can be set by following command:
+
 - Create a directory
 #- mkdir dir1
 
@@ -910,7 +940,7 @@ delete = action
 
 ```
 Example: 
-```
+
 - Find all files named "file1": under / directory and delete them all: 
 ```
 #- find / -name files
@@ -948,12 +978,13 @@ To learn more about find command.
 - new redhat use systemd which handels the initilization of filesystem, it handles reboot shutdown and all activitys
 
 Reboot: 
+```
 systemctl reboot
 shutdown -r now # reboot immidetly
 shutdown -r +5 #reboot wait 5 min before reboot, during it sends wall mesasge to all logined users
 if u want cancel the reboot before 5min(defined time) then u can use follwing command
 shutdown -c # this will cancle the shutdown  
-
+```
 what happens wen u call for reboot?
 ```
 brings the system down in a secure way. 
@@ -965,13 +996,15 @@ So basically reboot calls the "shutdown".
 ```
 
 Power off : 
+```
 shutdown -h 
 shutdown -h +5
+```
 
 ## Boot System into diffrent targerts
 
 ### Boot Porcess?
-
+```
 1. BIOS
 BIOS stands for Basic Input/Output System
 Performs some system integrity checks
@@ -979,6 +1012,7 @@ Searches, loads, and executes the boot loader program.
 It looks for boot loader in floppy, cd-rom, or hard drive. You can press a key (typically F12 of F2, but it depends on your system) during the BIOS startup to change the boot sequence.
 Once the boot loader program is detected and loaded into the memory, BIOS gives the control to it.
 So, in simple terms BIOS loads and executes the MBR boot loader.
+
 2. MBR
 MBR stands for Master Boot Record.
 It is located in the 1st sector of the bootable disk. Typically /dev/hda, or /dev/sda
@@ -1039,7 +1073,7 @@ Programs starts with S are used during startup. S for startup.
 Programs starts with K are used during shutdown. K for kill.
 There are numbers right next to S and K in the program names. Those are the sequence number in which the programs should be started or killed.
 For example, S12syslog is to start the syslog deamon, which has the sequence number of 12. S80sendmail is to start the sendmail daemon, which has the sequence number of 80. So, syslog program will be started before sendmail.
-
+```
 
 
 ### Targets: 
@@ -1195,194 +1229,6 @@ if this file exits the systme will instruct to relable if not passwd change will
  
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
- 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
- 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-- Files can be create in multiple ways. However, directories can only be created with one command.
-
-- Creating File with touch command: 
-```
-Examples: 
-#- touch file1
-#- ls
-#- touch file2 file3 file4
-#- ls
-Note : If the file already exists, it will update the
-timestamp on it to the current date and time.
-
-```
-- Creating files with vi editor: 
-Examples: 
-```
-#- vi filename
-- add text
-- save and exit 
-
-```
-- Creating directories using mkdir command:
-Examples: 
-```
-#- mkdir dir1
-To create a directory called dir1
-
-#- mkdir a b c 
-To create 3 directories a b c.
-
-#- mkdir -p 1/2/3
-To create hierarchy of sub-directories.
-```
 
 
 
