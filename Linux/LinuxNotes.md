@@ -321,6 +321,186 @@ When user tries to login, the server prompts the user to enter the key and lets 
 * Password based authentication: Server prompts the user to enter their password. It checks the password against the stored entry in the /etc/shadow file and allows the user to login if the password is confirmed.
 
 
+## Login & Switch  Users in Multiuser Targets
+
+```
+systemctl get-default # this command will get the default targets
+su #this command allows use to login to diffrent user , switch user, but here if u notice user profile will not be loaded
+su -l #is login shell, this will use all custom profiles of user
+```
+- Interactive: (bashrc is loded)As the term implies: Interactive means that the commands are run with user-interaction from keyboard. E.g. the shell can prompt the user to enter input.
+- Non-interactive: the shell is probably run from an automated process so it can't assume if can request input or that someone will see the output. E.g Maybe it is best to write output to a log-file.
+- Login: (bash_profile is loded)Means that the shell is run as part of the login of the user to the system. Typically used to do any configuration that a user needs/wants to establish his work-environment.
+- Non-login: Any other shell run by the user after logging on, or which is run by any automated process which is not coupled to a logged in user.
+- interactive shell: when ever u switch user it will be using interactive shell were user bash_profiles will not be loaded
+
+
+Switching Users: 
+
+* Logging in to the system directly as root is not  recommended. The recommended practice is to log on with  normal user account and then switch into the root  account if necessary.
+
+* In addition to becoming root, we can also switch into  another user account. Unless you are root, you need to know the password for the target user account you are switching to.
+
+* The su command can used to switch into another user account.
+```
+Example: 
+
+- To switch from a user to root without executing  startup scripts for the target user:
+#- su
+Password (root pw)
+- To switch into a different user account from user1 to user2, specify the name of the target user with the
+command: 
+#- su - user2
+Password (user2 password)
+- You can also issue a command as a different user  without switching into that user: 
+
+#- su -c 'firewall-cmd --list-services'
+Password (root password)
+
+-c option is available with su.
+- firewall-cmd --list-services requires superuser
+privileges.
+- users can use su to execute privileged commands. 
+- User root can switch into any account without beingprompted for that user's password.
+#- su user1
+
+```
+
+### The sudo utility: 
+
+Linux gives normal users the ability to run privileged commands. There is a utility called sudo that can be  used for this purpose.
+
+
+- For example, a regular user can run useradd command  with sudo if they have been granted access: 
+#- sudo useradd
+password
+
+
+- Rights provided to sudo users can be used to allow a user or a group to run scripts and applicationsowned by a different user.
+
+
+- Rights an be provided by editing a file /etc/sudoers.
+- File can be edited by using visudo command.
+
+- To give ALL privileges to administrative commands on  the system to both a user called test and a group 
+called wheel, add the below line to /etc/sudoers file: 
+
+```
+test    ALL=(ALL)      ALL
+%wheel  ALL=(ALL)      ALL
+
+```
+- To give access to users and groups so they can run privileged commands without getting prompted for a password, below lines can be added to sudoers file.
+```
+test    ALL=(ALL)    NOPASSWD: ALL
+%wheel  ALL=(ALL)    NOPASSWD: ALL
+
+```
+- Rights can also be granted to users and groups in  a restricted way:
+```
+user	All=/usr/sbin/userdel,/usr/sbin/adduser
+%wheel	All=/usr/sbin/userdel,/usr/sbin/adduser
+```
+
+## Archive  Compress 
+
+Compression Tools:
+
+- Compression tools are used to compress one or more files or an archive to save space.
+
+###  gzip
+
+This command creates a compressed file of each of the files specified and adds .gz extension to the files.
+
+- Example: 
+```
+#- gzip filename
+#- ls or ll (check files after compression)
+
+- To uncompress use:
+#- gunzip filename
+or
+#- gzip -d filename
+# ls or ll (check files after decompression) 
+
+---
+
+You can also use bzip2 and bunzip2
+
+#- bzip2 filename
+#- bunzip2 filename or bzip2 -d filename
+
+---
+```
+###  Archiving tools: 
+
+- tar (tape archive)command creates, appends, updates lists and extracts files to and from a single file called tar file (aka tarball)
+
+Example: 
+```
+#- tar 
+
+options:
+-c (Creates a tarball)
+-v (Verbose mode)
+-f (Specifies a tarball name)
+-t (Lists contents of a tarball)
+-x (Extracts from a tarball)
+-z (Compresses a tarball with gzip command)
+
+#- tar cvf example.tar  example  Creates tarball example.tar of the file example
+#- tar tvf example.tar To list contents of tarball example.tar
+#- tar xvf example.tar To extract file example.tar
+#- tar cvzf example.tar.gz example Creates a tarball and compresses it with gzip
+#- tar xvzf example.tar.gzgzip
+
+````
+
+### star 
+- we can use find command in star and star will not oviried the files during extraction
+- it gives extraprotection on file (by not overiding)
+- u can extract only specfic file
+```
+star -c -f=filename.tar files # creates tar file
+star -t -f=filename.tar	# displays content of tar
+```
+
+
+
+
+## Create and Text Files
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
