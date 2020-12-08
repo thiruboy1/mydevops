@@ -1228,6 +1228,272 @@ if this file exits the systme will instruct to relable if not passwd change will
 * step 6) shutdown -r
  
 
+## Adjust Process Priority and Kill Porcess 
+
+### Understanding Processes: 
+
+- A process is a unit for provisioning system resources. It is any program, application or command that runs on the system.
+- A process is created in memory in its own address space when a command, program or application is initiated.
+- Processes are organized in a hierarchial fashion.
+- Each process has a parent process a.k.a. a calling process that spawns it.
+- A single parent process may have one or more child processes and processes many of its attributes to them when they are created.
+- Each process is assigned a unique identification number knows as PID (Process identifier), which is used by the kernel to manage and control the process through its lifecycle.
+- Once the process is completed or terminated, this event is reported back to its parent process and all there sources assigned to it are then freed and the PID is removed.
+- Several processes are started at system boot, many of which sit in the memory and wait for an event to trigger a request to use their services.
+- These background system processes are called daemons and are critical for the system to operate.
+
+
+
+ps: is used to find the process running on our system
+- An operational system can have hundreds or thousands of running processes depending on its purpose.
+- We can view and monitor these processes using various native tools such as ps (process status) and top.
+
+
+
+ pgrep
+```
+pgrep
+pgrep -u thiru -l #display all process running by the user thiru
+pgrep -u thiru -l vi #display all process running by the user thiru and using vi
+pgrep -v root  #-v is invert, all process not owned by root
+```
+pkill
+```
+pkill httpd
+pkill -t pts/1  #this will kill all process run by the terminal ("who" to know the terminal id)
+pkill -u thiru sshd
+pkill -9   # (SIGKILL)this will kill the process immedittly
+```
+kill -l
+```
+SIGKILL #kills process immeditly
+SIGINT #Keyboard Intrupt
+SIGHUP #use to report termination,similar closing terminal which informs to all process
+SIGQUIT #requesting process to quit
+SITTERM #terminate the process
+SITSTP # stop the process
+SIGCONT #u can stop process and u and continue using this process
+```
+
+### create process and send to bacground, and kill to stop prcess
+
+
+- jobs # to check bacground process
+```
+(while true; do echo -n "My Program" >> ~/output.file; sleep 1; done) $ #this will create a job in bacground
+jobs
+kill -SIGSTOP %1 # stops the job number 1
+kill -SIGCONT %1 #runs the stopped job number 1
+kill -SIGTERM %1 #Terminates the job number 1
+```
+
+
+
+
+
+- The ps command: 
+Shows basic process information in four cloumns.
+The ps command without any options or arguments lists processes specific to the terminal where this command is run.
+```
+#: ps
+
+ PID TTY          TIME CMD
+12034 pts/0    00:00:00 bash
+12749 pts/0    00:00:00 ps
+```
+Above output shows basic information in four columns.
+
+PID = process ID number.
+TTY = Terminal the process belongs to.
+TIME = Cumulative time CPU has given to this process.
+CMD = Name of command or program being executed. 
+
+Commonly used options with ps command include:
+-a = all
+-e = every
+-f = full-format
+-F = Extra full format
+-l = long format
+-u = user specfic
+
+
+Example: 
+
+```
+#: ps -eaf
+
+UID = User ID or process owner's name.
+PID = Process ID number.
+PPID = Process ID of the parent process.
+C    = Processor utiliztion for the process.
+STIME = Process start date or time.
+TTY = Terminal the process belongs to.
+TIME = Aggregated execution time for the process.
+CMD = Name of command or program being executed.
+```
+Information of each running process is maintained and kept in the /proc file system.
+- View Processes by User and group ownership:- 
+- A process can be listed by its ownership or owning group. We can use the ps command for this purpose.
+For example: 
+```
+- To list all processes owned by root, specify the -U option with the command and username: 
+#- ps -U root
+[root@centos ~]# ps -U root
+  PID TTY          TIME CMD
+    1 ?        00:00:04 systemd
+    2 ?        00:00:00 kthreadd
+    3 ?        00:00:01 ksoftirqd/0
+This command lists PID, TTY, TIME and process name for all processes owned by the root user.
+-  We can also specify -G option and the name of an  owning group to print processes associated only with  that group
+#- ps -G root
+```
+
+### Process States:
+
+- A process changes its operating state many times during its life cycle.
+- Factors such as processor load, memory availability, process priority and response from other apps affect how often a process changes from one state to another.
+-Process could be in a non-running state for a while or waiting on another process to provide information so that it can continue to run.
+```
+- There are five basic process states: 
+  - Running
+  - Sleeping	
+  - Waiting
+  - Stopped
+  - Zombie
+```
+
+
+### Nice Level:
+assiging the priority to the process nice level starts from (-20 to 19 )where -20 is highest priority
+- Each process has an assigned priority, which is established at initiation. It is based on a numeric value called niceness (or a nice value).
+- There are 40 niceness values, with -20 being the highest and +19 being the lowest value.
+- Most processes started by the system use the default niceness of 0. 
+- A process running at higher priority gets more CPU attention.
+- A child process inherits the niceness of its parent or calling process.
+- Normally, we run programs at the default niceness but we can change it based on system load and urgency.
+```
+ps axo pid,comm,nice # this will displa nice level for each process
+dd if=/dev/zero of=/root/test.file bs=1M count=1024	#this will generate the 1g file
+nice -n 0 httpd #changing the nice level for httpd process but u have to stop and restart the process
+renice -n 10 2879 #this command will allow us to change nice value on running process without stoping
+renice -n 10 $(pgrep httpd)
+time nice -n 19 tar -cvf test.tar test tar 
+time nice -n -20 tar -cvf test.tar test tar
+```
+### Renicing a running process: 
+
+- The niceness of a running process can be changed using the renice command. 
+- Renicing will change the priority at which the process is currently running.
+
+
+Example: 
+```
+- To change the nice of a running top session from 
+old priority to +5: 
+1- find the PID of top 
+#- pidof crond
+642 (PID)
+2- Change it to +5
+#- renice 5 642
+3- ps -el | grep top
+Note: Options -u and -g can be used with renice to  change nice values of processes owned by a user orgroup members.
+```
+
+
+### How to read load average
+
+1) identify the number of cpu using cat /proc/cpuinfo
+2) use uptime to check load average
+3) then divde 0.38/nubmer of process
+
+```
+[root@jenkins ~]# uptime
+ 12:38:27 up 62 days, 19:14,  1 user,  load average: 0.38, 0.01, 0.05
+
+0.38/2=0.19 so now we are using 19% of cpu
+2.19/2=1.1 so now we are using more than 100%
+
+```
+
+### The top command: 
+Another popular tool for viewing process info is the top command. It displays the statistics in real-time helps to  identify performance issues on the system.
+
+Example: 
+
+```
+Tasks: 186 total,   1 running, 185 sleeping,   0 stopped,   0 zombie
+%Cpu(s):  0.5 us,  4.3 sy,  0.0 ni, 95.2 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st
+KiB Mem :  5925684 total,  1126148 free,  1347368 used,  3452168 buff/cache
+KiB Swap:  2097148 total,  1767932 free,   329216 used.  4022200 avail Mem
+
+   PID USER      PR  NI    VIRT    RES    SHR S  %CPU %MEM     TIME+ COMMAND
+129668 root      20   0  164400   2364   1664 R   8.3  0.0   0:00.11 top
+     1 root      20   0   54560   6752   4024 S   0.0  0.1  10:36.41 systemd
+     2 root      20   0       0      0      0 S   0.0  0.0   0:07.87 kthreadd
+     4 root       0 -20       0      0      0 S   0.0  0.0   0:00.00 kworker/0+
+     6 root      20   0       0      0      0 S   0.0  0.0   8:37.29 ksoftirqd+
+
+```
+
+```
+#: top
+shift+M # will order by memory
+shift+c # will order by cpu
+r # renice the process by giving process pid
+press q or ctrl c to quit top.
+PID – Process ID
+USER – Name of the effective user (owner) of the 
+process.
+PR – Priority
+NI – Nice value
+VIRT – virtual memory size
+RES – resident memory size
+SHR – shared memory size
+S – process status (which could be one of the 
+following: D (uninteruptible sleep), R (running), 
+S (sleeping), T (traced or stopped) or Z (zombie)
+%CPU – the share of cpu time used by the process 
+since last update.
+%MEM – share of physical memory used.
+TIME+ – total cpu time used by the task in hundredths
+of a second.
+COMMAND – command name or command line 
+(name + options) 
+
+```
+
+
+## Locate and interpret System Log Files and Journalctl
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
