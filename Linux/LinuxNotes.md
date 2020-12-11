@@ -1465,10 +1465,220 @@ COMMAND – command name or command line
 
 ## Locate and interpret System Log Files and Journalctl
 
+cd /var/log #all log files are located in this directory
+tail -f -n 20 /var/log/httpd/access_log
+head messages
+head -n 50 <filename>
+
+
+### journald
+journalctl: logs all the events of the system
+- journald is not persistant, wen we reboot by default jornald is removed
+- journald is stored in cd /run/log/journal this is not persistant, to make persistant edit journald.conf file 
+- /etc/systemd/journald.conf #config file for journald
+
+```
+journactl -n #this will show last 10 lines
+journactl -xn #this will show last 10 lines with additional information
+journalctl -f #this will provide last 10 lines and gives u live log
+journalctl _SYSTEM_UNIT=httpd.service	#this will show the log relatid to this service
+journalctl --since=yerstaday  
+systemd-analyze #how much time each service has taken
+```
+#### rsyslog.conf #is the file which is used to create genric log file ,all logs were needs to be stored is defined in this file
+
+# Configure Local Storage
+
+## List,Create, & Delete  Partitions on MBR & GPT
+
+### MBR
+- MBR can have only 4 primary partiations,
+- each primary partiation can be 2tb 
+- MBR is 32bit based
+- Used by BIOS-based systems
+
+- /dev/ directory
+- fdisk is used to manage mbr based partiation
+
+```
+1) fdisk /dev/xvdf
+2) press m to select options
+3) n #for new partiation 
+4) p # for primary partiation
+5) disk size
+6)w
+7) mkfs -t xfs xvdf1 #create file system on drive so that we can use the volume
+8) mount /dev/xvdf1 /mtn/mymount # mount the volume on the local system in order to store the data
+9) blkid #to display mounted file system
+10) unmount /mnt/mymount # to unmount the mounted device 
+11) partprobe  #when we write the changes os will not be able to reload the changes at that time run partprobe
+run partprobe after creating,deleting & editing partation
+
+12) u can also mount using UUID,advantage is u cannot have same uuid 
+12) mount -U <UUID> /mnt/mymount
+```
 
 
 
+### GPT
 
+- GPT can have 128 primary partations
+- each partiation can have 8zb 
+- 64bit
+- Used by UEFI-based systems
+- u can use gdisk or partprobe
+```
+1) gdisk /dev/xvdf
+2) n  add new partiation
+3) default
+4) size
+5) press L to check lables eg: 8300 linux file system, 8200linux swap
+6) w #write partaion
+7) mkfs -t xfs xvdf1 # create file system
+8) mount /dev/xfdf1 /mnt/mynount #mount filesystem on the mnt/mymount
+9) umount
+10) blkid to c uuid
+
+```
+
+
+## LVM
+
+LVM (Logical Volume Manager):
+The LVM solution is widely used for managing disk storage.
+Managing disk space has always been a significant and time consuming task for system adminstrators.
+
+Running out of disk space used to be the start of a long and complex series of tasks to increase the space  available to a disk partition. It also required taking  the system off-line. This usually involved installing a  new hard drive, booting to recovery or single-user mode, creating a partition and a filesystem on the new hard  drive, using temporary mount points to move the data from the too-small filesystem to the new, larger one, changing the content of the /etc/fstab file to reflect the correct device name for the new partition, and  rebooting to remount the new filesystem on the  correct mount point.
+
+
+LVM allows for very flexible disk space management.  It provides features like the ability to add disk space to a logical volume and its filesystem while that  filesystem is mounted and active and it allows for the  collection of multiple physical hard drives and  partitions into a single volume group which can then be divided into logical volumes.
+
+
+Structure:
+```
+-Physical Hard drive
+  - PV (Physical Volume)
+     - VG (Volume Group)
+	- LV (Logical Volume)
+	    - Filesystem 
+
+
+```
+Practical Use:
+```
+- Create a Physical Volume:
+# lsblk (To check available disks)
+
+
+- Create a PV (Physical Volume)
+# pvcreate /dev/sdb
+
+- Confirm
+# pvs
+
+
+Create a VG (Volume Group)called test_vg on sdb
+# vgcreate test_vg /dev/sdb
+
+- To Check
+# vgs
+or
+# vgdisplay
+
+
+- Create a Logical Volume called example_lv on test_vg
+Volume Group - Size of 50 MB:
+
+- lvcreate -n example_lv -L 50M test_vg
+
+- Check
+# lvs
+or
+# lvdisplay /dev/test_vg/example_lv
+
+
+To be able to use and mount this LV
+
+- Create a ext3 Filesystem:
+
+# mkfs.ext3 /dev/test_vg/example_lv
+
+
+To mount this LV on a directory /tmp/example:
+
+- Make a directory under /tmp
+# mkdir example
+
+Now mount the LV:
+
+#  mount /dev/test_vg/example_lv /tmp/example
+
+- Check 
+# df -h
+
+Note: This is not permanent, to make this permanent
+you need to add this entry in /etc/fstab:
+
+# /dev/mapper/test_vg-example_lv  /tmp/example ext3
+defaults 1 2
+
+
+Extend a Volume Group and Logical Volume:
+
+
+- Add disk or use existing VG if space is available:
+# pvcreate /dev/sdc
+# vgextend test_vg /dev/sdc
+
+- Check 
+# vgs
+
+
+- Extend a Logical Volume:
+
+# lvextend -L 100M /dev/test_vg/example_test
+
+Check:
+#df -h
+Size has not changed yet.
+
+- Run the followinf command:
+# resize2fs /dev/test_vg/example_lv
+
+- Check again
+# df -h
+
+Success.
+
+
+
+ To remove LV, VG and PV:
+
+- To Remove a Logical Volume:
+# unmount /tmp/exampe
+# lvremove -f /dev/test_vg/example_lv
+
+
+- To Remove a Volume Group:
+
+# vgs
+# vgremove test_vg
+
+Check:
+# vgs
+
+
+- To remove a Physical Volume:
+
+# pvs
+# pvremove /dev/sdb
+
+Check:
+# pvs
+
+# lsblk
+see sdb as unassigned
+```
 
 
 
