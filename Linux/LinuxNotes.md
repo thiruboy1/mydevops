@@ -1553,7 +1553,25 @@ Running out of disk space used to be the start of a long and complex series of t
 
 LVM allows for very flexible disk space management.  It provides features like the ability to add disk space to a logical volume and its filesystem while that  filesystem is mounted and active and it allows for the  collection of multiple physical hard drives and  partitions into a single volume group which can then be divided into logical volumes.
 
+- physical volume, each lvm has underlying physcal volume, it can be a partiation volume or entier disk
+- we have to initilize physical volume as physical volume for lvm, by doing this lables place on first part of the volume(metadata) helps to identify physical volume for LVM,
+- its place in 2nd 512 byte sector on physical volume
+- u can have either 0,1 or 2 copys of metadata  
+- by default 1 copy is stored on physical volume
+- once number of copys is configured you cannot change number of copies avilable
+- 1st copy is stored in 1st of the device and 2nd copy is stored at end of device thus it protects accedental override
 
+we have pv,vg,lv,
+vg is combination of physical volumes that creates a pool of space that the logical volume manager or logical volumes can allocate.
+its made of extents now extent is insde a VG
+- It's the disk space that's provided inside of locatable fixed units are called extents and extent 
+- the smallest unit of space that can be assigned to a volume group volume group extents are referred
+- VG Extents are definced physical extents and Logical volume is allocated in two sets on logical extents that are same size as physical extents that maps to it
+- LV extents is mapped to the PV extents and that is how the logical volume communicates to physical volume data
+- we can use entire disk for lvm ,to use lvm we have to ctrete file system wit lable LVM for everythin to work perfectly 
+
+
+```
 Structure:
 ```
 -Physical Hard drive
@@ -1565,17 +1583,38 @@ Structure:
 
 ```
 Practical Use:
+
+```
+step1: create lvm lable for partation
+1) gdisk xvdf
+2) n
+3) 8e00
+4) y 
+5) w
+step2: create physical volume
+6) pvcreate /dev/xvdf1 /dev/xvdvg1
+7) pv display
+step3: create volume group: vg is made up of PV
+8) vgcreate battlestar_vg /dev/xvdf1 /dev/xfdg1
+9) lvcreate -n galactica -L 10G battlestar_vg		#creating lv using size
+9) lvcreate -n galactica -l 100	battlestar_vg	#creating lv using PE extens
+10) lvdisplay
+step 4: create filesystem on lvm
+11) mkfs -t xfs galactica
+12) mount /dev/battlestar/galactia /mnt/mymount  
+
+
+note: xfs filesystem only can be increased not decreased
+ext4 can be increase and decreased
+
+
 ```
 - Create a Physical Volume:
 # lsblk (To check available disks)
-
-
 - Create a PV (Physical Volume)
 # pvcreate /dev/sdb
-
 - Confirm
 # pvs
-
 
 Create a VG (Volume Group)called test_vg on sdb
 # vgcreate test_vg /dev/sdb
@@ -1649,16 +1688,11 @@ Size has not changed yet.
 # df -h
 
 Success.
-
-
-
  To remove LV, VG and PV:
 
 - To Remove a Logical Volume:
 # unmount /tmp/exampe
 # lvremove -f /dev/test_vg/example_lv
-
-
 - To Remove a Volume Group:
 
 # vgs
@@ -1681,92 +1715,47 @@ see sdb as unassigned
 ```
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+## Configure system to mount file system at boot using UUID
+
+
+```
+step 1: create partaion
+step 2: creat lvm label,pv,vg lvm
+step 3: crete filesystem
+step 4: mount filesystem
+
+blkid
+use the uuid and place that in fstab
+/etc/fstab
+```
+
+What is fstab?
+- Fstab is your operating system’s file system table
+- Fstab is configured to look for specific file systems and mount them automatically in a desired way each and every time, preventing a myriad of disasters from occurring.
+- mount -a #this command will mount all the disk avilable on fstab 
+- umount -a # this command will unmount all disk which r in fstab
+```
+#
+# /etc/fstab
+# Created by anaconda on Mon Mar 18 23:09:13 2019
+#
+# Accessible filesystems, by reference, are maintained under '/dev/disk'
+# See man pages fstab(5), findfs(8), mount(8) and/or blkid(8) for more info
+#
+/dev/mapper/centos-root /                       xfs     defaults        0 0
+UUID=3a25124f-7cc7-4a83-bd0e-b7587bda5b65 /boot                   xfs     defaul            ts        0 0
+
+/dev/mapper/centos-swap swap                    swap    defaults        0 0
+#/dev/mapper/test_vg-test_lv   /root/example     ext3    defaults        1 2
+
+```
+As you can see from the output above, each line consists of six fields. Here is a description of each of them:
+
+1) Device – the first field specifies the mount device. These are usually device filenames. Most distributions now specify partitions by their labels or UUIDs.
+2) Mount point – the second field specifies the mount point, the directory where the partition or disk will be mounted. This should usually be an empty directory in another file system.
+3) File system type – the third field specifies the file system type.
+4) Options – the fourth field specifies the mount options. Most file systems support several mount options, which modify how the kernel treats the file system. You may specify multiple mount options, separated by commas.
+5) Backup operation – the fifth field contains a 1 if the dump utility should back up a partition or a 0 if it shouldn’t. If you never use the dump backup program, you can ignore this option.
+6) File system check order – the sixth field specifies the order in which fsck checks the device/partition for errors at boot time. A 0 means that fsck should not check a file system. Higher numbers represent the check order. The root partition should have a value of 1 , and all others that need to be checked should have a value of 2.
+
+# Adding New Partations and logical volumes and swap to a system Non Default
