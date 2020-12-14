@@ -1758,4 +1758,4 @@ As you can see from the output above, each line consists of six fields. Here is 
 5) Backup operation – the fifth field contains a 1 if the dump utility should back up a partition or a 0 if it shouldn’t. If you never use the dump backup program, you can ignore this option.
 6) File system check order – the sixth field specifies the order in which fsck checks the device/partition for errors at boot time. A 0 means that fsck should not check a file system. Higher numbers represent the check order. The root partition should have a value of 1 , and all others that need to be checked should have a value of 2.
 
-# Adding New Partations and logical volumes and swap to a system Non Default
+## Adding New Partations and logical volumes and swap to a system Non Default
