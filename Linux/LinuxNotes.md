@@ -1639,7 +1639,6 @@ or
 To be able to use and mount this LV
 
 - Create a ext3 Filesystem:
-
 # mkfs.ext3 /dev/test_vg/example_lv
 
 
@@ -1661,45 +1660,6 @@ you need to add this entry in /etc/fstab:
 # /dev/mapper/test_vg-example_lv  /tmp/example ext3
 defaults 1 2
 
-
-Extend a Volume Group and Logical Volume:
-
-
-- Add disk or use existing VG if space is available:
-# pvcreate /dev/sdc
-# vgextend test_vg /dev/sdc
-
-- Check 
-# vgs
-
-
-- Extend a Logical Volume:
-
-# lvextend -L 100M /dev/test_vg/example_test
-
-Check:
-#df -h
-Size has not changed yet.
-
-- Run the followinf command:
-# resize2fs /dev/test_vg/example_lv
-
-- Check again
-# df -h
-
-Success.
- To remove LV, VG and PV:
-
-- To Remove a Logical Volume:
-# unmount /tmp/exampe
-# lvremove -f /dev/test_vg/example_lv
-- To Remove a Volume Group:
-
-# vgs
-# vgremove test_vg
-
-Check:
-# vgs
 
 
 - To remove a Physical Volume:
@@ -1759,3 +1719,871 @@ As you can see from the output above, each line consists of six fields. Here is 
 6) File system check order – the sixth field specifies the order in which fsck checks the device/partition for errors at boot time. A 0 means that fsck should not check a file system. Higher numbers represent the check order. The root partition should have a value of 1 , and all others that need to be checked should have a value of 2.
 
 ## Adding New Partations and logical volumes and swap to a system Non Default
+
+### understanding swap memory
+
+- Swap is a space on a disk that is used when the amount of physical RAM memory is full. When a Linux system runs out of RAM, inactive pages are moved from the RAM to the swap space.
+- Swap space can take the form of either a dedicated swap partition or a swap file. In most cases, when running Linux on a virtual machine, a swap partition is not present, so the only option is to create a swap file.
+- swap space size should be 2 or 2.5 times of memory
+
+Creating Swap Partition
+```
+step 1) 
+a) fdisk xvdf
+b) n
+c) p
+d) 8e #create lvm label
+e) w
+step 2) 
+a) pvcreate /dev/xvdf1
+b) vgcreate battelstar /dev/xvdf1
+c) lvcreate /-n swap -L 2G battlestar
+Step 3) now we have lvm now we have to prepare lvm as swap so to do that we need to format to swap signature
+
+a) sudo mkswap /dev/battlestar/swap #format to swap signature
+b) sudo swapon /dev/battlestar/swap  # this command will mount all the swap entries on fstab file
+c) sudo swapoff /dev/battlestar/swap
+d) to make it permenant add it in fstab
+/dev/battlestar/swap swap swap defaults 0 0 # add this in /etc/fstab
+e) sudo swapon --show
+
+
+
+sudo dd if=/dev/zero of=/swapfile bs=1024 count=1048576
+sudo chmod 600 /swapfile
+sudo mkswap /swapfile
+sudo swapon /swapfile
+# Add the following on fstab
+/swapfile swap swap defaults 0 0 # add this in /etc/fstab
+sudo swapon --show
+sudo swapoff -v /swapfile
+sudo rm /swapfile
+```
+
+
+# Create and Configure File System
+
+## Create Mount Unmount and use VFAT EXT4 & XFS file system
+
+- VFAT: Stands for "Virtual File Allocation Table." Older Windows operating systems (Windows ME and earlier) used a file system called "FAT" or "FAT32." The file system is what the operating system uses to organize and access files on the hard drive. VFAT, introduced with Windows 95, was an improvement to the basic FAT file system, allowing more information to be stored for each file. While the FAT file system can only store 8 characters for each file name, VFAT allows for file names up to 255 characters in length. Personally, I use the term VFAT to refer to the size of my cat.
+- its extend version of fat file system created by microsoft
+- one reson to use vfat is, if u want to share linux machine drive on window machine then u can use vfat
+
+```
+mkfs.vfat /dev/xvdf1
+mkdir /mnt/vfat
+mount /dev/xvdf1 /mnt/vfat
+#add this in fstab
+/dev/xvdf1 /mnt/vfat vfat defaults 1 2
+fsck
+``` 
+
+EXT4
+```
+mkfs.ext4 /dev/xvdf1
+mkdir /mnt/ext4
+mount /dev/xvdf1 /mnt/ext4
+#add this in fstab
+/dev/xvdf1 /mnt/ext4 ext4 defaults 1 2
+
+note: fsck cannot check on mounted file system so to run fsck you have to unmount 
+umount /mnt/ext4  
+fsck /dev/xvdf1 
+dumpe2fs /dev/xvdf1
+tune2fs -L ext4_label /dev/xvdf1  # creates lable and u can use this lable on fstab
+and also gives indoes details
+```
+
+XFS: it has high throughput,500tb
+```
+mkfs.xfs /dev/xvdf1
+mkdir /mnt/xfs
+mount /dev/xvdf1 /mnt/xfs
+
+
+```
+
+## Mount and Unmount CIFS and NFS
+
+- CIFS: Common Internet File System (CIFS) is a network filesystem protocol used for providing shared access to files and printers between machines on the network
+cifs are mainly used on windows based os,
+SAMBA used cifs
+
+samba
+```
+yum install cifs-utils
+smbclient -L <server-ip>
+mount -t cifs -o username=<username> //<server-ip>/<share-name> /mnt/sambashare
+add share in fstab for permenant mount
+//10.0.0.100/public /mnt/sambshare cifs username=<>,password=<>
+```
+- NFS: NFS (Network File System) is basically developed for sharing of files and folders between Linux/Unix systems by Sun Microsystems in 1980. It allows you to mount your local file systems over a network and remote hosts to interact with them as they are mounted locally on the same system
+
+```
+yum install nfs-utils
+mount -t nfs -o <server-ip>: <share-name> /mnt/sambashare
+add share in fstab for permenant mount
+//10.0.0.100:/public /mnt/sambshare nfs defaults 0 0 
+```
+## Extending Existing LVM
+
+- Create New partation
+- 
+
+MBR Based Partations
+```
+fdisk xvdf
+ n
+ p
+ default
+ 8e #lablel
+create physical volume
+pvcreate /dev/xvdf1
+pvdisplay
+vgcrete battelstar /dev/xvdf1
+# now we have volume group
+lvcreate -n galactica -L 1G battlestar
+mkfs -t xfs /dev/battestar/galactica
+mkdir /mtn/myvol
+mount /dev/battelstar/galactica /mnt/myvol
+creat file for testing file1 and file2
+# now we have one device where file1 and file2 exists  now if u want to change for mbr based partation to gpt based paratin
+but i dont want to data to get deleted so we use lvm
+
+# now we will create gpt based partation 
+gdisk xvdg
+  n
+ p
+ default
+ 8e00 #lablel
+ w
+pvcreate /dev/xvdg1
+pvdisplay
+# now we have created one more partation now we have to added this volume to volume group
+
+vgextend battlestar /dev/xvdg1
+#now i want copy all the data in xvdf1 to xvdg1 we can do this as long as there is free space
+
+pvmove /dev/xvdf1 #this will move 
+
+# reducing vg
+vgreduce battlestar /dev/xvdf1
+	
+
+lvextend -L 5G /dev/battlestar/galactica #this will add totol volume of 5g
+lvextend -L +5G /dev/battlestar/galactica # this will add additional volume of 5g
+# after extending lvm size of mount will not be updated
+resize2fs /mnt/myvoulem # for ext based device
+xfs_growfs /mtn/myvolume # for xfs this will reinitilized the size
+```
+
+
+
+Extend a Volume Group and Logical Volume:
+```
+Step 1)
+- Add disk or use existing VG if space is available:
+# pvcreate /dev/sdc
+# vgextend test_vg /dev/sdc
+
+- Check 
+# vgs or vgdisplay
+
+Step 2)
+- Extend a Logical Volume:
+
+# lvextend -L 100M /dev/test_vg/example_test
+
+Check:
+#df -h
+Size has not changed yet.
+
+
+Step 3)
+
+- Run the followinf command:
+# resize2fs /dev/test_vg/example_lv
+- Check again
+# df -h
+
+Success.
+
+Step 4)
+ To remove LV, VG and PV:
+- To Remove a Logical Volume:
+# unmount /tmp/exampe
+# lvremove -f /dev/test_vg/example_lv
+
+Step 5)
+- To Remove a Volume Group:
+# vgs
+# vgremove test_vg
+
+Check:
+# vgs
+
+```
+
+## Create and Configure Set-GID Directories fo rcollabaration
+
+- when ever your creating files primary group will be logined user group this will create problem duraing collabration work
+```
+
+mkdir finance
+touch file1
+#file1 will have root user group as primary group so another user will not be able to access this file in the same finance group
+
+SETGID: this all files created inside of the directory that has the set GID on it will obtain or inherit the permissions of parrent directory
+chmod g+s finance # this will set the sgid bit for this fill
+chown :finance  finance # change group owner of the file to finance
+```
+
+## Create and Manage Access Control Lists(ACL)
+
+What is ACL ?
+- Think of a scenario in which a particular user is not a member of group created by you but still you want to give some read or write access, how can you do it without making user a member of group, here comes in picture Access Control Lists, ACL helps us to do this trick
+- Access control list (ACL) provides an additional, more flexible permission mechanism for file systems. It is designed to assist with UNIX file permissions. ACL allows you to give permissions for any user or group to any disc resource.
+- acls are built for granular level permission
+- not all filesystem supports ACL, only xfs and EXT4 supports ACl's
+Use of ACL :
+- setfacl and getfacl are used for setting up ACL and showing ACL respectively.
+- setfacl can be assigned to groups and users
+- if u change chmod on file the same will be updated to file this is called minimum acl entries
+- chmod dosnet necessarly modify the acl, it modfies the mask 
+- mask #say that maximum level permission for the file, even if user has permisson if mask entry is 000 the user will be denied to access the file
+- + sign (ls -l) indicates that particular files has acls
+
+
+```
+setfacl -m u:<username>or<user-id>:rw file1 #wher "u" is for users
+setfacl -m m::r file #modifing the mask 
+setfacl -m g:<groupname>or<group-id>:rw file1 #wher "g" is for group
+chmod will update the mask
+```
+ACL Defaults: its the acl which is assigned during  directory creation
+
+```
+setfacl -d -m u:starbuck:rwn dir1 #creating default acls for the directory, if we try to create the file inside directory then u ll get error coz starbuck user has only default 
+permission not user permission so now assign user permission(setfacl -m u:starbuck:wr dir1) 
+setfacl --remove-default dir1 # removing default permission of directory
+setfacl -x d:u:starbuck dir #removing regular user permission of directory
+setfacl -x d:g:starbuck dir #removing regular group permission of directory
+
+```
+
+## Diagnose and correct file permission Problems
+we cannot delete a file
+- update the acl on the file or directory Mask
+- group acl
+- directorys need to have execute permission so that can have read permsision -X
+- cp command dosnet preserve ACL rules
+- mv command does preserver acl rules
+
+
+# Deploy Configure and Maintain Systems
+
+## Configure Networking and Hostname Resolution statically or Dynamically
+
+```
+ping 
+ip addr show eth0
+tracepath <ip>
+traceroute <ip>
+netstat 
+ss -at #it shows ip address listening on
+ss -atn # to c port number, which port listening
+ip -s link show eth0 #show static info of eth0 
+
+``` 
+
+## Network/Hostname
+
+Basic Network components you must know:
+```
+IP Address
+Subnet Mask
+Gateway
+Static vs DHCP
+Ethernet and Virtual Interface
+MAC Address
+
+```
+
+IP Address: An Internet Protocol address is a numerical label assigned to each device connected to a computer network that uses the Internet Protocol for communication.
+Most networks today, including all computers on the  Internet, use the TCP/IP protocol as the standard for  how to communicate on the network. In the TCP/IP  protocol, the unique identifier for a computer is  called its IP address.
+
+There are two standards for IP addresses:  IP Version 4 (IPv4) and IP Version 6 (IPv6). All computers and networked devices with IP addresses have an IPv4 addressand many are starting to use the new IPv6 address systemas well.
+
+IPv4:
+
+IPv4 uses 32 binary bits to create a single unique address on the network. An IPv4 address is expressed by four numbers separated by dots.Example: 192.168.123.132
+
+Each number represents eight-digit binary number, also  called an octet. These eight bit sections are known as octets. 
+The example IP address, then, becomes 
+11000000.10101000.01111011.10000100
+192     .168     .123     . 132 
+
+IPv6:
+When the Internet exploded, IPv6 was created as it was realized that we may run out of IPv4 addresses. IPv6 uses 128 binary bits to create a single unique  address on the network. 
+An IPv6 address is expressed by eight groups of  hexadecimal numbers separated by colons:
+2001:cdba:0000:0000:0000:0000:3257:9652
+Groups of numbers that contain all zeros are often  omitted to save space:
+2001:cdba::3257:9652
+
+
+
+- Subnet Mask and subnetting:The practice of dividing a network into two or more  networks is called subnetting.
+
+For IPv4, a network may also be characterized by its  subnet mask or netmask.
+```
+For example: 255.255.255.0 is the subnet mask for the 
+prefix 198.51.100.0/24.
+```
+
+- Gateway: A gateway is a network node that connects two networks using different protocols together. While a bridge is  used to join two similar types of networks, a gateway is used to join two different networks.
+
+Common Gateway is your home modem or your router.
+
+- Static IP vs DHCP or Dynamic IP: A Static IP address is a dedicated IP address that does not change. This is an IP address that is used by your  system every time you log in to the network. 
+DHCP or Dynamic is an IP address that will automatically be chosen for you from a pool of IP addresses that are  assigned in the DHCP scope available on your network. Think Static as permanent and DHCP as temporary IP.
+
+
+
+Ethernet and Virtual Interface
+
+- Ethernet Interface: This usally the NIC (Network Interface card) that is on that back of your computer a.k.a. NIC Card.
+
+- Virtual Interface: Very common now in Virtual environments such as Oracle VM virtualbox, VMWare etc.  Virtual interfaces exist only in software; there are no physical elements. You identify an individual virtual  interface using a numerical ID after the virtual  interface name such as eth0.
+
+
+MAC address: Every NIC virtual or physical has a hardware address  that's known as a MAC. MAC stands for Media Access Control, and each identifier is intended to be unique to a particular device.
+
+A MAC address consists of six sets of two characters,  each separated by a colon:
+```
+Example:
+00:1B:44:11:3A:B7
+```
+
+### 
+Hostnamectl #this will update the hostname file
+hostnamectl set-hostname <hostname>
+hostnamectl status
+
+## Schedule Task AT and Cron
+
+### Understanding Job scheduling: 
+
+- Job scheduling allows a user to submit a command or a program for execution at a specified time in the future.
+- The execution of the command or program could be one time or recurring based on pre-determined time schedule.
+- One time execution is normally scheduled for an  activity that needs to performed at low system usage times. For example, an execution of a lengthy shell program.
+- In contrast, recurring activities may include backups, deleting old log files, system monitoring tasks,  running custom scripts and removing unwanted files.
+
+
+
+- Job scheduling and execution is taken care of by two daemons: 
+	a) atd
+  	b) crond
+
+atd:  atd manages the jobs scheduled to run one time in the future. The atd daemon retires a missed job at the same time next day.
+
+Scheduling with at command: 
+
+The at command is used to schedule a one-time job in the future.
+
+All submitted jobs are spooled in the /var/spool/at directory and executed by atd daemon at specified time.
+
+This file also includes the name of the command or script to be run.
+
+
+Ways of expressing a time with the at command: 
+```
+at 1:20am    =  Runs at next 1:20am
+at noon	     =	Runs at 12pm
+at 12:42     = 	Runs at 11:42pm
+at midnight  = 	Runs at 12am
+at 17:01 tomorrow  =  Runs at 5:01pm, next day.
+at now + 7 hours  = Runs 7 hours from now
+at 3:00 1/15/2019 = Runs at 3am on Jan 15, 2019
+```
+You can also supply a filename with at command using  the -f option. This command will execute that file at specified time
+
+Submit, view, list and remove an at job:
+
+
+Exerice:
+```
+1- Run the at command and specify the time and date for the job execution.
+# at 11:30pm 6/30/2019
+at> find / -name core #press ctrl+d
+
+
+2- List the job file created in /var/spool/at:
+
+# ll /var/spool/at
+ID 5 created for job
+
+3- Display contents of this file:
+# cat /var/spool/at/file
+ or
+# at -c 5
+
+4- List spooled job:
+# at -l or atq
+
+5- Remove spooled job
+# at -d 5 or  atrm 5
+
+6)loging at
+at teatime 	#this will execute at teatime 4pm
+at> logger "log file" <EOT>
+
+for log c journalctl -q
+This will remove the job file from /var/spool/at. Can be confirmed with atq command as well.
+ls etc|grep at #u can find at files
+at.deny: if user is present in at.deny file then user will not be able to access at
+at.allow: if at.allow exist then all user are not allowed, unless its specfied in this file 
+atq	#to display the jobs
+at.deny   #if user is specfied in this file the user is not allowed u to use at command
+at.allow  #all user execpt the user specfied in the file do not have permission to execute at command
+if at.allow file exist then the user which is specfied in this file is only allowed to use at commands
+journalctl -xn # to c job executed status 
+
+```
+### Cron
+- crond: crond manages recurring jobs at pre-specified times. At startup, this daemon reads schedules in files  located in the /var/spool/cron and /etc/cron.d directories and loads them in the memory for later execution.
+This daemon run a job at its scheduled time only and unlike atd daemon does not entertain missed jobs.
+- if system is down cron will not be executed were as at will be executed
+- Note:  Neither daemon needs to restart after any additions or changes.
+- cron is linked with anacrontab /etc/abacrontab,daily,weekly --etc are specfied in this file
+
+
+
+Crontab: Using crontab is another method of scheduling jobs to in the future. 
+
+ls /etc/cron* # it contains cron.daily ,weekly mothly directory, u can place the scripts in particular directory to execute automaticaly
+
+Unlike, atd, crond executes cron jobs on a regular basis as long as they comply with format defined in the /etc/crontab file.
+
+#- cat /etc/crontab
+
+Crontables for users are located in the /var/spool/cron directory. Each authorized user with a scheduled job has a file matching their user name in this directory.
+
+For example: 
+
+The crontab file for User1 will be: /var/spool/cron/user1 
+
+Crontables are also stored in /etc/cron.d directory,  only root user has access to create, modify and delete them.
+When daemon is done running the jobs at the specified  time, it adds a log entry to /var/log/cron file.
+
+
+- To check if cron is already installed:
+```
+# yum list installed | grep cron   or # rpm -qa | grep cron
+
+
+Crontab command can be used with options:
+-e = to edit
+-l = to list
+-r = remove crontables
+```
+
+Syntax of User Crontab Files:
+```
+The /etc/crontab file specifies the syntax that each cron job must comply with.
+
+cat /etc/crontab
+
+Field	Description	Allowed Value
+MIN	Minute field	0 to 59
+HOUR	Hour field	0 to 23
+DOM	Day of Month	1-31
+MON	Month field	1-12
+DOW	Day Of Week	0-6
+CMD	Command	Any command to be executed.
+```
+
+
+Example: 
+```
+- Scheduling a Job For a Specific Time The basic usage of cron is to execute a job in a  specific time as shown below. This will execute the  Full backup shell script (full-backup) on 11th July  at 09:30 AM.
+
+Please note that the time field uses 24 hours format. So, for 9 AM use 9, and for 9 PM use 21.
+
+1- # crontab -e
+2- Add the below line:
+30 09 11 07 * /home/user1/full-backup
+-------------------
+30 – 30th Minute
+09 – 09 AM
+11 – 11th Day
+07 – 7th Month (July)
+* – Every day of the week
+-------------------
+```
+```
+crontab -l  #To check the contents of crontable.
+```
+Add list and remove a Cron job:
+- Add a cron job as user 'test':
+crontab -e #Edit crontab file: 
+
+30 09 11 07 * /home/test/script # Add your job in file:
+
+3- Save an exit.
+Note:
+This will execute the  script (full-backup) on 
+11th July at 09:30 AM.
+
+crontab -l #List contents of crontable:
+crontab -r # Remove a cronjob as user test:
+
+
+
+## Start & Stop Services
+
+```
+systemctl start <service>
+systemctl stop <service>
+systemctl status <service>
+systemctl enable <service>
+systemctl disable <service>
+systemctl list-unit
+systemctl get-default
+systemctl list-dependencies multi-user.target	
+```
+## configure system to boot into specfic targets
+
+kickstart server
+
+kickstart.cfg
+yum install system-config-kickstart 	#this will start gui based kickstart config tool
+
+
+## Configure system to boot in specfic target
+
+```
+systemctl get-default
+systemctl set-default graphical.targett
+reboot
+```
+
+## Time Services
+
+timedatectl: this command provides system time date 
+
+```
+timedatectl set-ntp true #ntp enaled
+timedatectl set-ntp false # ntp is disabled
+timedatectl list-timezone #this will list the time zone, if ur not familar with timezone then u can use tzselect
+tzselect: # this will help u identify the time zone
+timedatectl set-timezone america/chicago
+date # view current date time
+```
+### NTP
+ntp: by default ntp use chronyd deamon,
+
+```
+systemctl status chronyd
+yum install chrony
+chronyd			#ntp deamon
+chronyc sources -v 	#to get list of servers that communicate to get time
+```
+chronyc sources -v
+```
+Number of sources = 4
+
+  .-- Source mode  '^' = server, '=' = peer, '#' = local clock.
+ / .- Source state '*' = current synced, '+' = combined , '-' = not combined,
+| /   '?' = unreachable, 'x' = time may be in error, '~' = time too variable.
+||                                                 .- xxxx [ yyyy ] +/- zzzz
+||      Reachability register (octal) -.           |  xxxx = adjusted offset,
+||      Log2(Polling interval) --.      |          |  yyyy = measured offset,
+||                                \     |          |  zzzz = estimated error.
+||                                 |    |           \
+MS Name/IP address         Stratum Poll Reach LastRx Last sample
+===============================================================================
+^- static.15.192.216.95.cli>     2  10   377   988  -5434us[-5454us] +/-   94ms
+^* 139.59.55.93                  2  10   377   445   -109us[ -131us] +/-   31ms
+^- mail.deva-ayurveda.eu         2  10   377   733    -57ms[  -57ms] +/-  131ms
+^- 43.240.66.74                  4  10   377   672  +2968us[+2947us] +/-  115ms
+```
+
+- startum: number of hops it takes to reach master server in order to get the time details, lower the number better 
+- * indicated currently source its synced with
+-  chronyc tracking # this command will display more info about time sysncing
+- /etc/chrony.conf # chrony setting file be located here, all the servers were it need to sycned is mentioned in this file
+
+
+
+## Install and update software pacakges YUM repo
+Introduction: 
+
+- Linux applications are called Packages. A software package is a group of files organized in a directory structure and metadata that makes up a software  application. 
+- Files contained in a package include installable scripts configuration files, library files, commands and the related documentation. 
+- The Redhat software management system was originally called Redhat Package Manager but is now known as RPM Package Manager (RPM). 
+
+
+
+- insted of updating all packages , check package need to be update and update the same 
+```
+yum search apache #this will searcgh for apache
+yum seaech all #  
+yum install <package>
+yum list installed #to list all package installed  
+yum list installed http #dispaly packgae installed
+yum provides /var/www	#to check which package created this directory
+yum list all #this will list all pakcage avilable on repo and installed
+yum remove <package> # to remove package
+yum clean all #this will clean all temp file related to repo
+yum repolist all
+yum-config-manager --add-repo=<repo>
+yum-cionfig-manager --disable jenkins
+yum-config-managet --enable jenkins
+```
+
+## Install and update software package RPM
+
+### Redhat Subscription Management Service (RHSM): 
+
+- This is a service provided by Redhat. You first register your systems with RHSM then attach subscriptions to them based on the OS and and software they run.
+- Once registered through RHSM your system is entitled to software updates, technical support and access to the  supported software. 
+- Note: CentOS is the same thing as Redhat but without the support from Redhat.
+
+
+
+- Registering you system with RHSM: 
+
+```
+subscription-manager register --auto-attach
+
+Username
+Password
+System has been registered
+Status: Subscribed
+```
+
+
+- Unregistering and unsubscribing your system with RHSM:
+ 
+```
+# subscription-manager remove --all
+# subscription-manager unregister
+# subscription-manager clean
+```
+
+
+
+### We can use RPM to install, remove and manage packages.
+- you can use yumdownloader to download rpm package from repo
+- yumdownlader nano #this will download the rpm package
+Example:
+``
+rpm -ivh <package name> ## i for install, v for verbose h to show progress bar
+rpm -qa | grep ssh	# to query the package	
+rpm -qa 		# to query the package
+rpm -ql	<package name>	# this will query package and l is for list pacakge		
+rpm -e 	<package name>	# to remove package
+```
+## Managing Repositories
+if 3rd party reop is not avilable on rpm then u can add the repo config file in /etc/yum.repos.d , in this u can find repo config files
+ 
+```
+yum-config-manager --add-repo=<repo> #this will add the repo
+yum-cionfig-manager --disable <repo name> #disabling repo using config manager or u can do by edit repo file "enabled=0"
+yum-config-managet --enable jenkins
+
+```
+
+```
+[epel]
+name=Extra Packages for Enterprise Linux 7 - $basearch   				#package name
+#baseurl=http://download.fedoraproject.org/pub/epel/7/$basearch				#URL
+metalink=https://mirrors.fedoraproject.org/metalink?repo=epel-7&arch=$basearch&infra=$infra&content=$contentdir 
+failovermethod=priority
+enabled=1		# enable or disabled
+gpgcheck=1		# verfiys the certificate
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-7 #gpg key file 
+
+```
+## Configuring Local Repo
+#### local repo , how to use dvd iso repo
+
+```
+
+setp1: mount -o loop rhel-server-7.1.x86_64-dvd.iso /repos/local  #mount the dvd iso 
+step2: 			#extract from dvd
+step3: create local-repo
+[local-repo]
+name=red hat linux local repo
+baseurl=file:///repo/local
+enable=1
+gpgcheck=0
+```
+## gpgkey is importat so that u can verfiy the repo is valid repo
+
+- how do you know that a specific package that you're downloading from the repository is actually verified and signed by the repository in is authentic. For some reason maybe there's an opportunity for a man in the middle attack
+- GPG keys allow us to take the public varified key sign it again store verify the signature against the GPG key and the repository for the package. That way whenever we download the package it ensures that it's coming from the repository and that packag
+
+```
+yum-config-manager --add-repo <repo url>
+open the url and find the gpg key
+go to /etc/pki/rpm-gpg 
+not download the gpg key in this directory
+copy the url and past in /etc/yum.repo.d/<repo>gpgkey=file////
+```
+## update the kernal package
+
+uname -r
+yum install kernal 
+yum clean
+yum list kernal		# showl liist of installed and update kernal 
+
+installing kernal using rpm
+yumdownloader kernel
+yum install linux-firmware
+rpm -ivh kernal
+
+
+## changing diffrent kernel, modifiy the bootloader to point to diffrent kernel 	
+
+step1:yum list kernel	#check for list of kernel avilable	
+step2: grug2-set-default 0 or 1 or 3 #by default 0 is most recent version 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
