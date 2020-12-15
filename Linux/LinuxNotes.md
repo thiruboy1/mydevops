@@ -2432,7 +2432,7 @@ not download the gpg key in this directory
 copy the url and past in /etc/yum.repo.d/<repo>gpgkey=file////
 ```
 ## update the kernal package
-
+```
 uname -r
 yum install kernal 
 yum clean
@@ -2442,132 +2442,13 @@ installing kernal using rpm
 yumdownloader kernel
 yum install linux-firmware
 rpm -ivh kernal
-
+```
 
 ## changing diffrent kernel, modifiy the bootloader to point to diffrent kernel 	
-
+```
 step1:yum list kernel	#check for list of kernel avilable	
 step2: grug2-set-default 0 or 1 or 3 #by default 0 is most recent version 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+```
 
 
 
