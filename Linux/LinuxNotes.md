@@ -2373,11 +2373,11 @@ Status: Subscribed
 
 
 
-### We can use RPM to install, remove and manage packages.
+#### We can use RPM to install, remove and manage packages.
 - you can use yumdownloader to download rpm package from repo
 - yumdownlader nano #this will download the rpm package
 Example:
-``
+```
 rpm -ivh <package name> ## i for install, v for verbose h to show progress bar
 rpm -qa | grep ssh	# to query the package	
 rpm -qa 		# to query the package
