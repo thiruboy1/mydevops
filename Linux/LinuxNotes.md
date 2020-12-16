@@ -2373,11 +2373,11 @@ Status: Subscribed
 
 
 
-#### We can use RPM to install, remove and manage packages.
+### We can use RPM to install, remove and manage packages.
 - you can use yumdownloader to download rpm package from repo
 - yumdownlader nano #this will download the rpm package
 Example:
-```
+``
 rpm -ivh <package name> ## i for install, v for verbose h to show progress bar
 rpm -qa | grep ssh	# to query the package	
 rpm -qa 		# to query the package
@@ -2432,7 +2432,7 @@ not download the gpg key in this directory
 copy the url and past in /etc/yum.repo.d/<repo>gpgkey=file////
 ```
 ## update the kernal package
-```
+
 uname -r
 yum install kernal 
 yum clean
@@ -2442,26 +2442,284 @@ installing kernal using rpm
 yumdownloader kernel
 yum install linux-firmware
 rpm -ivh kernal
-```
+
 
 ## changing diffrent kernel, modifiy the bootloader to point to diffrent kernel 	
-```
+
 step1:yum list kernel	#check for list of kernel avilable	
 step2: grug2-set-default 0 or 1 or 3 #by default 0 is most recent version 
+
+
+# Manage Users & Group
+## create delete and modifiy the user
+
+- each user will have user id (uid,gid,groups,selinux context)
+- root user has id=0
+- id from 1 to 200 is system user
+- 201-999 Those are for System users that use system processes but don't own files on the system eg: appache 
+
+/etc/passwd file format
+
+```
+tom:x:1000:1000:Vivek Gite:/home/vivek:/bin/bash
+
+Username: It is used when user logs in. It should be between 1 and 32 characters in length.
+Password: An x character indicates that encrypted password is stored in /etc/shadow file. Please note that you need to use the passwd command to computes the hash of a password typed at the CLI or to store/update the hash of the password in /etc/shadow file.
+User ID (UID): Each user must be assigned a user ID (UID). UID 0 (zero) is reserved for root and UIDs 1-99 are reserved for other predefined accounts. Further UID 100-999 are reserved by system for administrative and system accounts/groups.
+Group ID (GID): The primary group ID (stored in /etc/group file)
+User ID Info: The comment field. It allow you to add extra information about the users such as user’s full name, phone number etc. This field use by finger command.
+Home directory: The absolute path to the directory the user will be in when they log in. If this directory does not exists then users directory becomes /
+Command/shell: The absolute path of a command or shell (/bin/bash). Typically, this is a shell. Please note that it does not have to be a shell. For example, sysadmin can use the nologin shell, which acts as a replacement shell for the user accounts. If shell set to /sbin/nologin and the user tries to log in to the Linux system directly, the /sbin/nologin shell closes the connection.
+```
+/etc/shadow
+
+```
+thiru:!!:18488:0:99999:7:::
+
+Username : It is your login name.
+Password : It is your encrypted password. The password should be minimum 8-12 characters long including special characters, digits, lower case alphabetic and more. Usually password format is set to $id$salt$hashed, The $id is the algorithm used On GNU/Linux as follows:
+	    $1$ is MD5 ,$2a$ is Blowfish ,$2y$ is Blowfish ,$5$ is SHA-256 , $6$ is SHA-512
+Last password change (lastchanged): Days since Jan 1, 1970 that password was last changed
+Minimum  : The minimum number of days required between password changes i.e. the number of days left before the user is allowed to change his/her password
+Maximum  : The maximum number of days the password is valid (after that user is forced to change his/her password)
+Warn     : The number of days before password is to expire that user is warned that his/her password must be changed
+Inactive : The number of days after password expires that account is disabled
+Expire   : days since Jan 1, 1970 that account is disabled i.e. an absolute date specifying when the login may no longer be used.
+```
+/etc/login.def
+
+- useradd command will have lot of option u no need to mention each and every options, default values are specfied in login.defs file eg: home_directory,umask,pass max days...etc
+
+/etc/default/useradd # in this file contains default values
+```
+# useradd defaults file
+GROUP=100
+HOME=/home
+INACTIVE=-1
+EXPIRE=
+SHELL=/bin/bash
+SKEL=/etc/skel
+CREATE_MAIL_SPOOL=yes
+
+```
+
+useradd
+
+```
+id
+
+useradd thiru 
+usermod -U thiru
+usermod -u <user-id> thiru #to change user id
+useradd -u 1050 -d /home/thiru
+userdel -r or -f #this will remove the user
+/etc/default/userdd		#this file consist of default value for user like(group,home,inactive,expire,shell,skel,create_mail_spool)
+
+
+
+```
+## Change Password and Adjust Password Aging for local user
+
+- /etc/login.def #this file allow us to set particular default for passowrd 
+eg:
+```
+..
+# Password aging controls:
+#
+#       PASS_MAX_DAYS   Maximum number of days a password may be used.
+#       PASS_MIN_DAYS   Minimum number of days allowed between password changes.
+#       PASS_MIN_LEN    Minimum acceptable password length.
+#       PASS_WARN_AGE   Number of days warning given before a password expires.
+#
+PASS_MAX_DAYS   99999
+PASS_MIN_DAYS   0
+PASS_MIN_LEN    5
+PASS_WARN_AGE  
+..
+
+```
+/etc/shadow #this fill contains the info wen passwd gona expire, wen to change..etc
+
+/etc/shadow
+
+```
+thiru:!!:18488:0:99999:7:::
+
+Username : It is your login name.
+Password : It is your encrypted password. The password should be minimum 8-12 characters long including special characters, digits, lower case alphabetic and more. Usually password format is set to $id$salt$hashed, The $id is the algorithm used On GNU/Linux as follows:
+	    $1$ is MD5 ,$2a$ is Blowfish ,$2y$ is Blowfish ,$5$ is SHA-256 , $6$ is SHA-512
+Last password change (lastchanged): Days since Jan 1, 1970 that password was last changed
+Minimum  : The minimum number of days required between password changes i.e. the number of days left before the user is allowed to change his/her password
+Maximum  : The maximum number of days the password is valid (after that user is forced to change his/her password)
+Warn     : The number of days before password is to expire that user is warned that his/her password must be changed
+Inactive : The number of days after password expires that account is disabled
+Expire   : days since Jan 1, 1970 that account is disabled i.e. an absolute date specifying when the login may no longer be used.
+```
+
+```
+user add user1
+passwd 
+usermod -s /sbin/nologin  thiru #changing user to nologin, user will not be able to login to shell
+usermod -e 			#wexperiation date
+chage -l <user>		#will display the passwd details 
+chage -E		#EXPERATION
 ```
 
 
+```
+```
+
+## creating goup
+groupadd # to create new group
+getent group #list all groups in the system
+cat /etc/gshadow	#to view group details
+getent group thiru	#it returns all of the group the user belongs to
+groups <users>		#displays primary and supplimentry group
+usermod -g <primary grou> <user> # this will change primary group of user
+groupmod -n		#to change the group name etc
+groupmod -g		#to chage group id
+groupdel <group>	#deleteing group u cannot the delete the group which is primary to another user
+
+# Set Gid / SGID
+
+when ever user create a file in group directory then if file has his own permission then
+other will not be able to access it so, in order to over come this we use sgbit
+when sbit is set file inherites the parrent directory permission 
+
+dhmod g+s <directory>
+#configure system to use existing authentication
+connecitng for single sign on	
+
+## connecting ad to linux
+
+yum install realmd 
+
+## Configuring Firewalls settings using Available Firewall Utility
+
+
+yum install firewalld firewall-config
+systemctl start firewalld
+systemctl enable firewalld
+
+firewalld has two type 
+1) runtime changes: changes made at this level(run level change) will not be
+ persistant after reload or reboot,dosent requried reload, 
+2) To make persistant use --permanent and the --reload firewall
+
+```
+firewall-cmd
+firewall always groups inside a zone,each zone can be configured 
+firewall-cmd --get-zones #to get list of zones, we are alway in spefic zone 
+firewall-cmd --get-default-zone # to get default zone
+firewall-cmd --zone=home --add-source=192.168.0.0/24 # not persistant
+firewall-cmd --zone=home --permanent --add-source=192.168.0.0/24 #persistant
+firewall-cmd --zone=public --permanent --add-port=80/tcp
+firewall-cmd --reload
+firewall-cmd --list-all
+firewall-cmd --set-default-zone=internal
+firewall-cmd --get-default-zone
+firewall-cmd --list-all-zones
+firewall-cmd --set-default-zone=internal
+firewall-cmd --get-default-zone
+
+firewall-cmd --get-zone-of-interface=enp0s3  #To check zone in which interface is bounded
+```
+
+- Services are set of rules with ports and options which is used by Firewalld. 
+Services which are enabled, will be automatically loaded when the Firewalld service 
+up and running. By default, many services are available, to get the list of all 
+available services, use the following command.
+
+cd /usr/lib/firewalld/services/		# To get the list of all the default available services,
+
+firewall-cmd --get-service
+firewall-cmd --add-service=rtmp
+firewall-cmd --zone=public --remove-service=rtmp
+firewall-cmd --add-service=rtmp --permanent
+firewall-cmd --reload
+firewall-cmd --permanent --add-source=192.168.0.0/24
+firewall-cmd --permanent --add-port=1935/tcp
+firewall-cmd --reload 
+firewall-cmd --list-all
+
+Adding Rich Rules for Network Range
+
+firewall-cmd --add-rich-rule 'rule family="ipv4" source address="192.168.0.0/24" service name="http" accept' 
+ firewall-cmd --add-rich-rule 'rule family="ipv4" source address="192.168.0.0/24" service name="http" accept' --permanent
+
+ firewall-cmd --add-rich-rule 'rule family="ipv4" source address="192.168.0.0/24" service name="https" accept'
+ firewall-cmd --add-rich-rule 'rule family="ipv4" source address="192.168.0.0/24" service name="https" accept' --permanent
+
+ firewall-cmd --add-rich-rule 'rule family="ipv4" source address="192.168.0.0/24" service name="vnc-server" accept'
+ firewall-cmd --add-rich-rule 'rule family="ipv4" source address="192.168.0.0/24" service name="vnc-server" accept' --permanent
+
+ firewall-cmd --add-rich-rule 'rule family="ipv4" source address="192.168.0.0/24" service name="postgresql" accept'
+ firewall-cmd --add-rich-rule 'rule family="ipv4" source address="192.168.0.0/24" service name="postgresql" accept' --permanent
+
+
+## selinux
+getenforce
+setenforce
+cd /etc/selinux
+ls -Z			#will display context
+use Z to display the selinux context
+pa auxZ
+restorecon index1.php		#use this it resotre the context on the file/folder
+
+by default wen u configure selinux all file system are labeld, if u want to force a relable file/directory u need to make 
+sure the .autorelable is present in root directory
+semanage fcontext -l	#waht context 
+chon #to set context manually
+semanage fcontext -a httpd_sys_conten_t '/content(/.*)?'		#-a means add , -t for type type context,
 
 
 
 
+## LOG ROTATE
+logrotate is designed to easy admin of systems that generate large number of log files.
+normaly logrotate is run as cronjob that is daily /etc/cron.daily
+logrotate can done based on follwoing criteria
+1)based on log file size
+2)time base log rotation
+3)compress old log files
+4)clean log files which are matching log rotation rule
+5)create new files after log rotate
+
+
+cat /etc/cron.daily/logrotate		#logrotate script
+/etc/logrotate.d			#logrotate file will be in this loctaion
+
+if u want create a custom logrotate script then u can create script and place it in /etc/logrotate.d
+**
+/tmp/log/*.log{
+	create 0644 root	#set owner permission
+	daily			#Running daily
+	missingok		#if no log file then dont rise ny error
+	rotate 4		#keep 4 log files
+	compress		#compress log file
+	notifempty		#if log file is empty then dont rise erro
+	postrotate		#after rote run this script
+		/scripts/backuplog.sh	
+	endscript
+}
+
+to execute created file 
+logrotate -f /etc/lograte.conf
 
 
 
+##epel repositary
 
+##recovery deleted files on linux
+testdisk #is free datarecovery software 
+VI
 
-
-
+press following in command mode
+#d to delete the line
+#y copy the line	
+# shift+g		#to navigate to top
+# shift+G		#to navigate to bottom
+# cc will remove the line and will go to insert mode
 
 
 
