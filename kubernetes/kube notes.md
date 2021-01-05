@@ -1130,6 +1130,10 @@ kubctl get events
                 if there is any issue in new updated pod then u can roll back to old pods
             2)Recreate Update:
               old pods are Destroyed and new pods are created, in this method there will application down time
+              terminate the old version and release the new one
+            3) blue/green: release a new version alongside the old version then switch traffic
+            4) canary: release a new version to a subset of users, then proceed to a full rollout
+            5) a/b testing: release a new version to a subset of users in a precise way (HTTP headers, cookie, weight, etc.). A/B testing is really a technique for making business decisions based on statistics but we will briefly describe the process. This doesn’t come out of the box with Kubernetes, it implies extra work to setup a more advanced infrastructure (Istio, Linkerd, Traefik, custom nginx/haproxy, etc).
 ```              
               kubectl create -f deployment-defination.yaml                    #create
               kubectl get deployments                                         #get
