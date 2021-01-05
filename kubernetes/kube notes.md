@@ -473,6 +473,8 @@ kubectl edit deployment my-deployment
 * main diffrence b/w replication controller and replication set is "selector", based on the label replicas is applied,
 but if u have d
 * A ReplicaSet’s purpose is to maintain a stable set of replica Pods running at any given time. As such, it is often used to guarantee the availability of a specified number of identical Pods.However, a Deployment is a higher-level concept that manages ReplicaSets and provides declarative updates to Pods along with a lot of other useful features. Therefore, we recommend using Deployments instead of directly using ReplicaSets
+
+* the rolling-update command works with Replication Controllers, but won’t work with a Replica Set.  This is because Replica Sets are meant to be used as the backend for Deployments
 ### rc-set-defenation.yaml
 ```
 apiVersion: apps/v1
