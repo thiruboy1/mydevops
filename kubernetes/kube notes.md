@@ -33,17 +33,16 @@ Reliable: The store is properly distributed using the Raft algorithm
 
 How Does Etcd Work?
 
-```
-To understand how Etcd works, it is important to define three key concepts: leaders, elections, and terms. In a Raft-based system, the cluster holds an election to choose a leader for a given term.
+* To understand how Etcd works, it is important to define three key concepts: leaders, elections, and terms. In a Raft-based system, the cluster holds an election to choose a leader for a given term.
 
-Leaders:  handle all client requests which need cluster consensus. Requests not requiring consensus, like reads, can be processed by any cluster member. Leaders are responsible for accepting new changes, replicating the information to follower nodes, and then committing the changes once the followers verify receipt. Each cluster can only have one leader at any given time.
+* Leaders:  handle all client requests which need cluster consensus. Requests not requiring consensus, like reads, can be processed by any cluster member. Leaders are responsible for accepting new changes, replicating the information to follower nodes, and then committing the changes once the followers verify receipt. Each cluster can only have one leader at any given time.
 
-If a leader dies, or is no longer responsive, the rest of the nodes will begin a new election after a predetermined timeout to select a new leader. Each node maintains a randomized election timer that represents the amount of time the node will wait before calling for a new election and selecting itself as a candidate.
+* If a leader dies, or is no longer responsive, the rest of the nodes will begin a new election after a predetermined timeout to select a new leader. Each node maintains a randomized election timer that represents the amount of time the node will wait before calling for a new election and selecting itself as a candidate.
 
-If the node does not hear from the leader before a timeout occurs, the node begins a new election by starting a new term, marking itself as a candidate, and asking for votes from the other nodes. Each node votes for the first candidate that requests its vote. If a candidate receives a vote from the majority of the nodes in the cluster, it becomes the new leader. Since the election timeout differs on each node, the first candidate often becomes the new leader. However, if multiple candidates exist and receive the same number of votes, the existing election term will end without a leader and a new term will begin with new randomized election timers.
+* If the node does not hear from the leader before a timeout occurs, the node begins a new election by starting a new term, marking itself as a candidate, and asking for votes from the other nodes. Each node votes for the first candidate that requests its vote. If a candidate receives a vote from the majority of the nodes in the cluster, it becomes the new leader. Since the election timeout differs on each node, the first candidate often becomes the new leader. However, if multiple candidates exist and receive the same number of votes, the existing election term will end without a leader and a new term will begin with new randomized election timers.
 
-As mentioned above, any changes must be directed to the leader node. Rather than accepting and committing the change immediately, Etcd uses the Raft algorithm to ensure that the majority of nodes all agree on the change. The leader sends the proposed new value to each node in the cluster. The nodes then send a message confirming receipt of the new value. If the majority of nodes confirm receipt, the leader commits the new value and messages each node that the value is committed to the log. This means that each change requires a quorum from the cluster nodes in order to be committed.
-```
+* As mentioned above, any changes must be directed to the leader node. Rather than accepting and committing the change immediately, Etcd uses the Raft algorithm to ensure that the majority of nodes all agree on the change. The leader sends the proposed new value to each node in the cluster. The nodes then send a message confirming receipt of the new value. If the majority of nodes confirm receipt, the leader commits the new value and messages each node that the value is committed to the log. This means that each change requires a quorum from the cluster nodes in order to be committed.
+
 
 ### Multi-node etcd cluste
 update the following in etcd.yaml file 
