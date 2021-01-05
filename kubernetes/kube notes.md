@@ -13,9 +13,37 @@ Kubernetes (K8s) is an open-source system for automating deployment, scaling, an
                         #2 kube proxy
 ## 1 ETCD:
 * Etcd is a consistent and highly-available key value store used as Kubernetes’ backing store for all cluster data
+* Etcd’s job within Kubernetes is to safely store critical data for distributed systems. It’s best known as Kubernetes’ primary datastore used to store its configuration data, state, and metadata. Since Kubernetes usually runs on a cluster of several machines, it is a distributed system that requires a distributed datastore like Etcd.
+* Every read by the kubectl command is retrieved from data stored in Etcd, any change made (kubectl apply) will create or update entries in Etcd, and every crash will trigger value changes in etcd
 * ETCD Stores information for nodes,pods,config,secret,accoutns,roles,bindings & others, every command u run through kubctl & every node added will be updated in etcd server
 * ETCD use port 2379
+* Always use an odd number of cluster members as quorum is needed to agree on updates to the cluster state
+* For performance reasons, clusters should usually not have more than seven nodes
 
+Etcd has the following properties:
+```
+Fully Replicated: The entire store is available on every node in the cluster
+Highly Available: Etcd is designed to avoid single points of failure in case of hardware or network issues
+Consistent: Every read returns the most recent write across multiple hosts
+Simple: Includes a well-defined, user-facing API (gRPC)
+Secure: Implements automatic TLS with optional client certificate authentication
+Fast: Benchmarked at 10,000 writes per second
+Reliable: The store is properly distributed using the Raft algorithm
+```
+
+How Does Etcd Work?
+
+```
+To understand how Etcd works, it is important to define three key concepts: leaders, elections, and terms. In a Raft-based system, the cluster holds an election to choose a leader for a given term.
+
+Leaders:  handle all client requests which need cluster consensus. Requests not requiring consensus, like reads, can be processed by any cluster member. Leaders are responsible for accepting new changes, replicating the information to follower nodes, and then committing the changes once the followers verify receipt. Each cluster can only have one leader at any given time.
+
+If a leader dies, or is no longer responsive, the rest of the nodes will begin a new election after a predetermined timeout to select a new leader. Each node maintains a randomized election timer that represents the amount of time the node will wait before calling for a new election and selecting itself as a candidate.
+
+If the node does not hear from the leader before a timeout occurs, the node begins a new election by starting a new term, marking itself as a candidate, and asking for votes from the other nodes. Each node votes for the first candidate that requests its vote. If a candidate receives a vote from the majority of the nodes in the cluster, it becomes the new leader. Since the election timeout differs on each node, the first candidate often becomes the new leader. However, if multiple candidates exist and receive the same number of votes, the existing election term will end without a leader and a new term will begin with new randomized election timers.
+
+As mentioned above, any changes must be directed to the leader node. Rather than accepting and committing the change immediately, Etcd uses the Raft algorithm to ensure that the majority of nodes all agree on the change. The leader sends the proposed new value to each node in the cluster. The nodes then send a message confirming receipt of the new value. If the majority of nodes confirm receipt, the leader commits the new value and messages each node that the value is committed to the log. This means that each change requires a quorum from the cluster nodes in order to be committed.
+```
 
 ### Multi-node etcd cluste
 update the following in etcd.yaml file 
@@ -105,7 +133,23 @@ status: {}
 * kube api server file is located in /etc/kubernetes/manifests/kube-apiserver.yaml
 * kube api services for nod kubeadmin setup  /etc/systemd/system/kube-apiserver.service
 * ps -aux |grep kube-apiserver 
+* The API Server is the only Kubernetes component that connects to etcd; all the other components must go through the API Server to work with the cluster state
 
+when you create a pod using kubectl, this what happens:
+https://medium.com/jorgeacetozi/kubernetes-master-components-etcd-api-server-controller-manager-and-scheduler-3a0179fc8186
+```
+1. kubectl writes to the API Server.
+2. API Server validates the request and persists it to etcd.
+3. etcd notifies back the API Server.
+4. API Server invokes the Scheduler.
+5. Scheduler decides where to run the pod on and return that to the API Server.
+6. API Server persists it to etcd.
+7. etcd notifies back the API Server.
+7. API Server invokes the Kubelet in the corresponding node.
+9. Kubelet talks to the Docker daemon using the API over the Docker socket to create the container.
+10.Kubelet updates the pod status to the API Server.
+11. API Server persists the new state in etcd.
+```
 ```
 kind: Pod
 metadata:
@@ -197,6 +241,8 @@ status: {}
  * kube controller server file is located in /etc/kubernetes/manifests/kube-controller-manager.yaml
 * kube api services for nod kubeadmin setup  /etc/systemd/system/kube-controller-manager.service 
 
+The Kubernetes Controller Manager is a daemon that embeds the core control loops (also known as “controllers”) shipped with Kubernetes. Basically, a controller watches the state of the cluster through the API Server watch feature and, when it gets notified, it makes the necessary changes attempting to move the current state towards the desired state. Some examples of controllers that ship with Kubernetes include the Replication Controller, Endpoints Controller, and Namespace Controller.
+Besides, the Controller Manager performs lifecycle functions such as namespace creation and lifecycle, event garbage collection, terminated-pod garbage collection, cascading-deletion garbage collection, node garbage collection, etc.
 ```
 apiVersion: v1
 kind: Pod
