@@ -1821,7 +1821,7 @@ add share in fstab for permenant mount
 
 - Creating NFS
 
-```
+
 Downloading and Installing the Components
 ```
 ON SERVER
@@ -1843,6 +1843,8 @@ sudo nano /etc/exports
 /var/nfs 192.168.0.101(rw,sync,no_subtree_check)
 	
 ```
+
+Defination of rw,sync,no_subtree_check
 
 ```
 Let us now take a while to understand the options given in the lines above.
