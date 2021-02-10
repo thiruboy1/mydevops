@@ -1819,6 +1819,40 @@ add share in fstab for permenant mount
 ```
 - NFS: NFS (Network File System) is basically developed for sharing of files and folders between Linux/Unix systems by Sun Microsystems in 1980. It allows you to mount your local file systems over a network and remote hosts to interact with them as they are mounted locally on the same system
 
+- Creating NFS
+
+```
+Downloading and Installing the Components
+```
+ON SERVER
+	sudo apt-get update
+	sudo apt-get install nfs-kernel-server
+ON CLIENT
+sudo apt-get update
+sudo apt-get install nfs-common
+```
+Creating the Share Directory on the Host Server
+```
+sudo mkdir /var/nfs
+sudo chown nobody:nogroup /var/nfs
+```
+Configuring the NFS Exports on the Host Server
+```
+sudo nano /etc/exports
+/home 192.168.0.101(rw,sync,no_root_squash,no_subtree_check)
+/var/nfs 192.168.0.101(rw,sync,no_subtree_check)
+	
+```
+
+```
+Let us now take a while to understand the options given in the lines above.
+
+rw: This option allows the client computer read as well as write access to the volume.
+sync: It forces NFS to write changes to the disk before replying, thus resulting in a more stable and consistent environment. This is primarily because the reply replicates the actual state of the remote volume.
+nosubtreecheck: This option averts subtree checking, which is a process that compels the host to check if the file is actually still available in the exported tree for each request. It may create problems when a file is renamed while the client has it opened. For the same reason, in roughly all the cases, it is advisable to disable subtree checking.
+norootsquash: By default, the NFS translates requests from a root user remotely into a non-privileged one on the server. This is meant to be a security feature that does not allow a root account on the client to use the filesystem of the host as root. This kind of a directive disables this for a certain lot of shares.
+```
+sudo exportfs -a
 ```
 yum install nfs-utils
 mount -t nfs -o <server-ip>: <share-name> /mnt/sambashare
