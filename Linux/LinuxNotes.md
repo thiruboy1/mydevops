@@ -1013,7 +1013,7 @@ The booting process takes the following 4 steps that we will discuss in greater 
 
 1. The BIOS Integrity Check (POST)
 
-```
+
 The boot process is usually initialized when a user presses the power-on button – if the PC was already shut down – or reboots the system using either the GUI or on the command line.
 
 When the Linux system powers up, the BIOS (Basic Input Output System) kicks in and performs a Power On Self Test (POST). This is an integrity check that performs a plethora of diagnostic checks.
@@ -1024,7 +1024,7 @@ The POST probes the hardware operability of components such as the HDD or SSD, K
 In some cases, a beeping sound will go off especially in the event of a missing RAM module. However, if the expected hardware is present and functioning as expected, the booting process proceeds to the next stage.
 
 2. The Bootloader (GRUB2)
-```
+
 Once the POST is complete and the coast is clear, the BIOS probes the MBR (Master Boot Record) for the bootloader and disk partitioning information.
 
 The MBR is a 512-byte code that is located on the first sector of the hard drive which is usually /dev/sda or /dev/hda depending on your hard drive architecture. Note, however, that sometimes the MBR can be located on a Live USB or DVD installation of Linux.
@@ -1038,10 +1038,10 @@ The grub2 menu allows you to do a couple of things. It allows you to select the 
 Select Kernel Version
 Select Kernel Version
 Also, in a dual-boot setup where you have multiple OS installations, the grub menu allows you to select which OS to boot into. The grub2 configuration file is the /boot/grub2/grub2.cfg file. GRUB’s main objective is to load the Linux kernel onto the main memory.
-```
+
 3. Kernel Initialization
 
-```
+
 The kernel is the core of any Linux system. It interfaces the PC’s hardware with the underlying processes. The kernel controls all the processes on your Linux system. Once the selected Linux kernel is loaded by the bootloader, it must self extract from its compressed version before undertaking any task. Upon self-extracting, the selected kernel mounts the root file system and initializes the /sbin/init program commonly referred to as init.
 
 Kernel Initialization Process
@@ -1050,11 +1050,11 @@ Init is always the first program to be executed and is assigned the process ID o
 
 The kernel then mounts the initial RAM disk (initrd) which is a temporary root filesystem until the real root filesystem is mounted. All kernels are located in the /boot directory together with the initial RAM disk image.
 
-```
+
 
 4. Starting Systemd
 
-```
+
 The kernel finally loads Systemd, which is the replacement of the old SysV init. Systemd is the mother of all Linux processes and manages among other things mounting of file systems, starting and stopping services to mention just a few.
 
 Systemd uses the /etc/systemd/system/default.target file to determine the state or target that the Linux system should boot into.
@@ -1082,7 +1082,7 @@ The init 6 command reboots your system and init 0 powers off the system. Be sure
 
 The booting process ends once systemd loads all the daemons and sets the target or run level value. It’s at this point you are prompted for your username and password upon which you gain entry to your Linux system.
 
-```
+
 
 ### boot process v2
 ```
