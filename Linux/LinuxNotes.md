@@ -1019,11 +1019,10 @@ The boot process is usually initialized when a user presses the power-on button 
 When the Linux system powers up, the BIOS (Basic Input Output System) kicks in and performs a Power On Self Test (POST). This is an integrity check that performs a plethora of diagnostic checks.
 
 
-
 The POST probes the hardware operability of components such as the HDD or SSD, Keyboard, RAM, USB ports, and any other piece of hardware. If some hardware device is not detected, or if there’s a malfunction in any of the devices such as a corrupt HDD or SSD, an error message is splashed on the screen prompting your intervention.
 
 In some cases, a beeping sound will go off especially in the event of a missing RAM module. However, if the expected hardware is present and functioning as expected, the booting process proceeds to the next stage.
-```
+
 2. The Bootloader (GRUB2)
 ```
 Once the POST is complete and the coast is clear, the BIOS probes the MBR (Master Boot Record) for the bootloader and disk partitioning information.
