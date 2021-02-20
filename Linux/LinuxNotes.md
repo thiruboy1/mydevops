@@ -2687,6 +2687,7 @@ chage -E		#EXPERATION
 ```
 
 ## creating goup
+```
 groupadd # to create new group
 getent group #list all groups in the system
 cat /etc/gshadow	#to view group details
@@ -2696,32 +2697,32 @@ usermod -g <primary grou> <user> # this will change primary group of user
 groupmod -n		#to change the group name etc
 groupmod -g		#to chage group id
 groupdel <group>	#deleteing group u cannot the delete the group which is primary to another user
+```
+## Set Gid / SGID
 
-# Set Gid / SGID
 
-when ever user create a file in group directory then if file has his own permission then
-other will not be able to access it so, in order to over come this we use sgbit
-when sbit is set file inherites the parrent directory permission 
+when ever user create a file in group directory then if file has his own permission then other will not be able to access it so, in order to over come this we use sgbit when sbit is set file inherites the parrent directory permission 
+```
 
 dhmod g+s <directory>
 #configure system to use existing authentication
 connecitng for single sign on	
-
+```
 ## connecting ad to linux
 
-yum install realmd 
+	yum install realmd 
 
 ## Configuring Firewalls settings using Available Firewall Utility
 
 
-yum install firewalld firewall-config
-systemctl start firewalld
-systemctl enable firewalld
+	yum install firewalld firewall-config
+	systemctl start firewalld
+	systemctl enable firewalld
 
-firewalld has two type 
-1) runtime changes: changes made at this level(run level change) will not be
- persistant after reload or reboot,dosent requried reload, 
-2) To make persistant use --permanent and the --reload firewall
+	firewalld has two type 
+	1) runtime changes: changes made at this level(run level change) will not be
+	 persistant after reload or reboot,dosent requried reload, 
+	2) To make persistant use --permanent and the --reload firewall
 
 ```
 firewall-cmd
@@ -2742,11 +2743,9 @@ firewall-cmd --get-default-zone
 firewall-cmd --get-zone-of-interface=enp0s3  #To check zone in which interface is bounded
 ```
 
-- Services are set of rules with ports and options which is used by Firewalld. 
-Services which are enabled, will be automatically loaded when the Firewalld service 
-up and running. By default, many services are available, to get the list of all 
-available services, use the following command.
+- Services are set of rules with ports and options which is used by Firewalld.  Services which are enabled, will be automatically loaded when the Firewalld service  up and running. By default, many services are available, to get the list of all  available services, use the following command.
 
+```
 cd /usr/lib/firewalld/services/		# To get the list of all the default available services,
 
 firewall-cmd --get-service
@@ -2758,9 +2757,9 @@ firewall-cmd --permanent --add-source=192.168.0.0/24
 firewall-cmd --permanent --add-port=1935/tcp
 firewall-cmd --reload 
 firewall-cmd --list-all
-
-Adding Rich Rules for Network Range
-
+```
+### Adding Rich Rules for Network Range
+```
 firewall-cmd --add-rich-rule 'rule family="ipv4" source address="192.168.0.0/24" service name="http" accept' 
  firewall-cmd --add-rich-rule 'rule family="ipv4" source address="192.168.0.0/24" service name="http" accept' --permanent
 
@@ -2772,9 +2771,10 @@ firewall-cmd --add-rich-rule 'rule family="ipv4" source address="192.168.0.0/24"
 
  firewall-cmd --add-rich-rule 'rule family="ipv4" source address="192.168.0.0/24" service name="postgresql" accept'
  firewall-cmd --add-rich-rule 'rule family="ipv4" source address="192.168.0.0/24" service name="postgresql" accept' --permanent
-
+```
 
 ## selinux
+```
 getenforce
 setenforce
 cd /etc/selinux
@@ -2790,9 +2790,10 @@ chon #to set context manually
 semanage fcontext -a httpd_sys_conten_t '/content(/.*)?'		#-a means add , -t for type type context,
 
 
-
+```
 
 ## LOG ROTATE
+```
 logrotate is designed to easy admin of systems that generate large number of log files.
 normaly logrotate is run as cronjob that is daily /etc/cron.daily
 logrotate can done based on follwoing criteria
@@ -2823,11 +2824,12 @@ if u want create a custom logrotate script then u can create script and place it
 to execute created file 
 logrotate -f /etc/lograte.conf
 
-
+```
 
 ##epel repositary
 
 ##recovery deleted files on linux
+```
 testdisk #is free datarecovery software 
 VI
 
@@ -2839,7 +2841,7 @@ press following in command mode
 # cc will remove the line and will go to insert mode
 
 
-
+```
 
 
 
