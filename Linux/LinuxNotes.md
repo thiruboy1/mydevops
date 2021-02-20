@@ -2494,7 +2494,7 @@ Status: Subscribed
 - you can use yumdownloader to download rpm package from repo
 - yumdownlader nano #this will download the rpm package
 Example:
-``
+```
 rpm -ivh <package name> ## i for install, v for verbose h to show progress bar
 rpm -qa | grep ssh	# to query the package	
 rpm -qa 		# to query the package
@@ -2509,9 +2509,7 @@ yum-config-manager --add-repo=<repo> #this will add the repo
 yum-cionfig-manager --disable <repo name> #disabling repo using config manager or u can do by edit repo file "enabled=0"
 yum-config-managet --enable jenkins
 
-```
 
-```
 [epel]
 name=Extra Packages for Enterprise Linux 7 - $basearch   				#package name
 #baseurl=http://download.fedoraproject.org/pub/epel/7/$basearch				#URL
@@ -2537,11 +2535,12 @@ enable=1
 gpgcheck=0
 ```
 ## gpgkey is importat so that u can verfiy the repo is valid repo
-
+```
 - how do you know that a specific package that you're downloading from the repository is actually verified and signed by the repository in is authentic. For some reason maybe there's an opportunity for a man in the middle attack
 - GPG keys allow us to take the public varified key sign it again store verify the signature against the GPG key and the repository for the package. That way whenever we download the package it ensures that it's coming from the repository and that packag
 
-```
+
+
 yum-config-manager --add-repo <repo url>
 open the url and find the gpg key
 go to /etc/pki/rpm-gpg 
@@ -2549,7 +2548,7 @@ not download the gpg key in this directory
 copy the url and past in /etc/yum.repo.d/<repo>gpgkey=file////
 ```
 ## update the kernal package
-
+```
 uname -r
 yum install kernal 
 yum clean
@@ -2559,39 +2558,45 @@ installing kernal using rpm
 yumdownloader kernel
 yum install linux-firmware
 rpm -ivh kernal
-
+```
 
 ## changing diffrent kernel, modifiy the bootloader to point to diffrent kernel 	
 
+```
 step1:yum list kernel	#check for list of kernel avilable	
 step2: grug2-set-default 0 or 1 or 3 #by default 0 is most recent version 
 
+```
 
 # Manage Users & Group
 ## create delete and modifiy the user
 
+```
 - each user will have user id (uid,gid,groups,selinux context)
 - root user has id=0
 - id from 1 to 200 is system user
 - 201-999 Those are for System users that use system processes but don't own files on the system eg: appache 
 
-/etc/passwd file format
+
 
 ```
-tom:x:1000:1000:Vivek Gite:/home/vivek:/bin/bash
+#### /etc/passwd file format
+	tom:x:1000:1000:Vivek Gite:/home/vivek:/bin/bash
 
-Username: It is used when user logs in. It should be between 1 and 32 characters in length.
-Password: An x character indicates that encrypted password is stored in /etc/shadow file. Please note that you need to use the passwd command to computes the hash of a password typed at the CLI or to store/update the hash of the password in /etc/shadow file.
-User ID (UID): Each user must be assigned a user ID (UID). UID 0 (zero) is reserved for root and UIDs 1-99 are reserved for other predefined accounts. Further UID 100-999 are reserved by system for administrative and system accounts/groups.
-Group ID (GID): The primary group ID (stored in /etc/group file)
-User ID Info: The comment field. It allow you to add extra information about the users such as user’s full name, phone number etc. This field use by finger command.
-Home directory: The absolute path to the directory the user will be in when they log in. If this directory does not exists then users directory becomes /
-Command/shell: The absolute path of a command or shell (/bin/bash). Typically, this is a shell. Please note that it does not have to be a shell. For example, sysadmin can use the nologin shell, which acts as a replacement shell for the user accounts. If shell set to /sbin/nologin and the user tries to log in to the Linux system directly, the /sbin/nologin shell closes the connection.
-```
-/etc/shadow
+
+1. Username: It is used when user logs in. It should be between 1 and 32 characters in length.
+2. Password: An x character indicates that encrypted password is stored in /etc/shadow file. Please note that you need to use the passwd command to computes the hash of a password typed at the CLI or to store/update the hash of the password in /etc/shadow file.
+3. User ID (UID): Each user must be assigned a user ID (UID). UID 0 (zero) is reserved for root and UIDs 1-99 are reserved for other predefined accounts. Further UID 100-999 are reserved by system for administrative and system accounts/groups.
+4. Group ID (GID): The primary group ID (stored in /etc/group file)
+5. User ID Info: The comment field. It allow you to add extra information about the users such as user’s full name, phone number etc. This field use by finger command.
+6. Home directory: The absolute path to the directory the user will be in when they log in. If this directory does not exists then users directory becomes /
+7. Command/shell: The absolute path of a command or shell (/bin/bash). Typically, this is a shell. Please note that it does not have to be a shell. For example, sysadmin can use the nologin shell, which acts as a replacement shell for the user accounts. If shell set to /sbin/nologin and the user tries to log in to the Linux system directly, the /sbin/nologin shell closes the connection.
+
+### Cat /etc/shadow
+	thiru:!!:18488:0:99999:7:::
 
 ```
-thiru:!!:18488:0:99999:7:::
+
 
 Username : It is your login name.
 Password : It is your encrypted password. The password should be minimum 8-12 characters long including special characters, digits, lower case alphabetic and more. Usually password format is set to $id$salt$hashed, The $id is the algorithm used On GNU/Linux as follows:
@@ -2671,19 +2676,14 @@ Maximum  : The maximum number of days the password is valid (after that user is 
 Warn     : The number of days before password is to expire that user is warned that his/her password must be changed
 Inactive : The number of days after password expires that account is disabled
 Expire   : days since Jan 1, 1970 that account is disabled i.e. an absolute date specifying when the login may no longer be used.
-```
 
-```
 user add user1
 passwd 
 usermod -s /sbin/nologin  thiru #changing user to nologin, user will not be able to login to shell
 usermod -e 			#wexperiation date
 chage -l <user>		#will display the passwd details 
 chage -E		#EXPERATION
-```
 
-
-```
 ```
 
 ## creating goup
