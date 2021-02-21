@@ -3011,7 +3011,7 @@ mount -a # to check
 e2fsck -f /dev/vg0/lv0 # error checking
 resize2fs /dev/vg0/lv0 1g
 lvreduce /dev/vgo/lvo -L 1g
-
+```
 Q)how to reduce lvm
 ```
 1 shutdown all app running onthe hosted lvm
@@ -3053,10 +3053,12 @@ q) scaning for new luns
 ```
 echo "- - -" > /sys/class/scsi_host/host2/scan
 The three dash ("-  -  -") of the command act as wildcards meaning rescan everything. Remember that the three values normally stand for channel, SCSI target ID, and LUN.
+```
 q) migrate lvm from one server to another server
+```
 umount /data01
 vgchange -an data_vg  #vgchange -- volume group "data_vg" successfully deactivated
-vgexport data_vg      #vgexport -- volume group "data_vg" successfully exported #It is now necessary to export the volume group. This prevents it from being accessed on the ``old'' host system and prepares it to be removed.
+vgexport data_vg      #vgexport -- volume group "data_vg" successfully exported #It is now necessary to export the volume group. This prevents it from being accessed on the old'' host system and prepares it to be removed.
 remvoe disk from server and connect it to new server
 pvscan
 vgimport data_vg			importin on lvm2
@@ -3096,9 +3098,9 @@ convert above 3tb file to GPT
 ```
 
 q) restricting the user to particulr service can be done on visudo file
-``````
+```
 user ALL=(ALL) NOPASSWD: /bin/ftp/, /bin/telnet, /bin/ssh
-
+```
 Q)what is suid?
 ```
 suid is file permission, which allows other user access the owner file 
@@ -3123,17 +3125,18 @@ chmod o+t /tmp or chmod +t /dir
 ```
 Q)how to provide access to single file to multiple users and groups with custom permission??
 ```
-ans: using acls we can do this 
-	getfacl
-	setfacl
-```	
+	ans: using acls we can do this 
+		getfacl
+		setfacl
+	
+```
 q) lsof: is used to check which file is open
 ```
-when ever  ./ mount file fully utilized to 99% and u dint find any file to delete then u can delete tmp files
+	when ever  ./ mount file fully utilized to 99% and u dint find any file to delete then u can delete tmp files
 
-lsof |grep deleted
-lsof|grep deleted | grep ".tmp" | awk '{print $2}'| xargs kill -9
-lsof|grep deleted | grep ".tmp" | awk '{print $9}'| xargs rm -f
+	lsof |grep deleted
+	lsof|grep deleted | grep ".tmp" | awk '{print $2}'| xargs kill -9
+	lsof|grep deleted | grep ".tmp" | awk '{print $9}'| xargs rm -f
 ```
 q) umask value is present in : /etc/profile : this is default file permisson
 	
