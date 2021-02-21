@@ -2842,6 +2842,1527 @@ press following in command mode
 
 
 ```
+# Linux Interview Questions
+
+Linux qs
+
+```
+Q)top and ps?
+Q)how will u check dependencies lis of packages? Ans: yum deplist mysql
+Q)what is dhcp
+Q)diffrent bw rpm yum: dependency
+Q)To enable auto mounting in client side : Autofs
+Q)to get fixed ip in dhcp we must set "fixed-address"
+Q)to run command in bacground us ampresent sign &
+Q)remove user from group: usermod -d <uname> <group name>
+2)what is firewall: it moniters incoming and outgoing packets and controls the packet
+3)what is selinux, selinux context?
+Q)what is log managment?
+Q)explaing process states
+Q) viewing Inode : ll -i , stat <filename>
+q) total number of inodes avilable :  df -i
+q)To check how many inodes you will have, use
+
+```
+mkfs.ext4 -n /dev/sda
+
+D uninterruptible sleep(Usally IO)
+I idle kernel thread
+R running or runnalbe
+S intrruptible sleep
+T Stopped by job controll
+t
+
+Q)what is dns
+```
+https://medium.com/@maneesha.wijesinghe1/what-happens-when-you-type-an-url-in-the-browser-and-press-enter-bb0aa2449c1a
+
+A record
+The A record is one of the most commonly used record types in any DNS system. An A record is actually an address record, which means it maps a fully qualified 
+domain name (FQDN) to an IP address. For example, an A record is used to point a domain name, such as "google.com", to the IP address of Google's hosting server, 
+"74.125.224.147".
+
+This allows the end user to type in a human-readable domain, while the computer can continue working with numbers. The name in the A record is the host for your 
+domain, and the domain name is automatically attached to your name. For example, if you want to make a record for www.yourdomain.com, you only need to enter 'www' 
+for the name value in the textbox when editing the records for yourdomain.com.
+
+CNAME record
+Canonical name records, or CNAME records, are often called alias records because they map an alias to the canonical name. When a name server finds a CNAME record,
+ it replaces the name with the canonical name and looks up the new name. This allows pointing multiple systems to one IP without assigning an A record to each host
+ name. It means that if you decide to change your IP address, you will only have to change one A record.
+
+CNAME records must be the only record on a zone, which is why they cannot be added to the apex of any zone as the apex is the place where the NS and SOA records for
+ the whole zone must be placed. For this reason, we introduced the ALIAS record to give the same flexibility as a CNAME, but on zones where a CNAME would not other 
+wise be permitted.
+
+MX record
+The MX record, which stands for "mail exchange", is used to identify mail servers to which mail should be delivered for a domain. MX entries must point to a domain,
+ and never point directly to an IP address. If no MX record exists on a domain to which an SMTP server attempts to deliver mail, the server will attempt to deliver
+ the mail to the matching A record.
+
+In addition to the standard RDATA containing the location of mail servers, MX records also have a priority. The MX priority determines the order of mail servers to 
+which mail delivery should be attempted. The mail server which has the lowest MX level should be the first target for delivery. For example, if you have MX records 
+with levels 10, 20, and 30, servers should try to deliver the mail to the MX record with level of 10 and then to the others if delivery to the first fails.
+
+NS record
+An NS record identifies which DNS server is authoritative for a particular zone. The "NS" stands for "name server". NS records that do not exist on the apex of a 
+domain are primarily used for splitting up the management of records on sub-domains.
+
+The benefit of having multiple NS records on the apex zone is additional redundancy of DNS service. In order to get the most redundancy out of the NS records, they 
+should be hosted on different network segments. If the NS records are not hosted on different network segments and the network goes down, your DNS will go down with
+ it.
+
+It is worth noting that the NS records set on a particular name server are different from the delegation for a domain set with the registry of the domain.
+
+SOA record
+The SOA or Start of Authority record for a domain stores information about the name of the server that supplies the data for the zone, the administrator of the zone 
+and the current version of the data. It also provides information about the number of seconds a secondary name server should wait before checking for updates or before retrying a failed zone transfer.
+
+TXT record
+A TXT record allows domain administrators to insert any text into the DNS record. It is usually used to denote facts about the domain. A TXT entry was originally
+ intended for human-readable text, but these records are dynamic and can be used for many purposes.
+
+These records are not used to direct any traffic, but to provide information to outside sources. For example, TXT records are used by email systems to identify if an
+ email is coming from a trusted source (via an SPF record). Another common use is "ownership verification". If you want to use a service like google webmaster tools, 
+one method of verifying ownership is to add a TXT record to the domain with a randomly generated string. Google then checks for the record to have the proper value
+ and confirms your control over the domain.
+```
+What is an SRV Record?
+```
+SRV (Service) records are custom DNS records. They are used to establish connections between a service and a hostname. When an application needs to find the location 
+of a specific service, it will search for a related SRV record. If it finds one, it will sift through the list of services and their connecting hostnames to find the
+ following:
+
+Hostname
+Ports
+Priority and Weight 
+IP Addresses, if relevant
+Creating an SRV record can potentially save you time later on.
+
+For example, a compatible new email client will pull your ports and settings preferences from the SRV record if you have one configured. Without the SRV record, a new email client will guess (usually incorrectly) these preferences.
 
 
+The SRV Structure
+This section will walk you through the different parts of the SRV record.
+
+
+```
+
+q) to change from old to new kernel for initial boot
+```
+check the gru2.cfg file 
+awk -F\' '$1=="menuentry " {print $2}' /etc/grub2.cfg
+
+grub2-set-default 3
+grub2-mkconfig -o /boot/grub2/grub.cfg
+shutdown -r now
+```
+q) how to recover grub failure?
+```
+https://www.youtube.com/watch?v=z047gbYCiWo&feature=youtu.be
+Reinstalling the Boot Loader
+
+when grub file is removed/damaged then system will not boot so and it ll go to 
+grub console
+grub>
+	exit from grub console	#when u type exit it will take it to maintenance mode
+	go to maintenance mode
+	set boot from cd/dvd/usb
+	then go to rescue centos filesystem> then it will open rescue mode
+	then select option to rescue more (1)
+	chroot /mtn/sysimage	#to change the console as root enviroment 	
+	grub2-install /dev/sda
+	grub2-mkconfig -o /boot/grub2/grub.cfg
+
+Boot the system from an installation boot medium.
+Type linux rescue at the installation boot prompt to enter the rescue environment.
+Type chroot /mnt/sysimage to mount the root partition.
+Type /sbin/grub-install bootpart to reinstall the GRUB boot loader, where bootpart is the boot partition (typically, /dev/sda).
+Review the /boot/grub/grub.conf file, as additional entries may be needed for GRUB to control additional operating systems.
+Reboot the system.
+
+
+mount |grep -i ^dec
+```
+q)reseting root password
+```
+boot the system in rescuemode/recovery mode and 
+go to shell
+now the system will be read mode to enable it in write mode
+mount -o rw,remount/
+passwd
+shutdown -r
+```
+q)inode
+```
+https://www.slashroot.in/inode-and-its-structure-linux#:~:text=Whenever%20a%20user%20or%20a,found%20from%20the%20inode%20table.
+```
+
+Q)Extending LVM?
+```
+1)check for free space in vg vgs and pvdisplay -m
+2)lvdisplay to check lv details
+)if u extend the lv from 2gb to 3g then u must also exted filesytem to 3g so that u can use entire 3gb lv
+1)lvextend -L +1GB
+2)resize2fs /dev/vg0/lv0
+
+umount /<drive naem>/
+mount -a # to check 
+e2fsck -f /dev/vg0/lv0 # error checking
+resize2fs /dev/vg0/lv0 1g
+lvreduce /dev/vgo/lvo -L 1g
+
+Q)how to reduce lvm
+```
+1 shutdown all app running onthe hosted lvm
+2 take bckup
+3 unmount lvm file system			
+4 remove the entry from /etc/fstab
+5 ext4
+6 check for erros fsck
+```
+q) lvm snapshot
+```
+snapshot is pointing time copy , its pointing to blocks
+snapshot will point to orginal data , suppose if data a1 in orginal data is deleted 
+then this data will be avilable in snapshot but any data added after snaphot will not be protected
+snapshot are there to protect data
+
+creating snapshot
+ lvcreate -L 1GB -s -n tecmint_datas_snap /dev/vg_tecmint_extra/tecmint_datas
+lvextend -L +1G /dev/vg_tecmint_extra/tecmint_data_snap
+Restore snapshot:
+unmount /mnt/tecmint_datas/
+lvconvert --merge /dev/vg_tecmint_extra/tecmint_data_snap
+```
+q) to restore deleted lvm?
+```
+vgcfgrestore --list VG
+checkt the deleted vg file and run the following
+vgcfgrestore -f /etc/lvm/archive/<vg.000.vg> VG
+mount -t ext4 <lv> <nmame>
+```
+q) to check filesystem:
+```
+lsblk
+file
+fdisk
+
+```
+q) scaning for new luns
+```
+echo "- - -" > /sys/class/scsi_host/host2/scan
+The three dash ("-  -  -") of the command act as wildcards meaning rescan everything. Remember that the three values normally stand for channel, SCSI target ID, and LUN.
+q) migrate lvm from one server to another server
+umount /data01
+vgchange -an data_vg  #vgchange -- volume group "data_vg" successfully deactivated
+vgexport data_vg      #vgexport -- volume group "data_vg" successfully exported #It is now necessary to export the volume group. This prevents it from being accessed on the ``old'' host system and prepares it to be removed.
+remvoe disk from server and connect it to new server
+pvscan
+vgimport data_vg			importin on lvm2
+vgimport data_vg /dev/sdb1 /dev/sdb2        #importin on lvm
+vgchange -ay data_vg
+mkdir -p /data01
+mount /dev/data_vg/lv_data01 /data01
+
+```
+q) scaning new device attached to linux machine
+```
+attach device like cdrom
+then identify the name by running dmesg|grep dvd
+```
+
+Q)explain entries of /etc/fstab?
+```
+/dev/mapper/rhel-root       /	        xfs	     defaults	     0 0
+<   dev/devicename  >  < MountPoint >  <file system> <mount options>
+0= zero means exclude from backup non zero dump program enable device to backup
+0= fsck check, if zero excluded to check fsck, non zero value 2 partiation will be checked
+
+```
+q) u cannot create filessytem more than 2.5tb using fdisk as its based on MBR
+```
+to create file ssytem size above 3tb u have to use gpt(GUID)
+convert above 3tb file to GPT
+	1) parted /dev/mapper/disk
+	2)print
+	2)rm 1
+	3)mklabel gpt
+	4) pring
+	5)mkpart primary 1GB 6.TB	
+	6)q
+	7) mkfs.ext4 /dev/mapper/disk
+	8) mount
+```
+
+q) restricting the user to particulr service can be done on visudo file
+``````
+user ALL=(ALL) NOPASSWD: /bin/ftp/, /bin/telnet, /bin/ssh
+
+Q)what is suid?
+```
+suid is file permission, which allows other user access the owner file 
+eg: /etc/passwd is file which is created by root and other user can access it as root permision
+
+```
+Q)what is setuid setgid stickbit
+```
+Setuid bit flag can provide regular users the ability  to run the same access as the owner of the executable 
+file. It is represented by an s in the owner's permission
+class.
+chmod u-s /usr/bin/su to remove 
+
+Setgid: Setgid bit is set on executable files at the group  level. Setgid bit flag 
+can provide regular users the ability to run the same access as the group members of  the executable file. 
+chmod g-s /usr/bin/wall
+
+
+Sticky bit is set on public writeable directories to prevent moving or deletion by regular users.
+chmod o+t /tmp or chmod +t /dir
+
+```
+Q)how to provide access to single file to multiple users and groups with custom permission??
+```
+ans: using acls we can do this 
+	getfacl
+	setfacl
+```	
+q) lsof: is used to check which file is open
+```
+when ever  ./ mount file fully utilized to 99% and u dint find any file to delete then u can delete tmp files
+
+lsof |grep deleted
+lsof|grep deleted | grep ".tmp" | awk '{print $2}'| xargs kill -9
+lsof|grep deleted | grep ".tmp" | awk '{print $9}'| xargs rm -f
+```
+q) umask value is present in : /etc/profile : this is default file permisson
+	
+q) recovering file from ext4
+```
+	sudo extundelete /dev/sdb1 -restore-file home/angelo/other.txt
+	extundelete /dev/sda6 -restore-all
+```
+
+
+q)iscsi linux target and initiator configuration
+```
+iscsi(intetnet small computer system interface),its a internet based storage networking standard
+for linking data storage facilites it provides block level access to storage
+device by carring scsi commands
+
+iscis will have have target server and client system, where target sever provides its storage to client over interntes
+and client server can attache the storage and by pvcreate vgcreate lvcreate mkfs mount
+
+server ip(target)
+clinet ip(target)
+target server : target.service
+port number: 3260
+inintiator service: iscisd.service
+
+1) attache drive to target system
+2) create lun using fdisk utility
+	fdisk /dev/sdb
+		n # new partition
+		p # primary
+		default use disk based on req, full size  
+ 		select partion as lvm code is "8e"
+		wq
+	partprobe /dev/sdb	#to update the sdb table
+	pvcreate /dev/sdb1
+	vgcreate vg0 /dev/sdb1
+	lvcreate -l 100%FREE -n lv_vg0 vg0
+	lvs
+now donot formrot the drive
+yum install targetcli	#this tool helps to convert disk to iscsi luns
+	targetcli
+	create backstores
+	/backstore/block create LUN /dev/vg0/lv0
+	/iscis create iqn.server1.node1:disk1
+	/iscsi/iqn.server1.node1:disk1/tpg1/acls create iqn.server1.node1:disk1  #create network acsl to allow access
+	/iscis/iqn.server1.node1:disk1/tpg1/luns create /backstore/block/LUN #create lun and map to clinet ip
+	/iscis/iqn.server1.node1:disk1/tpf1/portals	create <client ip> #create portal and maek it asscisble by client
+	if u get error during portal create then delete existing portal
+	/issci/iqn.server1.node1:disk1/tpg1/portals delete 0.0.0.0 ip_port=3260 	
+	/iscis/iqn.server1.node1:disk1/tpf1/portals	create <client ip> #creat
+	save
+firewall --cmd --permanent -add-port=3260/tcp
+systemctl restart target.service
+
+client side
+yum install iscsi*	
+systemctl start iscsid 
+vi /etc/iscsi/initiatorname.iscis
+	add the initiarot name in this file
+iscisadm -m discovery -t st -p 10.200.20.250
+iscisadm -m node -T iqn.server1.node1:disk1 -p 10.200.20.250 -l # to login to target
+fdisk -l
+```
+
+
+q) nfs installation
+```
+yum install nfs-utils
+mkdir /var/nfsshare
+chmod -R 755 /var/nfsshare
+chown nfsnobody:nfsnobody /var/nfsshare
+nano /etc/exports
+	/var/nfsshare    192.168.0.101(rw,sync,no_root_squash,no_all_squash)
+	/home            192.168.0.101(rw,sync,no_root_squash,no_all_squash)
+systemctl restart nfs-server
+
+client side
+yum install nfs-utils
+mkdir -p /mnt/nfs/home
+mkdir -p /mnt/nfs/var/nfsshare
+mount -t nfs 192.168.0.100:/home /mnt/nfs/home/
+```
+Q:1 Why to use NFS ?
+```
+Ans: A Network File System (NFS) allows remote machine to mount file systems over a 
+network and interact with those file systems as though they are mounted locally. This enables system administrators to consolidate resources onto centralized servers over the network.
+
+Q:2 What is the default port of NFS server ?
+By default NFS uses 2049 TCP port.
+
+Q) What are configuration files of NFS server ?
+‘/etc/exports’ is the main configuration file that controls which file systems are exported to remote hosts and specifies options.
+‘/etc/sysconfig/nfs‘ is the file through which we can fix ports for RQUOTAD_PORT, MOUNTD_PORT, LOCKD_TCPPORT, LOCKD_UDPPORT and STATD_PORT
+ro: The directory is shared read only; the client machine will not be able to write to it. This is the default.
+rw: The client machine will have read and write access to the directory.
+root_squash: By default, any file request made by user root on the client machine is treated as if it is made by user nobody on the server. (Exactly which UID the request is mapped to depends on the UID of user “nobody” on the server, not the client.)
+no_root_squash : if this option is used , then root on the client machine will have the same level of access to the files on the system as root on the server. This can have serious security implications, although it may be necessary if you want to perform any administrative work on the client machine that involves the exported directories. You should not specify this option without a good reason.
+no_subtree_check : If only part of a volume is exported, a routine called subtree checking verifies that a file that is requested from the client is in the appropriate part of the volume. If the entire volume is exported, disabling this check will speed up transfers.
+sync : Replies to the NFS request only after all data has been written to disk. This is much safer than async, and is the default in all nfs-utils versions after 1.0.0.
+async : Replies to requests before the data is written to disk. This improves performance, but results in lost data if the server goes down.
+no_wdelay : NFS has an optimization algorithm that delays disk writes if NFS deduces a likelihood of a related write request soon arriving. This saves disk writes and can speed performance
+wdelay : Negation of no_wdelay , this is default
+nohide : Normally, if a server exports two filesystems one of which is mounted on the other, then the client will have to mount both filesystems explicitly to get access to them. If it just mounts the parent, it will see an empty directory at the place where the other filesystem is mounted. That filesystem is “hidden”. Setting the nohide option on a filesystem causes it not to be hidden, and an appropriately authorised client will be able to move from the parent to that filesystem without noticing the change.
+hide : Negation of nohide This is the default
+
+Q:6 How to list available nfs share on local machine & remote machine ?
+showmount -e localhost
+Q:9 How to check iostat of nfs mount points ?:
+nfsiostat
+Q:12 How to reexport all the directories of ‘/etc/exports’ file ?
+Ans: Using the command ‘ exportfs -r ‘ , we can reexport or refresh entries of ‘/etc/exports’ file without restarting nfs service
+```
+
+
+
+q)firewall working
+```
+yum install firewalld
+/etc/firewalld/firewalld.conf
+firewald-cmd --state
+firewall-cmd --get-zones 
+firewall-cmd --get-services
+firewall-cmd --get-default
+firewall-cmd --permenant --add-port=3306/port # add it as port
+firewall-cmd --permenant --add-port={3306/port,80/port,8080/port} # add it as po
+firewall-cmd --permenant --add-service=mysql
+firewall-cmd --permenant --add-service={ldap,mysql}
+netstat -nltp to chec port status
+#port fordwardin
+firewall-cmd --add-forword-port=port=8080:proto:tcp:toport=80      # anything comming to port 8080 redirect it port80
+firewall-cmd reload
+firewall-cmd --permanent --add-rich-rule 'rule family=ipv4 source address=192.268.10.200/24 forward-port port=153 protocol=tcp to-port=123'
+
+```
+q)NIC Bonding
+```
+# nmcli dev status
+enp0s8
+enp0s9
+4- Load bonding driver in Kernel:
+# modprobe bonding
+5- Verify:
+# modinfo bonding
+6- Add logical Interface "bond0" with load balancing
+policy "round-robin", IP 192.168.1.120/24 and
+gateway 192.168.1.1: 
+# nmcli con add type bond con-name bond0 ifname bond0
+mode balance-rr \ip4 192.168.1.120/24 gw4 192.168.1.1
+Check file:
+#  cat /etc/sysconfig/network-scripts/ifcfg-bond0
+- Add two added interfaces as slaves:
+Add 1st Interface enp0s8
+# nmcli con add type bond-slave ifname enp0s8 master
+bond0
+Add 2nd Interface
+# nmcli con add type bond-slave ifname enp0s9 master
+bond0
+Check Files: 
+# cat 
+/etc/sysconfig/network-scripts/ifcfg-bond-slave-enp0s8
+and 
+/etc/sysconfig/network-scripts/ifcfg-bond-slave-enp0s9
+- Activate bond0
+# nmcli con up bond0
+-  Show connection info for bond and slaves:
+# nmcli con show | egrep 'bond0|enp0s8|enp0s9'
+# reboot
+
+```
+q)upgrading kernel version
+```
+uname -r
+check /boot dirctory , it should not contain more than 500
+download kernal form url
+yum --enalberepo=elrepo-kernel list all|grep kernel
+yum --enablerepo=elrepo-kernel install kernel-ml
+reboot
+```
+q)systemctl
+```
+systemctl list-dependencien httpd
+systemctl list-unit-files
+systemctl set-default multiuser.target
+systemctl mask http,firewalld
+systemctl unmask httpd,firewalld
+
+```
+
+
+q)selinux
+```
+getenforce
+sestatus
+setenforce 0 # allows everytihn it logs
+
+chcon #to change security context
+
+security enanched linux
+why u need selinux:
+selinux provides diffrent level of securitys
+1 port level
+2 service level
+3 file level
+
+eg: if port 80 is allowed and port trys to access other service which is not designated to port 80 then 
+selinux will block this
+
+selinux modes
+1)enforcing - Enabled
+2)permissive - Not Disabled
+3)disabled - off
+
+/etc/selinux/config
+
+ls -lz will show u context
+
+```
+
+q)syslogs
+```
+in linux /etc/rsyslog.conf # tell where to store the logs
+all logs are stored in /var/log
+
+```
+
+q) to add rpm repo from cd
+```
+mount cd/dvd to dirctory
+cp the content to locol repo
+create dir /etc/yum.repo.d/<repo file>
+
+repofile:
+[reponame]
+name= <userdfined name>
+baseurl=file:///mnt
+enable=1
+gpgchekc=1
+gpgkey=gile:///mnt/rpm.key
+
+
+```
+```
+q) Adding ssl certificate to httpd
+yum install mod_ssl
+firewalld -cmd --permenant --add-service=http
+firewalld -cmd --permenant --add-service=https
+setenfore 0
+create csr key and crt
+and copy to safe location
+then edit /etc/httpd/conf.d/ssl.cof
+<virualHost> *:443>
+change server name
+enable ssl ciphersure,sslhonotsipher order on,sslcertificatefile ,key file
+
+
+
+
+
+ssh
+--------------------------
+ssh config path /etc/ssh/sshd_config  and to change port update the same in this file
+to connect ssh diffrent port from putty use ssh -p 2048
+ssh supports symmetric and asymmetric encription method
+to disable root login update sshd_config file "permitrootlog no"
+enable only key based login: set rsaauthentication and pubkeyauthentication to yes and 
+telnet sends data as plain text
+limiting ssh access to specfic subnet: this will increase secure e
+edit sshd_config file and update "AddressFamily <subnet>"
+ssh cipher types: 3des, blowfish, des 
+debuggin ssh : use "ssh -v"
+ssh version check: "ssh -V"
+ssh for ipv6: ssh -6 user@hostname
+ssh to load log to specfid file: ssh -E log_file
+ssh idle timeout: edit sshd_config file "ClinetLiveInterval 15m"
+"ClientAliveCountMax 5"
+------------------------------------------------------
+
+
+
+q) what is zombie process
+its process that has completed execution but still has entry in process table
+
+
+q) diffrence bw locate and find
+
+find searches in the real system. Is slower but always up-to-date and 
+has more options (size, modification time,...)
+
+locate uses a previously built database (command updatedb). 
+Is much faster, but uses an 'older' database and searches only names or parts of them.
+
+q)how to patch the server
+
+download patch manager software
+open software
+click on retry angent 
+and download linux agent 
+and copy the agent in linux machin
+
+
+q) nmtui
+
+
+Q)Password Complexity Policy On CentOS 7
+
+/etc/security/pwquality.conf or /etc/pam.d/system-auth configuration file is used.
+
+
+
+
+
+sed
+sed -e 's/input/output/' my_file 
+sed -e 's/input/output/g' my_file 
+sed -e 's/input/output/' my_file > new_file
+sed -i -e 's/input/output/' my_file 
+sed -e 's/\/bin/\/usr\/local\/bin/' my_script > new_script			#special symbol, like '/'(e.g. in a filename) or '*' etc? Then you must escape the symbol
+sed -e 's/[0-9]*/(&)/' my_file						# wildcard as part of your search
+where [0-9] is a regexp range for all single digit numbers, and the '*' is a repeat count, means any
+number of digits.
+sed -e '/^#/ d' my_file							#if you wanted to delete all lines that start with the comment symbol '#' you could use
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Vm ware software defined data center platform
+its as software defined data center platform
+VMware Cloud Foundation makes it easy to deploy and run a hybrid cloud.
+ VMware Cloud Foundation provides integrated cloud infrastructure 
+(compute, storage, networking, and security) and cloud management services to run enterprise applications in both private and public environments.
+Vsphere
+vsan
+nsx 
+
+
+
+
+Interview qs1
+##########################################################################
+##SSHD
+ssh default port is 22
+
+/etc/ssh/sshd_config   #ssh master config file
+#when u first login to shell u will be in login shell but when u switch user u will be in intreactive shell not be in login shell
+i  
+
+first login(login shell)      --------->.bashrc_proile  will be executed
+switch user(interactive shell)--------->.bashrc 	will be executed
+
+#insted of login to intractive shell logging in to "login shell" and 
+to use all bash_profile use any one of this 
+su -
+su -l 
+su --login
+
+/etc/profile		#its a global configuration file
+#############################
+#############################################
+Archive
+stat /directory #will display the directory details
+du -sh /  #to list size of all directorys
+du -ah #
+du -cbha # 
+fdisk -l /dev/sda
+df -ih #to display inodes
+df -t xfs #(-t)filter type
+#######################
+patching servers
+1)critical update
+2)security updates
+3)bug fixes
+4)enanchments
+5)os updates
+########################3
+swap memory and creating
+
+actual memory is 32gb if u open many application which exceeds 32 gb then 
+we can use swap space:
+kernel identifys the inactive application and movies that into swap space which is on hdd
+
+################################
+
+###################################3
+groupadd finance
+getent group	#todisplay all group details
+directory needs execute permission to open 
+cp command doses not preserve acl rules
+mv command preserve acl rules
+chmod ug+X		#this command will give execute permission only to directorys not all files
+chmod ug+x	#this command will grant execute permission for both files and folders
+
+#####################################
+/dev/null :
+is a space where wat ever u sent it will be cleared
+eg:- 
+
+pipe command accepts standard output not error
+asdfasdf 2>&1 | grep 'command'
+adfadsf 2> |grep 'command'		#error
+##########################################################################
+## Redirecting standard error and output to file
+
+asdfasdf 2>> log.txt
+asdfasdf
+cat log.txt
+pwd 2>> log.txt
+cat log.txt
+pwd >> log.txt 2>&1
+cat log.txt
+catf log.txt
+pwfd >> log.txt 2>&1
+###############################################################################################
+## reboot/shutdown/boot
+
+/usr/lib/systemd/system		#where all systme target files are located here, system will first check this dir
+/etc/systemd/system    		#its additional config file like apache,custom config fiel
+we will have default.target symlink in thid dir so wen ever this target is changed this symlink is updated
+
+shutdown -r +5	will reboot in 5min	#number of miniutes t wait before reboot this will send wall message
+shutdown -c 		#to cancel reboot
+w		# to check who is login
+shutdown -r 00:00		#schedulet to reboot at nite 12 oclk
+systemctl halt/halt/shutdown -h /shutdown -h now  #shutdown command
+
+## boot system in diffrent targets manually
+
+init # will allows to start one service at a time
+systemd will allows to start multiple service at a time
+
+systemctl -t ### to check diffrent type of unit config files
+systemctl list-units --type=target
+systemctl list-dependencies multi-user.target		#to list dependencies of multi user targets
+when ever system enters in multi user target then all the service will be called
+systemctl get-default  # will reture default targets
+systemctl list-dependencies graphical.target|grep multi.user # this shows wen ever we are 
+in graphical target then we need all targets which are in multi.user.target
+
+#this are four targets that generaly we use 
+multi.user.target
+graphical.target
+emergency.target
+rescue.target		#this will be run in read only mode,in sigle user mode
+
+systemctl isolate <target name>	#to move from one target to another we must use systemctl isolate
+systemctl set-default <target name>
+
+## To intrupt the boot process and specfiy to go into diffrent targets
+reboot
+when boot menu asks to load kernel 
+press "e"  # to edit the selected item , u can c grub config
+search kernel like"linux16 /vmlinuz" and add this at end of line
+systemd.unit=rescue.target
+eg:systemd.unit=<target>
+###############################################################################################################
+## to change root password
+grug allows us to select the kernel in that kernel needs to be loaded some where but i
+initaly there will be no disk, so kernel allows to load local kernel that kernel inside memory
+and that kernel has version of systemd/root device, it mounts feature devics as /sysroot on initramfs
+this memory section is called initrmfs as soon as initilization is over then it hands over control
+to local disk and pid of 1 in systemd
+
+so to reset root password, we shold to get into initramfs debug shell which is basical working
+in memory
+
+step1
+find kernel "linux16/vmlinz" and append the "rd.break" at end
+this will take us into initrmfs debug shell
+step2:
+initialy sysroot will be in read only and u cannot use passwd cmd so you have to mount the directory as rw
+mount -oremount,rw /sysroot
+cd sysroot	# navigate into sysroot directory
+cd etc
+in order to mount sysroot directory ar root director use chroot
+chroot /sysroot    #now it gives access to passwd command
+passwd
+ step3
+by default we are using selinux when we modifie passwd context of selinux will be changed so we have to relable the file, 
+once passwd is changed we have to relabel all as selinux , so in order to system to instructed to 
+relable we just have to make sure file exist inside the root dir,its hidden files
+touch /.autorelabel
+
+if u dont do this then password change will not be successful
+
+step4:
+exit
+exit
+
+# adjust process priority and kill process 
+ps 
+ps -aux
+pgrep 	#combaind ps command and grep command eg: pgrep gnome
+pgrep httpd -l  #to list names 
+pgrep -u <user> -l # display all process running by users
+pgrep -v -u <juser> -l # -v means inverse, which are not user it will list that process
+
+## pkill command
+
+pkill httpd # it greps for all procesee in the name httpd and kills it
+kill -l
+kill -15 / kill SIGTERM # kill command default will be sigterm (15)
+kill -1 {is equal to SIGHUP: 
+SIGINT: Keyboard intrrupt
+SIGQUIT: request the process to quit
+SIGKILL: anythin it will kill the process
+SIGTERM: clearnup and terminate the signal
+SIGSTOP:
+suppose if u want to stop the process not to terminate then u can use SIGSTOP
+kill -SIGSTOP %5
+SIGCONT:
+if u want to continue the stoped process then u cant user SIGCONT
+
+## PS
+
+ps aux
+ps -u <user>
+
+## setting nice and renice
+u can set the priority for the process using nice priority is from(-20 to 19), lower the level higher the priority
+dd if=/dev/zero of=/root/test.file bs=1M count=1024	#to create gigbyte file
+
+nice -n 0 httpd   #starts process with specfied nice value
+renice -n 1 $(pgrep httpd)  # updates running process nice value
+
+##Top Command
+
+load average   			#it determins % of load average
+in order to find total load usage first find total number of cpus(cat /proc/cpuinfo)
+uptime cpu/number of processor
+eg: 2.5/2 = 1.25 #which means process is using 125% of cpu 
+
+## rnice in top command
+top
+press "r" and enter the nice value
+
+## top command fields
+RES: non swap physical memory using
+SHR: amount of shared memory avilable to task, which means this task will sharign memory with other tasks
+shift+<p> or shift+<m> #to sort by
+##to kill process from top
+press k 
+and enter the pid
+
+top -d 2 ## to set top command interval
+
+
+## inorder to kill the user ps use
+pkill -u thiru sshd
+
+now to reset root passwd we will break kernel and will make use of
+
+
+# Log Files
+/var/log 
+## journactl
+journalctl sends log to /var/log , 
+journalctl			#logs all kernal logs,journald is not persistant
+this ll dump the all info in the journal deamon
+/run/log/journal		# journal info are stored in this loc
+
+#making journald as persistant
+
+/etc/systemd/journald.conf  # change storage=persistent
+journalctl -n		    #last 10 lines
+journalctl -xn		    # "x" provides addtional texts
+journalctl _SYSTEM_UNIT=httpd.service  #to display system unit config files systemctl -t help
+journalctl 
+## rsyslog
+
+## systemd-analyze		#how fast system booted up
+systemd-analyze blame		# it will how long each process took
+
+
+# MBR & GPT
+MBR:32bit,4primary partitaon,each 2tb
+mbr was developed on 1982, mbr can have only 4 primary partitons, each primary can be only and one extended partiation
+2tb in size
+FDISK:
+its tool which used for MBR based device
+fdisk /dev/sdb > select n(new) > p(primary) >default>default 2048> +500M >t>partiation type(8e) > w >
+begning of record is 4mb which maintenance disk info, so it starts from 2048
+
+## in order to use disk u have format is using mkfs
+mkfs ext4 /dev/sdb1
+
+blkid 		#will display the block storage uuid
+partprobe	#it reload the partiation info
+
+blkid 
+best practice is to mount using uuid insted of device name
+
+
+GPT: 64bit,128 primary device,8zb bytes
+GPT based partation runs on uefi defice, 
+GDISK:
+its tool which is used for GPT based disks
+gdisk /dev/xvdf > select n(new) > p (primary)>default 2048> +500M>filesystem default is linux filesystem(8300) > w >
+mkfs -t xfs /dev/xvdf1
+mount /dev/svdf1 /mnt/mymount 	
+
+# delete  partation
+gdisk /dev/xvdf > d>w>
+
+#LVM
+inorder to use physical volume, physical volume must be initilized as lvm(label)
+by doing this labels place on first part of volume helps to identify the metadata about physical volume to lvm,
+its is placed in second 512 bytes on physical volume, u can have either zero one or two copies of meta data
+stored on each physical volume, by default one copy is stored on physical volume, once number of copies is configured
+u cannot changed,
+fisrt copy is stored at start of device & second copy is stored at end of device
+
+#vg ,we have physical volumes,volume group,lvm
+extends are inside volumegroup,extends is smallest unit that can be assigned to vg, 
+vg extends are reffred as physical extents(PE) and lvm is allocated in two sets of logical extents 
+
+we can define logical volume based on number of PE, if u want create lvm using nubmer of PE
+then u have to mention it using "-l" in lvcreate eg: lvcreate mydisk /dev/sdb -l 2 where 2 is number of PE so 4m*2=8mb lvm
+
+step1: create partiation using gdisk>lvm>w
+step2: pvcreate <partiation>
+step3: vgcreate mydisk /dev/sdb -L 100M
+step4: lvcreate -n mydisk_lvm -L 100M
+setp5: mkfs -t ext4 /dev/vg/lv
+step6: mount /dev/vg/lv /mnt/dir
+lvremove /dev/vg/lv
+vgremove /dev/vg
+pvremove /dev/sdb
+
+xfs: can only be increased not desresed
+ext3: can be increased and decresed 
+# configure system to mount filessystem at boot by uuid or label
+
+step1: create 2 partation
+setp2: mount xfs and ext4 file system
+step3: 
+	a)xfs_adm -L <label name>  /dev/xvdf1	#create label for xfs file system
+	  xfs_adm -l /dev/xdv1	#prints the label
+
+	b) tune2fs -L <lable name> /dev/xvdf2	#create label fro ext4 filesystem
+		tune2fs -l <lable name> /dev/svdf2 #print the filesystem label	
+
+to mount use UUID from blkid and update it on /etc/fstab
+
+stet5: fstab/
+	UUID=<UUID> 		/ 	xfs	defaults	1 1
+	LABEL=<label name>	/	ext4	defaults	1 2
+mount -a
+
+# creating swap space
+step1: fdisk /dev/sda > p >lvm>w
+step2: pvcreate /dev/sda1
+step3: vgcreate swap_vg /dev/sda1
+step4: lvcreate -n swap -L 2G /dev/sda1/swap_vg
+step5: mkswap /dev/swap_vg/swap 
+step6: swapon /dev/swap_vg/swap
+step7: use the UUID and mount it on fstab 
+fstab:
+	UUID=<>		swap	0 0 
+swapon -a	# to enable all swap 
+swapoff -a 	# to turn off all swap
+swapon -s	# which partation has swap space
+
+# Mount UnMount and use vfat ext4 xfs
+vfat: allows windows user to access the file system
+
+mkfs .vfat /dev/sdb
+mkdir vfat
+mount /dev/sdb /mnt/vfat
+df -h
+attach it to /etc/fstab
+
+## ex4	supports 16tb filesystem of 50tb
+mksf.ext4  /dev/xdvf1
+
+fsck.vfat
+fsck.ext4 /dev/xdf1	#to check filesystem
+fsck: 
+fsck cannot be run on mounted file system
+dumpe2fs /dev/sdb	#this will give u all filesystem  details also provide number of inodes avilable
+mkfs.xfs   #this filesystem provides high throughput and 500tb of storages
+XFS • Known for parallel processing and high I/O throughput; journaled file system that supports
+up to 500TB file size on Red Hat 7 with 500TB in file system size
+» mkfs.xfs /dev/xvdf1 • Create XFS file system on device
+» mount /dev/xvdf1 /mnt/location • Mount file system at location
+» xfs_repair /dev/xvdf1 • Check for file system consistency
+» xfs_info /dev/xvdf1 • Get details of file system
+» xfs_admin /L labelname /dev/xdf1 • Label the device
+
+
+xfs_info	#this provides info about xfs disk
+xfs_repair	#repair any issue on partation
+
+# Mount & Unmoun CIFS and nfs
+
+CIFS: it allows us to share from windows machine to linux/unix machine
+sama it tool which allows us to use cifs
+CIFS Using Samba
+ yum install sambaclient cifs-utils nfs-utils
+
+# sama share > mount -t cifs -o username=smbusername,password=smbpassword //serverip/share_name /mnt/mountlocation
+#nfs share   > mount -t nfs -o username=smbusername,password=smbpassword /serverip/share_name /mnt/mountlocation
+
+/etc/fstab persistent configuration:
+***/etc/fstab file
+//serverip/share_name /mnt/mountlocation cifs username=smbusername,password=smbpassword 0 0
+***
+NFS
+yum install -y nfs-utils
+mount -t nfs serverip:/mountlocation /mnt/mountlocation
+/etc/fstab persistent configuration:
+serverip:/mountlocation /mnt/mountlocation nfs defaults 0 0
+
+# extending lvm and attaching gpt partation and moving content to gpt without distruption
+
+step1: fdisk /dev/sdb > p >default>default> lvm>+1G>W>
+step2: pvcreate /dev/sdb1 |pvs
+step3: vgcreate sdb1_vg /dev/sdb1 -L 500M
+step4: lvcreate -N  lv1_sdb1 /dev/sdb1_vg/ -L 500M
+step5: mkfs.ext4 /dev/sdb1_vg/lv1_Sdb1
+step6: mount /dev/sdb1_vg/lv1_Sdb1 /mnt/dir
+cd /mnt/dir
+touch f1.txt f2.txt
+
+## to change mbr partiation to gpt partation and dont want to intrupt the actual data
+
+step1: gdisk /dev/sdc > n>default>default>size>linux lvm>w>
+step2: pvcreate /dev/sdc1
+step3: vgextend /dev/vg_sdb1 /dev/sdc1 
+step4: pvmove /dev/sdb1 		#will copy the old volume to new volume in same group
+step5: vgreduce /dev/vg_sdb1 
+
+## extentd lvm
+
+lvextend -L 5G /dev/vg_sdb1/lv_sdb1
+resize2fs #for mbr based partation
+xfs_growfs /mnt/dir	#gpt based partation
+
+##ACL
++ sign will indicates that file has ACL
+getfacl
+
+setfacl -m -R u:thiru:rw file1		set acls for user & -R for recursively
+setfacl -m g:thiru:rw file1		set acls for group
+setfacl -m u:thiru:-rw file1
+
+getfacl file1 #
+by default mask in acl will have permission of user set
+setfacl -m m::r file1 #to set mask for file1 to read permission
+setfacl -m m::- file to remove mask
+chmod will updates mask
+
+
+#default acls 
+wen ever files are created with in the directory then files will inheriate the default acls
+setfacl -d -m u:thiru:rw dir1 #setting default acl to files not directory 
+the default dosent apply to directory now if u cd to dir1 u ll get error
+getfacl dir1
+setfacl -x u:thiru dir1 # to remvoe acls
+setfacl -x -d u:thiru dir1 # to remvoe default acls
+
+
+
+# Networking in linux
+
+ip #ip command
+ip addr show etho0	#
+ping -c5 
+traceroute
+tracepath 
+netstat
+ss -a		# new version of netstat
+ss -at	#all tcp connection
+ss -atn #with port number
+
+ip -s link show eth0
+
+#network manager
+
+sudo ipconfig	#to config ip address
+sudo dhclient	#to get ned ip from dhcp server
+sudo systemctl restart network
+sudo /et
+ls /sys/class/net	#this will have network details
+
+##NMCLI
+nmcli (double tap it will show avilable options)
+	agent       device      help        networking
+	connection  general     monitor     radio
+nmcli connection
+nmcli agent
+nmcli device
+nmcli networking
+nmcli general
+nmcli monitor
+ncmli /dev/status
+ncmli con show
+ncmli device show ens33
+nmcli con down  
+
+##network manager hostname
+by default system will look for entry in host file, and then dns server if u want to change
+then update the order in the /etc/nsswitch.conf file
+**
+hosts: files dns myhostname
+**
+
+search mydomain.com	#is keyword added in resolve.conf file so that it will append the mydomian.com to the entry
+srv.mydomain.com	#without search
+srv			#with search	
+getent hosts google.com	#this will return google.com host name
+
+#Scheduling AT and Cron
+## At
+at
+atrm 1 #to remove the jobs using job name
+atq	#to display the jobs
+at.deny   #if user is specfied in this file the user is not allowed u to use at command
+at.allow  #all user execpt the user specfied in the file do not have permission to execute at command
+if at.allow file exist then the user which is specfied in this file is only allowed to use at commands
+journalctl -xn # to c job executed status 
+
+## Cron job
+
+crontab utility that allows us to edit users cron , regular user can schedul ther crons
+however system cron is configure in /etc/cron. 
+we donot use crontab file in /etc/crontab in new rhel
+
+annacron #is utility that allows us to run the job which is not run(missied oppturinity) for defined days
+
+
+# starting and stoping of service
+
+systemctl status httpd
+systemctl start httpd
+systemctl enable httpd
+systemctl restart httpd
+systemclt is-enabled httpd
+systemctl unit-files
+systemctl get-defaults
+
+#configure system to boot into specfic targets
+
+#kickstart server
+
+kickstart.cfg
+yum install system-config-kickstart 	#this will start gui based kickstart config tool
+
+#system date and time
+
+timedatectl		#gives info about date time
+timedatectl set-ntp true/false
+timedatectl list-timezone
+tzselect 	#to search for timezone
+timedatectl set-timezone asia/kolkata
+timedatectl set-time 12:30 PM
+
+#Ntp
+yum install chrony
+chronyd			#ntp deamon
+chronyc sources -v 	#to get list of servers that communicate to get time
+ms | name/ip | startum  | poll | reach | lastrx | last | sample |
+
+startum: number of hops it takes to reach server
+chronyc tracking
+
+/etc/chrony.conf # chrony setting file be located here
+
+
+#rpm ,yum
+insted of updating all packages , check package need to be update and update the same 
+yum list installed
+yum provides /var/www	#to check which package created this directory
+yum repolist all
+yum-config-manager --add-repo=<repo>
+yum-cionfig-manager --disable jenkins
+yum-config-managet --enable jenkins
+
+
+## rpm  #it installs 
+rpm -qa 		# to query the package
+rpm -ivh		# i for install, v for verbose h to show progress bar
+rpm -e 			# to remove package
+
+## local repo , how to use dvd iso rpo
+
+setp1: mount -o loop rhel-server-7.1.x86_64-dvd.iso /repos/local  #mount the dvd iso 
+step2: 			#extract from dvd
+step3: create local-repo
+[local-repo]
+name=red hat linux local repo
+baseurl=file:///repo/local
+enable=1
+gpgcheck=0
+
+### gpgkey is importat so that u can verfiy the repo is valid repo
+
+
+# update the kernal package
+
+uname -r
+yum install kernal 
+yum clean
+yum list kernal		# showl liist of installed and update kernal 
+
+installing kernal using rpm
+yumdownloader kernel
+yum install linux-firmware
+rpm -ivh kernal
+
+
+# changing diffrent kernel, modifiy the bootloader to point to diffrent kernel 	
+
+step1:yum list kernel	#check for list of kernel avilable	
+step2: grug2-set-default 0 or 1 or 3 #by default 0 is most recent version 
+
+# create delete and modifiy the usesr
+
+id
+root user has id=0
+useradd thiru 
+usermod -U thiru
+usermod -u <user-id> thiru #to change user id
+useradd -u 1050 -d /home/thiru
+userdel -r or -f
+/etc/default/userdd		#this file consist of default value for user like(group,home,inactive,expire,shell,skel,create_mail_spool)
+
+usermod -s /sbin/nologin  thiru #changing user to nologin
+usermod -e 			#wexperiation date
+chage -l <user>		#will display the passwd details 
+chage -E		#EXPERATION
+
+## creating goup
+groupadd # to create new group
+getent group #list all groups in the system
+cat /etc/gshadow	#to view group details
+getent group thiru	#it returns all of the group the user belongs to
+groups <users>		#displays primary and supplimentry group
+usermod -g <primary grou> <user> # this will change primary group of user
+groupmod -n		#to change the group name etc
+groupmod -g		#to chage group id
+groupdel <group>	#deleteing group u cannot the delete the group which is primary to another user
+
+# Set Gid / SGID
+
+when ever user create a file in group directory then if file has his own permission then
+other will not be able to access it so, in order to over come this we use sgbit
+when sbit is set file inherites the parrent directory permission 
+
+dhmod g+s <directory>
+#configure system to use existing authentication
+connecitng for single sign on	
+
+# connecting ad to linux
+
+yum install realmd 
+
+#firewall 
+yum install firewalld firewall-config
+systemctl start firewalld
+systemctl enable firewalld
+
+firewalld has two type 
+1)runtime changes: changes made at this level(run level change) will not be
+ persistant
+2) to make persistant use --permanent and the --reload firewall
+
+firewall-cmd
+firewall always groups inside a zone,each zone can be configured 
+firewall-cmd --get-zones
+firewall-cmd --zone=public --permanent --add-port=80/tcp
+firewall-cmd --reload
+firewall-cmd --list-all
+firewall-cmd --set-default-zone=internal
+firewall-cmd --get-default-zone
+firewall-cmd --list-all-zones
+firewall-cmd --set-default-zone=internal
+firewall-cmd --get-default-zone
+firewall-cmd --get-zone-of-interface=enp0s3  #To check zone in which interface is bounded
+
+Services are set of rules with ports and options which is used by Firewalld. 
+Services which are enabled, will be automatically loaded when the Firewalld service 
+up and running. By default, many services are available, to get the list of all 
+available services, use the following command.
+
+cd /usr/lib/firewalld/services/		# To get the list of all the default available services,
+
+firewall-cmd --get-service
+firewall-cmd --add-service=rtmp
+firewall-cmd --zone=public --remove-service=rtmp
+firewall-cmd --add-service=rtmp --permanent
+firewall-cmd --reload
+firewall-cmd --permanent --add-source=192.168.0.0/24
+firewall-cmd --permanent --add-port=1935/tcp
+firewall-cmd --reload 
+firewall-cmd --list-all
+
+Adding Rich Rules for Network Range
+
+firewall-cmd --add-rich-rule 'rule family="ipv4" source address="192.168.0.0/24" service name="http" accept' 
+ firewall-cmd --add-rich-rule 'rule family="ipv4" source address="192.168.0.0/24" service name="http" accept' --permanent
+
+ firewall-cmd --add-rich-rule 'rule family="ipv4" source address="192.168.0.0/24" service name="https" accept'
+ firewall-cmd --add-rich-rule 'rule family="ipv4" source address="192.168.0.0/24" service name="https" accept' --permanent
+
+ firewall-cmd --add-rich-rule 'rule family="ipv4" source address="192.168.0.0/24" service name="vnc-server" accept'
+ firewall-cmd --add-rich-rule 'rule family="ipv4" source address="192.168.0.0/24" service name="vnc-server" accept' --permanent
+
+ firewall-cmd --add-rich-rule 'rule family="ipv4" source address="192.168.0.0/24" service name="postgresql" accept'
+ firewall-cmd --add-rich-rule 'rule family="ipv4" source address="192.168.0.0/24" service name="postgresql" accept' --permanent
+
+
+# selinux
+getenforce
+setenforce
+cd /etc/selinux
+ls -Z			#will display context
+use Z to display the selinux context
+pa auxZ
+restorecon index1.php		#use this it resotre the context on the file/folder
+
+by default wen u configure selinux all file system are labeld, if u want to force a relable file/directory u need to make 
+sure the .autorelable is present in root directory
+semanage fcontext -l	#waht context 
+chon #to set context manually
+semanage fcontext -a httpd_sys_conten_t '/content(/.*)?'		#-a means add , -t for type type context,
+
+
+
+
+##LOG ROTATE
+logrotate is designed to easy admin of systems that generate large number of log files.
+normaly logrotate is run as cronjob that is daily /etc/cron.daily
+logrotate can done based on follwoing criteria
+1)based on log file size
+2)time base log rotation
+3)compress old log files
+4)clean log files which are matching log rotation rule
+5)create new files after log rotate
+
+
+cat /etc/cron.daily/logrotate		#logrotate script
+/etc/logrotate.d			#logrotate file will be in this loctaion
+
+if u want create a custom logrotate script then u can create script and place it in /etc/logrotate.d
+**
+/tmp/log/*.log{
+	create 0644 root	#set owner permission
+	daily			#Running daily
+	missingok		#if no log file then dont rise ny error
+	rotate 4		#keep 4 log files
+	compress		#compress log file
+	notifempty		#if log file is empty then dont rise erro
+	postrotate		#after rote run this script
+		/scripts/backuplog.sh	
+	endscript
+}
+
+to execute created file 
+logrotate -f /etc/lograte.conf
+
+
+
+##epel repositary
+
+##recovery deleted files on linux
+testdisk #is free datarecovery software 
+VI
+
+press following in command mode
+#d to delete the line
+#y copy the line	
+# shift+g		#to navigate to top
+# shift+G		#to navigate to bottom
+# cc will remove the line and will go to insert mode
+
+Swap Memory
+q)understanding swap memory
+
+Swap is a space on a disk that is used when the amount of physical RAM memory is full. When a Linux system runs out of RAM, inactive pages are moved from the RAM to the swap space.
+Swap space can take the form of either a dedicated swap partition or a swap file. In most cases, when running Linux on a virtual machine, a swap partition is not present,
+ so the only option is to create a swap file.
+
+sudo dd if=/dev/zero of=/swapfile bs=1024 count=1048576
+sudo chmod 600 /swapfile
+sudo mkswap /swapfile
+sudo swapon /swapfile
+/swapfile swap swap defaults 0 0 # add this in /etc/fstab
+sudo swapon --show
+sudo swapoff -v /swapfile
+sudo rm /swapfile
+
+Reboot
+## reboot/shutdown/boot
+
+/usr/lib/systemd/system		#where all systme target files are located here, system will first check this dir
+/etc/systemd/system    		#its additional config file like apache,custom config fiel
+we will have default.target symlink in thid dir so wen ever this target is changed this symlink is updated
+
+shutdown -r +5	will reboot in 5min	#number of miniutes t wait before reboot this will send wall message
+shutdown -c 		#to cancel reboot
+w		# to check who is login
+shutdown -r 00:00		#schedulet to reboot at nite 12 oclk
+systemctl halt/halt/shutdown -h /shutdown -h now  #shutdown command
+Boot Process
+Boot Porcess?
+
+1. BIOS
+BIOS stands for Basic Input/Output System
+Performs some system integrity checks
+Searches, loads, and executes the boot loader program.
+It looks for boot loader in floppy, cd-rom, or hard drive. You can press a key (typically F12 of F2, but it depends on your system) during the BIOS startup to change the boot sequence.
+Once the boot loader program is detected and loaded into the memory, BIOS gives the control to it.
+So, in simple terms BIOS loads and executes the MBR boot loader.
+2. MBR
+MBR stands for Master Boot Record.
+It is located in the 1st sector of the bootable disk. Typically /dev/hda, or /dev/sda
+MBR is less than 512 bytes in size. This has three components 1) primary boot loader info in 1st 446 bytes 2) partition table info in next 64 bytes 3) mbr validation check in last 2 bytes.
+It contains information about GRUB (or LILO in old systems).
+So, in simple terms MBR loads and executes the GRUB boot loader.
+3. GRUB
+GRUB stands for Grand Unified Bootloader.
+If you have multiple kernel images installed on your system, you can choose which one to be executed.
+GRUB displays a splash screen, waits for few seconds, if you don’t enter anything, it loads the default kernel image as specified in the grub configuration file.
+GRUB has the knowledge of the filesystem (the older Linux loader LILO didn’t understand filesystem).
+Grub configuration file is /boot/grub/grub.conf (/etc/grub.conf is a link to this). The following is sample grub.conf of CentOS.
+#boot=/dev/sda
+default=0
+timeout=5
+splashimage=(hd0,0)/boot/grub/splash.xpm.gz
+hiddenmenu
+title CentOS (2.6.18-194.el5PAE)
+          root (hd0,0)
+          kernel /boot/vmlinuz-2.6.18-194.el5PAE ro root=LABEL=/
+          initrd /boot/initrd-2.6.18-194.el5PAE.img
+As you notice from the above info, it contains kernel and initrd image.
+So, in simple terms GRUB just loads and executes Kernel and initrd images.
+4. Kernel
+Mounts the root file system as specified in the “root=” in grub.conf
+Kernel executes the /sbin/init program
+Since init was the 1st program to be executed by Linux Kernel, it has the process id (PID) of 1. Do a ‘ps -ef | grep init’ and check the pid.
+initrd stands for Initial RAM Disk.
+initrd is used by kernel as temporary root file system until kernel is booted and the real root file system is mounted. It also contains necessary drivers 
+compiled inside, which helps it to access the hard drive partitions, and other hardware.
+5. Init
+Looks at the /etc/inittab file to decide the Linux run level.
+Following are the available run levels
+0 – halt
+1 – Single user mode
+2 – Multiuser, without NFS
+3 – Full multiuser mode
+4 – unused
+5 – X11
+6 – reboot
+Init identifies the default initlevel from /etc/inittab and uses that to load all appropriate program.
+Execute ‘grep initdefault /etc/inittab’ on your system to identify the default run level
+If you want to get into trouble, you can set the default run level to 0 or 6. Since you know what 0 and 6 means, probably you might not do that.
+Typically you would set the default run level to either 3 or 5.
+6. Runlevel programs
+When the Linux system is booting up, you might see various services getting started. For example, it might say “starting sendmail …. OK”. Those are the runlevel programs, executed from the run level directory as defined by your run level.
+Depending on your default init level setting, the system will execute the programs from one of the following directories.
+Run level 0 – /etc/rc.d/rc0.d/
+Run level 1 – /etc/rc.d/rc1.d/
+Run level 2 – /etc/rc.d/rc2.d/
+Run level 3 – /etc/rc.d/rc3.d/
+Run level 4 – /etc/rc.d/rc4.d/
+Run level 5 – /etc/rc.d/rc5.d/
+Run level 6 – /etc/rc.d/rc6.d/
+Please note that there are also symbolic links available for these directory under /etc directly. So, /etc/rc0.d is linked to /etc/rc.d/rc0.d.
+Under the /etc/rc.d/rc*.d/ directories, you would see programs that start with S and K.
+Programs starts with S are used during startup. S for startup.
+Programs starts with K are used during shutdown. K for kill.
+There are numbers right next to S and K in the program names. Those are the sequence number in which the programs should be started or killed.
+For example, S12syslog is to start the syslog deamon, which has the sequence number of 12. S80sendmail is to start the sendmail daemon, which has the sequence number of 80. So, syslog program will be started before sendmail.
+---------------------------------------------------------
+q) to change from old to new kernel for initial boot
+
+check the gru2.cfg file 
+awk -F\' '$1=="menuentry " {print $2}' /etc/grub2.cfg
+
+grub2-set-default 3
+grub2-mkconfig -o /boot/grub2/grub.cfg
+shutdown -r now
+
+q) how to recover grub failure?
+https://www.youtube.com/watch?v=z047gbYCiWo&feature=youtu.be
+Reinstalling the Boot Loader
+
+when grub file is removed/damaged then system will not boot so and it ll go to 
+grub console
+grub>
+	exit from grub console	#when u type exit it will take it to maintenance mode
+	go to maintenance mode
+	set boot from cd/dvd/usb
+	then go to rescue centos filesystem> then it will open rescue mode
+	then select option to rescue more (1)
+	chroot /mtn/sysimage	#to change the console as root enviroment 	
+	grub2-install /dev/sda
+	grub2-mkconfig -o /boot/grub2/grub.cfg
+
+Boot the system from an installation boot medium.
+Type linux rescue at the installation boot prompt to enter the rescue environment.
+Type chroot /mnt/sysimage to mount the root partition.
+Type /sbin/grub-install bootpart to reinstall the GRUB boot loader, where bootpart is the boot partition (typically, /dev/sda).
+Review the /boot/grub/grub.conf file, as additional entries may be needed for GRUB to control additional operating systems.
+Reboot the system.
+
+
+mount |grep -i ^dec
+
+q)reseting root password
+
+boot the system in rescuemode/recovery mode and 
+go to shell
+now the system will be read mode to enable it in write mode
+moune -o rw,remount/
+passwd
+shutdown -r
+
+q)inode
+https://www.slashroot.in/inode-and-its-structure-linux#:~:text=Whenever%20a%20user%20or%20a,found%20from%20the%20inode%20table.
+
+```
 
