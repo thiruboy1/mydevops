@@ -998,9 +998,12 @@ The CPU limit total for all Containers must not exceed 2 cpu.
             kubectl create -f lion.yaml 
                         
   ## Daemone Sets
-    Daemone set will make sure that service is running on all nodes
-    A DaemonSet ensures that on copy pos runs on  all nodes in cluster, As nodes are added to the cluster, Pods are added to them. As nodes are removed from the cluster, those Pods are garbage collected. Deleting a DaemonSet will clean up the Pods it created
-  
+Daemone set will make sure that service is running on all nodes
+A DaemonSet ensures that on copy pos runs on  all nodes in cluster, As nodes are added to the cluster, Pods are added to them. As nodes are removed from the cluster, those Pods are garbage collected. Deleting a DaemonSet will clean up the Pods it created.
+How Daemone Sets Works:
+before 1.12 kubernetes sets the node name property on the pods, so that it will get placed on the nodes and after 1.12 daemon sets uses nodeaffinity 
+    
+```
             apiVersion: apps/v1
             kind: DaemonSet
             metadata:  
@@ -1026,6 +1029,7 @@ The CPU limit total for all Containers must not exceed 2 cpu.
             metadata:
                 name: elasticsearch
                 namespace: kube-system
+```                
 ## Static Pods
  * kublete is service installed in nodes , this kubelet can operate even without kube master, in order to run kubelet without master u need to place yaml file in /etc/kubernetes/manifestes/. now kublete will check for update in this location if any update kubelet will update the same in pod.
  * note: node name is appended and end of  static pod name eg:  kube-apiserver-master,kube-controller-manager-master,kube-scheduler-master &etcd-master
