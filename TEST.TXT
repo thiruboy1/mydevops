@@ -1,0 +1,125 @@
+Thirumalaivasan. T
+CONTACT
+Address:
+Nava Nivas Apartment, #302 4th floor Begur Cross Road Bangalore
+Phone:
++91 9566245003
+Email:
+Thiruboy1@gmail.com
+EDUCATION
+Bachelor of Engineering in
+Electronics & Communication
+CARRER OBJECTIVE
+Having 9+ Years of experience in IT industry and with 7 years of experience as DevOps Engineer, Build & Release Engineer in Linux environment
+CERTIFICATION
+ Certified AWS Solution Architect
+ Certified Kubernetes Administrator (CKA)
+Technical SUMMARY
+• Extensively worked with automation tools like Jenkins to implement end to end automation
+• Extensively worked with version control system like GIT
+• Extensively worked build tools like Maven for building java based applications & artifacts such as WAR & EAR from source code
+• Administration and creation of individual Jenkins jobs, configuring jobs, master slaves and managing security in Jenkins
+• Creating/Managing Projects in Jenkins to spin Virtual Servers in AWS
+• Implemented AWS Cloud platform and its feature which includes EC2,Route53,S3,EBS,VPC,ELB,IAM,Cloud Watch, CloudFront.
+• Good Knowledge on securing VPC using security groups, Network Access Control List and Routing Tables and configuration of network architecture on AWS with VPC, Subnets, IGW,NAT and Route Table. • Responsible for implementing monitoring solutions in Ansible, and Terraform.
+• Automate the Linux/Cloud Infrastructure by using Terraform, Ansible, python & shell script
+• Experienced in working with container-based deployments using Docker. Working with Docker images, Docker hub and Docker registries.
+• Strong understanding of infrastructure automation using Docker and Ansible
+• Used Kubernetes to orchestrate the deployment, scaling & management of Docker container
+• Good hands on experience in Docker creating Docker images and Docker containers
+• Experience in installation of DevOps tools and administration of Jenkins, Tomcat on Linux
+• Extensively worked with Python, Django & Django Rest Framework
+• Monitoring Production Servers by Nagios
+Technical Skills
+CI/CD Tools
+Jenkins
+Version Control System
+GIT
+Build
+Maven
+Containerization Tool
+Docker
+Orchestration Tool
+Kubernetes
+Configuration Management Tool
+Ansible
+Cloud Platform
+AWS Amazon Web Services,(EC2,Route53,S3, EBS,VPC,ELB,IAM,Cloud Watch,) Provisioning Tools
+Terraform
+Primary Language
+Python
+Framework
+Django
+IDE
+PyCharm
+Webserver
+Apache and Nginx
+Database
+SQL Server, MySQL
+Operating System Windows, CentOS Networking Protocols TCP\IP, SSH, Web Technologies Django Rest framework
+PROJECTS UNDERTAKEN
+ Sun Playout Automation
+ Video Content Management System
+ Admin Utility Dashboard
+Operating System
+Windows, CentOS
+Networking Protocols
+TCP\IP, SSH,
+Web Technologies
+Django Rest framework
+WORK EXPERIENCE
+• Working with SunTV Network Limited as Senior IT Consultant from November 2012 to till date
+• Worked with BNB security & Automation as Server Administrator from March 2011 – September 2012
+Tools used: GIT, Jenkins, Maven, Docker, Ansible, AWS (EC2,Route53,S3,IAM. etc) Apache Tomcat & CentOS
+Overview: This Tool Allows marketing Team to book ads Spots
+Role:
+ Implemented Continuous Delivery Pipeline with Git, Jenkins, Docker & Tomcat
+ Used version control system GIT to access the repositories and used in coordinating with CI tools
+ Used the continuous integration (CID) tool Jenkins for automating build processes
+ Developed Build and deployment using maven and Jenkins
+ Whenever new branch is GitHub branches are created Jenkins automatically attempts to build a new Docker container from it
+ Created Docker files and build images and pushed to the Docker private registry
+Tools used: GIT, Jenkins, Maven, AWS (EC2,Route53,S3,IAM. etc,) Apache Tomcat, SSH & CentOS
+Overview: This Tool Allows Telecine Team to check video quality and color correction on videos
+Role:
+ Involved in installing and configuring GIT distributed version control tool
+ Good hands on with build tool Maven
+ Set up Jenkins server and build jobs to provide continuous automated builds base on polling the GIT
+ Good hands experience with CI tool like Jenkins
+ Debugging build failures, coordinating with developers and testers to resolve related issues
+Tools used: Python Django, RabbitMQ, AWS, Linux, Html, ChartsJS & CSS
+Overview : Admin Utility Dashboard used by Top management to analyze efficient usage of Link Lines, PRI, Mobility & Utility’s. This tool allows user to upload pdf bills from across regions, and collects data from pdf and upload to MySQL DB
+Role
+ Design and architecture of entire project.
+ Developed using Django which will fetch data from pdf and upload to Database and represents in UI,
+ Setup RabbitMQ and used python pika module to run the jobs asynchronously
+ Updated Chart data using Django Rest API
+ Deployed the code on AWS(EC2,Route53,VPC,RouteTables & Cloud Watch)
+ Global Morning checks
+ Reboot as service
+Cisco Mediator
+DECLARATION
+Tools used: Django, Python, RabbitMQ & MySQL
+Global morning checks is a tool used by admin teams to report the health checks of servers across the regions. This tool also
+enables a unified view of health checks of various infrastructure devices.
+Role :
+• Design and architecture of entire project.
+• Frontend was developed using Django, HTML, CSS & JS
+• Use of python parallessh module to achieve parallelism
+• Setup RabbitMQ and used python pika module to run the jobs asynchronously
+Tools used: Python, RabbitMQ, MySql
+Overview : This Projects aims to enable reboot of servers as a service which can be used by various tools like patching, maintenance. Reboot as a service is used to suppress alerts and reboot multiple servers across all the regions, Entire operation is asynchrous in nature
+Role :
+• Entire Rebootaas architecture and database design.
+• Develop and deploy code in production. Use of parallessh module to achieve parallelism of server reboots.
+• Setup RabbitMQ and used python pika module to run the jobs asynchronously
+Tools Used: Cisco Config Tool, python, Putty, Winscp, xml, HTTP, CSS & JS Overview: Mediator is a network-based framework, which allows the convergence of multiple disparate building systems onto an IP network, resulting in improved efficiency and greater energy savings.
+Role:
+ Installing and configuring the DNS,DHCP servers and assigning IP address to mediators and controllers
+ Managing groups and user accounts
+ Creating xml points
+ Mapping xml points with cisco config tool
+ Running shell script and cron jobs to take backup based on business
+I hereby declare that the above information furnished is true to the best of my knowledge.
+Place: Bangalore
+Date: Thirumalaivasan. T
