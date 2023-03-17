@@ -1,0 +1,48 @@
+#Steps To create SNA.cnf
+"""
+[req]
+distinguished_name = req_distinguished_name
+req_extensions = v3_req
+prompt = no
+
+[req_distinguished_name]
+CN = your-device-identifier
+
+[v3_req]
+subjectAltName = @alt_names
+
+[alt_names]
+DNS.1 = your-device-identifier
+
+"""
+
+#Steps to create CA
+openssl genrsa -out ca.key 2048
+openssl req -new -x509 -key ca.key -out ca.crt -days 365
+
+
+#Steps To create Clinet Crt and key
+openssl genrsa -out client.key 2048
+openssl req -new -key client.key -out client.csr -config san.cnf
+
+#Sign the CSR with the CA certificate to generate a client certificate:
+openssl x509 -req -in client.csr -CA ca.crt -CAkey ca.key -CAcreateserial -out client.crt -days 365
+openssl x509 -in client.crt -text -noout
+
+
+openssl genrsa -out client.key 2048
+openssl req -new -key client.key -out client.csr -config san.cnf
+openssl x509 -req -in client.csr -CA rootCA.crt -CAkey rootCA.key -CAcreateserial -out client.crt -days 365
+
+
+
+
+
+
+
+aws iot register-ca-certificate --ca-certificate file://rootCA.cert --certificate-mode SNI_ONLY
+aws iot update-ca-certificate --certificate-id c245b2956e0de0501504ae4b3b29d427884322d13c5f0e23fe38ea1a8b8c8562 --new-status ACTIVE
+
+#endpoint: a3tjhwbszeevie-ats.iot.us-east-1.amazonaws.com
+#https://docs.aws.amazon.com/iot/latest/developerguide/auto-register-device-cert.html
+#https://aws.amazon.com/blogs/iot/just-in-time-registration-of-device-certificates-on-aws-iot/
